@@ -206,10 +206,8 @@ function shuttleBlock(){
   const sorted = sortList(SH);
   if(n===1){ return callCard(sorted[0],'sh'); }
   if(!state.expanded){
-    return `<div class="sgroup">
-      ${callCard(sorted[0],'sh')}
-      <div class="expand" data-toggle>🚐 셔틀 ${n-1}건 더 있어요 <span class="cv">모두 보기 ⌄</span></div>
-    </div>`;
+    // 대표 콜(독립 카드) + 토글 버튼(둥근 독립 버튼) — 펼침의 '접기'와 동일 모양
+    return `${callCard(sorted[0],'sh')}<div class="expand solo" data-toggle>🚐 셔틀 ${n-1}건 더 있어요 <span class="cv">모두 보기 ⌄</span></div>`;
   }
   // 펼치면 각 셔틀 콜은 독립 콜 카드(각자 모서리·간격)로 보이고, 끝에 접기 버튼
   const cards = sorted.map(c=>callCard(c, 'sh')).join('');
