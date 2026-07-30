@@ -69,6 +69,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .expand{display:flex;align-items:center;gap:.45em;flex-wrap:wrap;min-height:2.9em;padding:.75em .85em;
   background:var(--btn);border:1px solid var(--btnln);border-left:.26em solid var(--blue);border-top:0;
   border-radius:0 0 .75em .75em;color:var(--txt);font-weight:800;font-size:.92em;cursor:pointer;text-align:left}
+.expand.solo{border-top:1px solid var(--btnln);border-radius:.75em}
 .expand .cv{margin-left:auto;font-size:1.2em;color:var(--sh)}
 
 .rownote{display:flex;align-items:center;gap:.5em;flex-wrap:wrap;min-height:2.7em;padding:.75em .85em;
@@ -210,8 +211,9 @@ function shuttleBlock(){
       <div class="expand" data-toggle>🚐 셔틀 ${n-1}건 더 있어요 <span class="cv">모두 보기 ⌄</span></div>
     </div>`;
   }
-  const cards = sorted.map((c,i)=>callCard(c, 'sh'+(i>0?' mid':''))).join('');
-  return `<div class="sgroup">${cards}<div class="expand" data-toggle>🚐 셔틀 접기 <span class="cv">⌃</span></div></div>`;
+  // 펼치면 각 셔틀 콜은 독립 콜 카드(각자 모서리·간격)로 보이고, 끝에 접기 버튼
+  const cards = sorted.map(c=>callCard(c, 'sh')).join('');
+  return `${cards}<div class="expand solo" data-toggle>🚐 셔틀 접기 <span class="cv">⌃</span></div>`;
 }
 
 function render(){
