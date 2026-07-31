@@ -32,8 +32,8 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .hdr{display:flex;align-items:stretch;gap:.3em;border-bottom:1px solid var(--line);flex:none;padding:0 .5em}
 .hdr .bk,.hdr .act{display:flex;align-items:center;color:var(--sub);cursor:pointer;font-size:.92em;padding:0 .3em}
 .hdr .bk{font-size:1.15em;color:var(--txt)}
-.hdr .ptabs{display:flex;flex:1;justify-content:center;gap:.3em;min-width:0}
-.hdr .ptabs button{font-family:var(--kr);font-weight:800;font-size:1em;color:var(--sub);background:transparent;border:0;border-bottom:3px solid transparent;padding:.75em .5em .6em;cursor:pointer;white-space:nowrap}
+.hdr .ptabs{display:flex;flex:1;gap:.2em;min-width:0}
+.hdr .ptabs button{flex:1;font-family:var(--kr);font-weight:800;font-size:1.05em;color:var(--sub);background:transparent;border:0;border-bottom:3px solid transparent;padding:.85em .3em .65em;cursor:pointer;white-space:nowrap}
 .hdr .ptabs button.on{color:var(--txt);border-bottom-color:var(--blue)}
 .hdr .acts{display:flex;align-items:center;gap:.1em}
 
@@ -97,7 +97,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
   <p style="margin:0 0 10px"><a href="index.html" style="color:#5b93ff;font-size:13px;text-decoration:none">← 방식 목록</a></p>
   <div class="head">
     <h1>🚐 헤더탭 + 전체/셔틀 하이브리드 <span style="font-family:var(--mono);font-size:11px;color:var(--btnln)">TADA-9317</span></h1>
-    <p>헤더에 1차 탭(수락가능 콜/내 예약) 내장 · 그 아래 2차 세그먼트(전체/셔틀). <b>전체</b>엔 대표 셔틀 1건만, <b>셔틀</b> 탭에 전체 200건. 스크롤 최하단→다음 페이지 로딩.</p>
+    <p>헤더에 1차 탭(수락가능 콜/내 예약) 내장 · 그 아래 2차 세그먼트(전체/셔틀). <b>전체</b>엔 대표 셔틀 1건만, <b>셔틀</b> 탭에 전체 200건. 스크롤 최하단→다음 페이지 로딩. 새로고침 버튼은 제거 → <b>‘수락가능 콜’ 탭을 다시 탭</b>(+당겨서 새로고침)으로 새로고침.</p>
   </div>
   <div class="ctrl">
     <span class="lbl">글씨</span>
@@ -159,7 +159,7 @@ function render(){
         <button data-ptab="accept" class="${state.ptab==='accept'?'on':''}">수락가능 콜</button>
         <button data-ptab="my" class="${state.ptab==='my'?'on':''}">내 예약</button>
       </div>
-      <div class="acts"><span class="act" data-refresh>↻</span><span class="act">ⓘ</span></div>
+      <div class="acts"><span class="act">ⓘ</span></div>
     </div>`;
   let seg='', list='';
   if(state.ptab==='my'){
@@ -204,7 +204,7 @@ function loadMore(){
 }
 
 document.getElementById('scr').addEventListener('click',e=>{
-  const pt=e.target.closest('[data-ptab]'); if(pt){ state.ptab=pt.dataset.ptab; state.seg='all'; resetPaging(); render(); return; }
+  const pt=e.target.closest('[data-ptab]'); if(pt){ if(pt.dataset.ptab===state.ptab){ if(state.ptab==='accept') doRefresh(); return; } state.ptab=pt.dataset.ptab; state.seg='all'; resetPaging(); render(); return; }
   const sg=e.target.closest('[data-seg]'); if(sg){ state.seg=sg.dataset.seg; resetPaging(); render(); return; }
   if(e.target.closest('[data-nav]')){ state.seg='shuttle'; resetPaging(); render(); toast('셔틀 전체 목록'); return; }
   if(e.target.closest('[data-refresh]')){ doRefresh(); return; }
