@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>셔틀 접기 프로토타입 · TADA-9317</title>
+<style>
+:root{
+  --page:#0c1526; --nv:#0f1c37; --card:#1a2c50; --line:#2b4067; --txt:#f2f6ff; --sub:#a7b8d6;
+  --blue:#3d7bff; --btn:#1b3e79; --btnln:#5b93ff; --sh:#bcd3ff; --mult:#c7ef4c;
+  --badge:#334870; --badgetx:#cdd9f2; --imm:#8a3a58; --immtx:#ffb0c6; --shbadge:#234f96; --shbadgetx:#cfe0ff;
+  --good:#4bd090; --bad:#e56a52; --muterow:#141f38; --orange:#ff7a1a;
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  --kr:"Apple SD Gothic Neo","Pretendard",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line-height:1.5}
+.app{max-width:900px;margin:0 auto;padding:18px 16px 40px}
+.head{margin-bottom:14px}
+.head h1{font-size:18px;margin:0 0 3px;letter-spacing:-.02em}
+.head p{margin:0;color:var(--sub);font-size:12.5px}
+
+/* control panel */
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0 16px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#0e1c38}
+.ctrl .grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.ctrl .lbl{font-size:11px;color:var(--sub);font-family:var(--mono);margin-right:2px}
+.ctrl button{font-family:var(--kr);font-size:12px;color:var(--sub);background:transparent;border:1px solid var(--line);border-radius:999px;padding:5px 11px;cursor:pointer}
+.ctrl button.on{color:#fff;background:var(--btn);border-color:var(--btnln)}
+.ctrl .sep{width:1px;height:20px;background:var(--line);margin:0 4px}
+
+/* phone */
+.stage{display:flex;justify-content:center}
+.phone{width:100%;max-width:390px;background:#0a1428;border:1px solid var(--line);border-radius:26px;padding:8px;box-shadow:0 18px 50px rgba(0,0,0,.4)}
+.scr{background:var(--nv);border:1px solid var(--line);border-radius:19px;overflow:hidden;display:flex;flex-direction:column;height:720px;font-size:14px;position:relative}
+.scr.big{font-size:19px}
+.sb{height:1.4em;background:#0b1730;flex:none}
+.ab{padding:.7em .85em;font-weight:800;display:flex;align-items:center;gap:.5em;border-bottom:1px solid var(--line);flex:none}
+.ab .bk{font-size:1.1em}.ab .sp{flex:1}.ab .rf,.ab .i{color:var(--sub);font-weight:600;font-size:.8em;cursor:pointer}
+.ab .rf{border:1px solid var(--line);border-radius:999px;padding:.25em .6em}
+.tabs{display:flex;font-size:.92em;border-bottom:1px solid var(--line);flex:none}
+.tabs div{flex:1;text-align:center;padding:.7em 0;color:var(--sub);cursor:pointer}
+.tabs .on{color:var(--txt);font-weight:800;box-shadow:inset 0 -3px 0 var(--blue)}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.list{padding:.6em;display:flex;flex-direction:column;gap:.55em}
+
+.sortrow{display:flex;gap:.4em;font-size:.82em;color:var(--sub)}
+.sortrow .c{border:1px solid var(--line);border-radius:999px;padding:.3em .7em;cursor:pointer;background:transparent;color:var(--sub);font-family:var(--kr)}
+.sortrow .c.act{color:#fff;border-color:var(--btnln)}
+.sortrow .f{margin-left:auto}
+
+.call{background:var(--card);border-radius:.75em;padding:.72em;display:flex;gap:.6em;cursor:pointer;border:1px solid transparent}
+.call:active{border-color:var(--btnln)}
+.call.sh{border-left:.26em solid var(--blue)}
+.call.bundle{background:linear-gradient(135deg,#1a3f76,#1b2d54)}
+.call .lft{width:4.6em;flex:none}
+.call .lft b{font-weight:800}.call .lft span{display:block;font-size:.8em;color:var(--sub)}
+.call .rgt{flex:1;min-width:0}
+.call .route{font-size:.92em}
+.call .bd{display:flex;flex-wrap:wrap;gap:.3em;margin:.38em 0}
+.call .bd i{font-style:normal;font-size:.72em;background:var(--badge);color:var(--badgetx);border-radius:.4em;padding:.17em .5em}
+.call .bd i.im{background:var(--imm);color:var(--immtx)}
+.call .bd i.sb{background:var(--shbadge);color:var(--shbadgetx);font-weight:700}
+.call .pr{text-align:right;font-weight:800}
+.call .pr em{font-style:normal;color:var(--mult);font-size:.78em;font-weight:700;margin-right:.25em}
+
+.sgroup{display:flex;flex-direction:column}
+.sgroup .call.sh{border-radius:.75em .75em 0 0}
+.sgroup .call.sh.mid{border-radius:0}
+.expand{display:flex;align-items:center;gap:.45em;flex-wrap:wrap;min-height:2.9em;padding:.75em .85em;
+  background:var(--btn);border:1px solid var(--btnln);border-left:.26em solid var(--blue);border-top:0;
+  border-radius:0 0 .75em .75em;color:var(--txt);font-weight:800;font-size:.92em;cursor:pointer;text-align:left}
+.expand.solo{border-top:1px solid var(--btnln);border-radius:.75em}
+.expand .cv{margin-left:auto;font-size:1.2em;color:var(--sh)}
+
+.rownote{display:flex;align-items:center;gap:.5em;flex-wrap:wrap;min-height:2.7em;padding:.75em .85em;
+  border:1px solid var(--line);border-left:.26em solid #3a4f79;border-radius:.75em;background:var(--muterow);
+  color:var(--sub);font-weight:700;font-size:.9em}
+.rownote.err{border-left-color:var(--bad);color:#ffd9d1}
+.rownote .act{margin-left:auto;color:var(--btnln);cursor:pointer}
+.rownote.err .act{color:#ff9d8c}
+
+.spin{position:absolute;top:3.6em;left:0;right:0;display:flex;justify-content:center;pointer-events:none}
+.spin .ring{width:1.9em;height:1.9em;border-radius:50%;border:.22em solid var(--line);border-top-color:var(--blue);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.dimmed{opacity:.45;transition:opacity .2s}
+
+.sheetdim{position:absolute;inset:0;background:rgba(8,12,20,.4);opacity:0;pointer-events:none;transition:opacity .2s}
+.sheetdim.on{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#14203f;border-top:1px solid var(--line);border-radius:1.1em 1.1em 0 0;padding:.9em .9em 1.3em;transform:translateY(110%);transition:transform .22s ease}
+.sheet.on{transform:translateY(0)}
+.sheet h4{margin:.1em 0 .7em;font-size:.92em}
+.sheet .opt{font-size:.94em;padding:.8em .3em;border-bottom:1px solid var(--line);display:flex;gap:.6em;align-items:center;color:var(--sub);cursor:pointer}
+.sheet .opt.sel{color:var(--txt);font-weight:800}
+.sheet .opt .rd{width:1.15em;height:1.15em;border-radius:50%;border:2px solid #3a4f79;flex:none}
+.sheet .opt.sel .rd{border-color:var(--blue);background:radial-gradient(circle,var(--blue) 42%,transparent 46%)}
+
+.toast{position:absolute;left:50%;bottom:1.4em;transform:translateX(-50%) translateY(1em);opacity:0;transition:.2s;pointer-events:none;
+  background:#0b1830;border:1px solid var(--line);color:var(--txt);font-size:.82em;padding:.55em .9em;border-radius:999px;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.hint{color:var(--sub);font-size:11.5px;text-align:center;margin-top:12px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="head">
+    <h1>🚐 셔틀 접기 프로토타입 <span style="font-family:var(--mono);font-size:11px;color:var(--btnln)">TADA-9317</span></h1>
+    <p>‘수락가능 콜’ 탭. “모두 보기”로 펼치고, 정렬·새로고침을 눌러보세요. 시나리오/글씨 크기는 위에서 전환.</p>
+  </div>
+
+  <div class="ctrl">
+    <div class="grp"><span class="lbl">시나리오</span>
+      <button data-sc="normal" class="on">정상(9건)</button>
+      <button data-sc="one">셔틀 1건</button>
+      <button data-sc="zero">셔틀 0건</button>
+      <button data-sc="noperm">권한 없음</button>
+      <button data-sc="error">셔틀 실패</button>
+    </div>
+    <div class="sep"></div>
+    <div class="grp"><span class="lbl">글씨</span>
+      <button data-fs="0" class="on">기본</button>
+      <button data-fs="1">크게(sp)</button>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="phone"><div class="scr" id="scr">
+      <div class="sb"></div>
+      <div class="ab"><span class="bk">←</span> 예약콜 목록 <span class="sp"></span><span class="rf" id="btnRefresh">↻ 새로고침</span><span class="i">ⓘ</span></div>
+      <div class="tabs"><div class="on">수락가능 콜</div><div id="tabMy">내 예약</div></div>
+      <div class="scroll"><div class="list" id="list"></div></div>
+      <div class="spin" id="spin" style="display:none"><div class="ring"></div></div>
+      <div class="sheetdim" id="sheetdim"></div>
+      <div class="sheet" id="sheet">
+        <h4>정렬</h4>
+        <div class="opt" data-sort="추천순"><span class="rd"></span>추천순</div>
+        <div class="opt" data-sort="시간 임박순"><span class="rd"></span>시간 임박순</div>
+        <div class="opt" data-sort="배수 높은 순"><span class="rd"></span>배수 높은 순</div>
+      </div>
+      <div class="toast" id="toast"></div>
+    </div></div>
+  </div>
+  <p class="hint">데스크톱에선 폰 목업, 모바일에선 화면에 맞춰 보입니다 · 프로토타입(실데이터 아님)</p>
+</div>
+
+<script>
+const won = n => n.toLocaleString('ko-KR') + '원';
+const SH = [
+  {label:'오늘', time:'11:20', min:680, from:'성수동1가', to:'인천공항', price:85000, mult:2.0, imm:true},
+  {label:'오늘', time:'12:40', min:760, from:'성수동1가', to:'김포공항', price:72000, mult:1.8, imm:false},
+  {label:'오늘', time:'14:10', min:850, from:'성수동1가', to:'인천공항', price:90000, mult:2.1, imm:false},
+  {label:'오늘', time:'15:30', min:930, from:'왕십리', to:'인천공항', price:88000, mult:1.9, imm:false},
+  {label:'오늘', time:'16:00', min:960, from:'성수동2가', to:'김포공항', price:69000, mult:1.7, imm:false},
+  {label:'내일', time:'08:20', min:500, from:'답십리', to:'인천공항', price:95000, mult:2.3, imm:false},
+  {label:'내일', time:'09:10', min:550, from:'성수동1가', to:'인천공항', price:83000, mult:1.9, imm:false},
+  {label:'내일', time:'10:40', min:640, from:'금호동', to:'김포공항', price:70000, mult:1.6, imm:false},
+  {label:'내일', time:'13:00', min:780, from:'옥수동', to:'인천공항', price:91000, mult:2.0, imm:false},
+];
+const BUNDLE = {label:'오늘', time:'11:20', title:'3시간 40분 으로 183,900원', route:'성수동1가 → {N}건 예약 수행 → 인천공항', imm:true};
+const NORMAL = [
+  {label:'오늘', time:'11:20', min:680, from:'성수동1가', to:'인천국제공항', price:25000, mult:1.9, imm:true},
+  {label:'내일', time:'11:20', min:1400, from:'답십리1동', to:'성수동1가', price:81400, mult:null, imm:false},
+];
+
+const state = { scenario:'normal', expanded:false, sort:'추천순', big:false, refreshing:false };
+
+function sortList(arr){
+  const a = arr.slice();
+  if(state.sort==='시간 임박순') a.sort((x,y)=>x.min-y.min);
+  else if(state.sort==='배수 높은 순') a.sort((x,y)=>(y.mult||0)-(x.mult||0));
+  return a; // 추천순 = 원 순서
+}
+function shuttleCount(){
+  if(state.scenario==='zero'||state.scenario==='noperm'||state.scenario==='error') return 0;
+  if(state.scenario==='one') return 1;
+  return SH.length;
+}
+function callCard(c, cls){
+  const badges = `<i class="sb">셔틀예약</i>` + (c.imm?`<i class="im">임박</i>`:'');
+  const mult = c.mult ? `<em>↗${c.mult.toFixed(1)}배</em>` : '';
+  return `<div class="call ${cls}" data-detail="${c.from} → ${c.to}">
+    <div class="lft"><b>${c.label}</b><span>${c.time}</span></div>
+    <div class="rgt">
+      <div class="route">${c.from} → ${c.to}</div>
+      <div class="bd">${badges}</div>
+      <div class="pr">${mult}${won(c.price)}</div>
+    </div></div>`;
+}
+function normalCard(c){
+  const isBundle = c.bundle;
+  const badges = (c.badges||[]).map(b=> b==='임박'?`<i class="im">임박</i>`:`<i>${b}</i>`).join('');
+  const mult = c.mult ? `<em>↗${c.mult.toFixed(1)}배</em>` : '';
+  return `<div class="call ${isBundle?'bundle':''}" data-detail="${c.from||''}">
+    <div class="lft"><b>${c.label}</b><span>${c.time}</span></div>
+    <div class="rgt">
+      <div class="route">${c.from} → ${c.to}</div>
+      <div class="bd">${badges}</div>
+      <div class="pr">${mult}${won(c.price)}</div>
+    </div></div>`;
+}
+
+function shuttleBlock(){
+  const n = shuttleCount();
+  if(state.scenario==='noperm') return ''; // 셔틀 요소 미노출
+  if(state.scenario==='error') return `<div class="rownote err">🚐 셔틀을 불러오지 못했어요 <span class="act" data-retry>다시 시도 ↻</span></div>`;
+  if(n===0) return `<div class="rownote">🚐 지금 수락 가능한 셔틀이 없어요</div>`;
+  const sorted = sortList(SH);
+  if(n===1){ return callCard(sorted[0],'sh'); }
+  if(!state.expanded){
+    // 대표 콜(독립 카드) + 토글 버튼(둥근 독립 버튼) — 펼침의 '접기'와 동일 모양
+    return `${callCard(sorted[0],'sh')}<div class="expand solo" data-toggle>🚐 셔틀 ${n-1}건 더 있어요 <span class="cv">모두 보기 ⌄</span></div>`;
+  }
+  // 펼치면 각 셔틀 콜은 독립 콜 카드(각자 모서리·간격)로 보이고, 끝에 접기 버튼
+  const cards = sorted.map(c=>callCard(c, 'sh')).join('');
+  return `${cards}<div class="expand solo" data-toggle>🚐 셔틀 접기 <span class="cv">⌃</span></div>`;
+}
+
+function render(){
+  const scr = document.getElementById('scr');
+  scr.classList.toggle('big', state.big);
+  const bundle = {label:BUNDLE.label, time:BUNDLE.time, from:'성수동1가', to:'{N}건 예약 → 인천공항', price:183900, mult:null, imm:BUNDLE.imm, bundle:true, badges:['묶음예약'].concat(BUNDLE.imm?['임박']:[])};
+  const normals = sortList(NORMAL).map(c=>({...c, badges:(c.mult?['일반예약']:['일반예약'])}));
+  const listHtml =
+    `<div class="sortrow">
+       <button class="c act" data-opensheet>↕ ${state.sort}</button>
+       <button class="f c" data-filter>공항콜만 보기</button>
+     </div>`
+    + shuttleBlock()
+    + normalCard(bundle)
+    + normals.map(normalCard).join('');
+  document.getElementById('list').innerHTML = listHtml;
+}
+
+/* interactions */
+function toast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),1400);
+}
+document.getElementById('list').addEventListener('click', e=>{
+  const tog = e.target.closest('[data-toggle]');
+  if(tog){ state.expanded=!state.expanded; render(); return; }
+  const retry = e.target.closest('[data-retry]');
+  if(retry){ e.stopPropagation(); doRefresh(); return; }
+  const open = e.target.closest('[data-opensheet]');
+  if(open){ openSheet(); return; }
+  const flt = e.target.closest('[data-filter]');
+  if(flt){ toast('공항콜만 보기 (프로토타입)'); return; }
+  const call = e.target.closest('.call');
+  if(call){ toast('콜 상세로 이동 (프로토타입)'); }
+});
+
+function openSheet(){ document.getElementById('sheet').classList.add('on'); document.getElementById('sheetdim').classList.add('on'); syncSheet(); }
+function closeSheet(){ document.getElementById('sheet').classList.remove('on'); document.getElementById('sheetdim').classList.remove('on'); }
+function syncSheet(){ document.querySelectorAll('#sheet .opt').forEach(o=>o.classList.toggle('sel', o.dataset.sort===state.sort)); }
+document.getElementById('sheetdim').addEventListener('click', closeSheet);
+document.querySelectorAll('#sheet .opt').forEach(o=>o.addEventListener('click', ()=>{
+  state.sort=o.dataset.sort; closeSheet(); render(); toast('정렬: '+state.sort+' (접힘/펼침 유지)');
+}));
+
+function doRefresh(){
+  if(state.refreshing) return; state.refreshing=true;
+  document.getElementById('spin').style.display='flex';
+  document.querySelector('.scroll').classList.add('dimmed');
+  setTimeout(()=>{
+    state.refreshing=false;
+    document.getElementById('spin').style.display='none';
+    document.querySelector('.scroll').classList.remove('dimmed');
+    render(); toast('전체 새로고침 완료 (상태 유지)');
+  }, 950);
+}
+document.getElementById('btnRefresh').addEventListener('click', doRefresh);
+document.getElementById('tabMy').addEventListener('click', ()=>toast('내 예약 탭 (프로토타입)'));
+
+document.querySelectorAll('.ctrl [data-sc]').forEach(b=>b.addEventListener('click', ()=>{
+  document.querySelectorAll('.ctrl [data-sc]').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  state.scenario=b.dataset.sc; state.expanded=false; render();
+}));
+document.querySelectorAll('.ctrl [data-fs]').forEach(b=>b.addEventListener('click', ()=>{
+  document.querySelectorAll('.ctrl [data-fs]').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  state.big=b.dataset.fs==='1'; render();
+}));
+
+render();
+</script>
+</body>
+</html>
