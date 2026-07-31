@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>셔틀 — 헤더탭 + 전체/셔틀 하이브리드 · TADA-9317</title>
+<style>
+:root{
+  --page:#0c1526; --nv:#0f1c37; --card:#1a2c50; --line:#2b4067; --txt:#f2f6ff; --sub:#a7b8d6;
+  --blue:#3d7bff; --btn:#1b3e79; --btnln:#5b93ff; --sh:#bcd3ff; --mult:#c7ef4c;
+  --badge:#334870; --badgetx:#cdd9f2; --imm:#8a3a58; --immtx:#ffb0c6; --shbadge:#234f96; --shbadgetx:#cfe0ff;
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  --kr:"Apple SD Gothic Neo","Pretendard",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line-height:1.5}
+.app{max-width:920px;margin:0 auto;padding:18px 16px 40px}
+.head h1{font-size:18px;margin:0 0 3px;letter-spacing:-.02em}
+.head p{margin:0;color:var(--sub);font-size:12.5px}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0 16px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#0e1c38}
+.ctrl .lbl{font-size:11px;color:var(--sub);font-family:var(--mono);margin-right:2px}
+.ctrl button{font-family:var(--kr);font-size:12px;color:var(--sub);background:transparent;border:1px solid var(--line);border-radius:999px;padding:5px 11px;cursor:pointer}
+.ctrl button.on{color:#fff;background:var(--btn);border-color:var(--btnln)}
+
+.stage{display:flex;justify-content:center}
+.phone{width:100%;max-width:390px;background:#0a1428;border:1px solid var(--line);border-radius:26px;padding:8px;box-shadow:0 18px 50px rgba(0,0,0,.4)}
+.scr{background:var(--nv);border:1px solid var(--line);border-radius:19px;overflow:hidden;display:flex;flex-direction:column;height:720px;font-size:14px;position:relative}
+.scr.big{font-size:19px}
+.sb{height:1.4em;background:#0b1730;flex:none}
+
+/* merged header: back + primary tabs + actions in one row */
+.hdr{display:flex;align-items:stretch;gap:.3em;border-bottom:1px solid var(--line);flex:none;padding:0 .5em}
+.hdr .bk,.hdr .act{display:flex;align-items:center;color:var(--sub);cursor:pointer;font-size:.92em;padding:0 .3em}
+.hdr .bk{font-size:1.15em;color:var(--txt)}
+.hdr .ptabs{display:flex;flex:1;justify-content:center;gap:.3em;min-width:0}
+.hdr .ptabs button{font-family:var(--kr);font-weight:800;font-size:1em;color:var(--sub);background:transparent;border:0;border-bottom:3px solid transparent;padding:.75em .5em .6em;cursor:pointer;white-space:nowrap}
+.hdr .ptabs button.on{color:var(--txt);border-bottom-color:var(--blue)}
+.hdr .acts{display:flex;align-items:center;gap:.1em}
+
+/* secondary segment */
+.seg{display:flex;gap:.4em;padding:.5em .6em;border-bottom:1px solid var(--line);flex:none}
+.seg button{flex:1;font-family:var(--kr);font-size:.9em;font-weight:700;padding:.6em 0;border-radius:.6em;border:1px solid var(--line);background:transparent;color:var(--sub);cursor:pointer;display:flex;justify-content:center;gap:.4em;align-items:center}
+.seg button.on{color:#fff;background:var(--btn);border-color:var(--btnln)}
+.seg .cnt{font-size:.82em;color:var(--sh);font-family:var(--mono)}
+
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.list{padding:.6em;display:flex;flex-direction:column;gap:.55em}
+.sortrow{display:flex;gap:.4em;font-size:.82em;color:var(--sub)}
+.sortrow .c{border:1px solid var(--line);border-radius:999px;padding:.3em .7em;cursor:pointer;background:transparent;color:var(--sub);font-family:var(--kr)}
+.sortrow .c.act{color:#fff;border-color:var(--btnln)}
+.sortrow .f{margin-left:auto}
+.myempty{padding:3em 1em;text-align:center;color:var(--sub);font-size:.95em}
+
+.call{background:var(--card);border-radius:.75em;padding:.72em;display:flex;gap:.6em;cursor:pointer;border:1px solid transparent}
+.call:active{border-color:var(--btnln)}
+.call.sh{border-left:.26em solid var(--blue)}
+.call.bundle{background:linear-gradient(135deg,#1a3f76,#1b2d54)}
+.call .lft{width:4.6em;flex:none}
+.call .lft b{font-weight:800}.call .lft span{display:block;font-size:.8em;color:var(--sub)}
+.call .rgt{flex:1;min-width:0}
+.call .route{font-size:.92em}
+.call .bd{display:flex;flex-wrap:wrap;gap:.3em;margin:.38em 0}
+.call .bd i{font-style:normal;font-size:.72em;background:var(--badge);color:var(--badgetx);border-radius:.4em;padding:.17em .5em}
+.call .bd i.im{background:var(--imm);color:var(--immtx)}
+.call .bd i.sb{background:var(--shbadge);color:var(--shbadgetx);font-weight:700}
+.call .pr{text-align:right;font-weight:800}
+.call .pr em{font-style:normal;color:var(--mult);font-size:.78em;font-weight:700;margin-right:.25em}
+
+.navbtn{display:flex;align-items:center;gap:.45em;flex-wrap:wrap;min-height:2.9em;padding:.8em .85em;
+  background:var(--btn);border:1px solid var(--btnln);border-left:.26em solid var(--blue);border-radius:.75em;
+  color:var(--txt);font-weight:800;font-size:.94em;cursor:pointer}
+.navbtn .cv{margin-left:auto;font-size:1.2em;color:var(--sh)}
+.loader{display:flex;align-items:center;justify-content:center;gap:.55em;padding:1em;color:var(--sub);font-size:.85em}
+.loader .ring{width:1.15em;height:1.15em;border:.18em solid var(--line);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.endmsg{text-align:center;color:var(--sub);font-size:.8em;padding:.7em}
+.spin{position:absolute;top:3.6em;left:0;right:0;display:flex;justify-content:center;pointer-events:none}
+.spin .ring{width:1.9em;height:1.9em;border-radius:50%;border:.22em solid var(--line);border-top-color:var(--blue);animation:spin .8s linear infinite}
+.dimmed{opacity:.45}
+.sheetdim{position:absolute;inset:0;background:rgba(8,12,20,.4);opacity:0;pointer-events:none;transition:opacity .2s}
+.sheetdim.on{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#14203f;border-top:1px solid var(--line);border-radius:1.1em 1.1em 0 0;padding:.9em .9em 1.3em;transform:translateY(110%);transition:transform .22s ease}
+.sheet.on{transform:translateY(0)}
+.sheet h4{margin:.1em 0 .7em;font-size:.92em}
+.sheet .opt{font-size:.94em;padding:.8em .3em;border-bottom:1px solid var(--line);display:flex;gap:.6em;align-items:center;color:var(--sub);cursor:pointer}
+.sheet .opt.sel{color:var(--txt);font-weight:800}
+.sheet .opt .rd{width:1.15em;height:1.15em;border-radius:50%;border:2px solid #3a4f79;flex:none}
+.sheet .opt.sel .rd{border-color:var(--blue);background:radial-gradient(circle,var(--blue) 42%,transparent 46%)}
+.toast{position:absolute;left:50%;bottom:1.4em;transform:translateX(-50%) translateY(1em);opacity:0;transition:.2s;pointer-events:none;background:#0b1830;border:1px solid var(--line);color:var(--txt);font-size:.82em;padding:.55em .9em;border-radius:999px;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.note{margin-top:12px;color:var(--sub);font-size:12px;border:1px dashed var(--line);border-radius:10px;padding:10px 12px;line-height:1.6}
+.note b{color:var(--txt)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="head">
+    <h1>🚐 헤더탭 + 전체/셔틀 하이브리드 <span style="font-family:var(--mono);font-size:11px;color:var(--btnln)">TADA-9317</span></h1>
+    <p>헤더에 1차 탭(수락가능 콜/내 예약) 내장 · 그 아래 2차 세그먼트(전체/셔틀). <b>전체</b>엔 대표 셔틀 1건만, <b>셔틀</b> 탭에 전체 200건. 스크롤 최하단→다음 페이지 로딩.</p>
+  </div>
+  <div class="ctrl">
+    <span class="lbl">글씨</span>
+    <button data-fs="0" class="on">기본</button>
+    <button data-fs="1">크게(sp)</button>
+  </div>
+
+  <div class="stage">
+    <div class="phone"><div class="scr" id="scr">
+      <div class="sb"></div>
+      <div id="chrome"></div>
+      <div class="scroll" id="scroll"><div class="list" id="list"></div></div>
+      <div class="spin" id="spin" style="display:none"><div class="ring"></div></div>
+      <div class="sheetdim" id="sheetdim"></div>
+      <div class="sheet" id="sheet">
+        <h4>정렬</h4>
+        <div class="opt" data-sort="추천순"><span class="rd"></span>추천순</div>
+        <div class="opt" data-sort="시간 임박순"><span class="rd"></span>시간 임박순</div>
+        <div class="opt" data-sort="배수 높은 순"><span class="rd"></span>배수 높은 순</div>
+      </div>
+      <div class="toast" id="toast"></div>
+    </div></div>
+  </div>
+
+  <div class="note">
+    <b>구조:</b> `[← 수락가능 콜 | 내 예약 ↻ ⓘ]` (헤더에 1차 탭) → `[전체 | 셔틀 200]` (2차 세그먼트) → 정렬 → 리스트.<br>
+    <b>전체 탭:</b> 대표 셔틀 1건 + “모두 보기 →”(셔틀 탭으로) + 묶음/일반(무한스크롤). <b>셔틀 탭:</b> 셔틀 전체(무한스크롤). <b>200건 전체는 전체 탭 스크롤에 절대 안 섞임.</b>
+  </div>
+</div>
+
+<script>
+const SH_TOTAL=200, SH_PAGE=20, GEN_TOTAL=42, GEN_PAGE=10;
+const froms=['성수동1가','왕십리','답십리1동','금호동','옥수동','성수동2가','장안동','청담동','한남동'];
+const won=n=>n.toLocaleString('ko-KR')+'원';
+function mkTime(base,i,step){ const t=base+i*step; const hh=String(Math.floor(t/60)).padStart(2,'0'); const mm=String(t%60).padStart(2,'0'); return {label:t<24*60?'오늘':'내일', time:hh+':'+mm, min:t}; }
+const SH=Array.from({length:SH_TOTAL},(_,i)=>{ const t=mkTime(8*60,i,7); return {...t, from:froms[i%froms.length], to:(i%2?'김포공항':'인천공항'), price:60000+(i%31)*1000, mult:1.5+(i%9)*0.1, imm:i<3}; });
+const GEN=Array.from({length:GEN_TOTAL},(_,i)=>{
+  if(i===0) return {bundle:true,label:'오늘',time:'11:20',min:680,from:'성수동1가',to:'{N}건 예약 → 인천공항',price:183900,mult:null,badges:['묶음예약','임박']};
+  const t=mkTime(9*60,i,11); return {...t, from:froms[i%froms.length], to:(i%2?'인천국제공항':'김포공항'), price:20000+(i%20)*3200, mult:(i%3?1.5+(i%5)*0.1:null), badges:['일반예약'].concat(i%7===0?['임박']:[])};
+});
+
+const state={ ptab:'accept', seg:'all', sort:'추천순', big:false, loadedGen:GEN_PAGE, loadedSh:SH_PAGE, loading:false, refreshing:false };
+function sortArr(a){ const b=a.slice(); if(state.sort==='시간 임박순') b.sort((x,y)=>x.min-y.min); else if(state.sort==='배수 높은 순') b.sort((x,y)=>(y.mult||0)-(x.mult||0)); return b; }
+const sortedSh=()=>sortArr(SH);
+const sortedGen=()=>{ const [b,...r]=GEN; return [b,...sortArr(r)]; };
+function shCard(c){ const badges=`<i class="sb">셔틀예약</i>`+(c.imm?`<i class="im">임박</i>`:''); const m=c.mult?`<em>↗${c.mult.toFixed(1)}배</em>`:''; return `<div class="call sh"><div class="lft"><b>${c.label}</b><span>${c.time}</span></div><div class="rgt"><div class="route">${c.from} → ${c.to}</div><div class="bd">${badges}</div><div class="pr">${m}${won(c.price)}</div></div></div>`; }
+function genCard(c){ const badges=(c.badges||[]).map(b=>b==='임박'?`<i class="im">임박</i>`:`<i>${b}</i>`).join(''); const m=c.mult?`<em>↗${c.mult.toFixed(1)}배</em>`:''; return `<div class="call ${c.bundle?'bundle':''}"><div class="lft"><b>${c.label}</b><span>${c.time}</span></div><div class="rgt"><div class="route">${c.from} → ${c.to}</div><div class="bd">${badges}</div><div class="pr">${m}${won(c.price)}</div></div></div>`; }
+const sortChip=()=>`<div class="sortrow"><button class="c act" data-opensheet>↕ ${state.sort}</button><button class="f c" data-filter>공항콜만 보기</button></div>`;
+const endLine=(k,t)=>`<div class="endmsg">— ${k} ${t}건 끝 —</div>`;
+
+const activeIsShuttle=()=> state.ptab==='accept' && state.seg==='shuttle';
+const activeHasMore=()=> state.ptab!=='accept' ? false : (activeIsShuttle()? state.loadedSh<SH_TOTAL : state.loadedGen<GEN_TOTAL);
+
+function render(){
+  document.getElementById('scr').classList.toggle('big',state.big);
+  const hdr=`<div class="hdr">
+      <span class="bk">←</span>
+      <div class="ptabs">
+        <button data-ptab="accept" class="${state.ptab==='accept'?'on':''}">수락가능 콜</button>
+        <button data-ptab="my" class="${state.ptab==='my'?'on':''}">내 예약</button>
+      </div>
+      <div class="acts"><span class="act" data-refresh>↻</span><span class="act">ⓘ</span></div>
+    </div>`;
+  let seg='', list='';
+  if(state.ptab==='my'){
+    list=`<div class="myempty">내 예약 목록 (프로토타입)</div>`;
+  } else {
+    seg=`<div class="seg">
+      <button data-seg="all" class="${state.seg==='all'?'on':''}">전체</button>
+      <button data-seg="shuttle" class="${state.seg==='shuttle'?'on':''}">셔틀 <span class="cnt">${SH_TOTAL}</span></button>
+    </div>`;
+    if(state.seg==='shuttle'){
+      const arr=sortedSh().slice(0,state.loadedSh);
+      list=sortChip()+arr.map(shCard).join('')+(state.loadedSh<SH_TOTAL?'':endLine('셔틀',SH_TOTAL));
+    } else {
+      const rep=sortedSh()[0]; const gen=sortedGen().slice(0,state.loadedGen);
+      list=sortChip()+shCard(rep)
+        +`<div class="navbtn" data-nav>🚐 셔틀 ${SH_TOTAL}건 모두 보기 <span class="cv">→</span></div>`
+        +gen.map(genCard).join('')+(state.loadedGen<GEN_TOTAL?'':endLine('묶음·일반',GEN_TOTAL));
+    }
+  }
+  document.getElementById('chrome').innerHTML=hdr+seg;
+  document.getElementById('list').innerHTML=list;
+  document.getElementById('scroll').scrollTop=0;
+}
+function resetPaging(){ state.loadedGen=GEN_PAGE; state.loadedSh=SH_PAGE; }
+function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),1400); }
+
+document.getElementById('scroll').addEventListener('scroll',()=>{
+  const s=document.getElementById('scroll');
+  if(!state.loading && !state.refreshing && activeHasMore() && s.scrollTop+s.clientHeight>=s.scrollHeight-36) loadMore();
+});
+function loadMore(){
+  if(state.loading||!activeHasMore()) return; state.loading=true;
+  const list=document.getElementById('list');
+  list.insertAdjacentHTML('beforeend',`<div class="loader" id="loader"><div class="ring"></div> 더 불러오는 중…</div>`);
+  const sc=document.getElementById('scroll'); sc.scrollTop=sc.scrollHeight;
+  setTimeout(()=>{
+    document.getElementById('loader')?.remove();
+    if(activeIsShuttle()){ const a=sortedSh(); const n=a.slice(state.loadedSh,state.loadedSh+SH_PAGE); list.insertAdjacentHTML('beforeend',n.map(shCard).join('')); state.loadedSh+=n.length; if(state.loadedSh>=SH_TOTAL) list.insertAdjacentHTML('beforeend',endLine('셔틀',SH_TOTAL)); }
+    else { const a=sortedGen(); const n=a.slice(state.loadedGen,state.loadedGen+GEN_PAGE); list.insertAdjacentHTML('beforeend',n.map(genCard).join('')); state.loadedGen+=n.length; if(state.loadedGen>=GEN_TOTAL) list.insertAdjacentHTML('beforeend',endLine('묶음·일반',GEN_TOTAL)); }
+    state.loading=false;
+  },700);
+}
+
+document.getElementById('scr').addEventListener('click',e=>{
+  const pt=e.target.closest('[data-ptab]'); if(pt){ state.ptab=pt.dataset.ptab; state.seg='all'; resetPaging(); render(); return; }
+  const sg=e.target.closest('[data-seg]'); if(sg){ state.seg=sg.dataset.seg; resetPaging(); render(); return; }
+  if(e.target.closest('[data-nav]')){ state.seg='shuttle'; resetPaging(); render(); toast('셔틀 전체 목록'); return; }
+  if(e.target.closest('[data-refresh]')){ doRefresh(); return; }
+  if(e.target.closest('[data-opensheet]')){ openSheet(); return; }
+  if(e.target.closest('[data-filter]')){ toast('공항콜만 보기 (프로토타입)'); return; }
+  if(e.target.closest('.call')){ toast('콜 상세로 이동 (프로토타입)'); return; }
+});
+function openSheet(){ document.getElementById('sheet').classList.add('on'); document.getElementById('sheetdim').classList.add('on'); document.querySelectorAll('#sheet .opt').forEach(o=>o.classList.toggle('sel',o.dataset.sort===state.sort)); }
+function closeSheet(){ document.getElementById('sheet').classList.remove('on'); document.getElementById('sheetdim').classList.remove('on'); }
+document.getElementById('sheetdim').addEventListener('click',closeSheet);
+document.querySelectorAll('#sheet .opt').forEach(o=>o.addEventListener('click',()=>{ state.sort=o.dataset.sort; closeSheet(); resetPaging(); render(); toast('정렬: '+state.sort); }));
+function doRefresh(){ if(state.refreshing) return; state.refreshing=true; document.getElementById('spin').style.display='flex'; document.getElementById('scroll').classList.add('dimmed'); setTimeout(()=>{ state.refreshing=false; document.getElementById('spin').style.display='none'; document.getElementById('scroll').classList.remove('dimmed'); resetPaging(); render(); toast('전체 새로고침 완료'); },900); }
+document.querySelectorAll('.ctrl [data-fs]').forEach(b=>b.addEventListener('click',()=>{ document.querySelectorAll('.ctrl [data-fs]').forEach(x=>x.classList.remove('on')); b.classList.add('on'); state.big=b.dataset.fs==='1'; render(); }));
+
+render();
+</script>
+</body>
+</html>
