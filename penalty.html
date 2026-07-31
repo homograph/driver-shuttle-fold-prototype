@@ -82,8 +82,6 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .call .pr{text-align:right;font-weight:800}
 .call .pr em{font-style:normal;color:var(--mult);font-size:.78em;font-weight:700;margin-right:.25em}
 .call .blk{font-size:.78em;font-weight:800;color:var(--redtx)}
-.call.ok{border-color:rgba(127,227,172,.35)}
-.okline{font-size:.72em;color:var(--rectx);text-align:center;margin-top:-.15em}
 
 /* fab */
 .fab{position:absolute;left:50%;bottom:1em;transform:translateX(-50%);background:#fff;color:#0b1220;font-weight:800;font-size:.82em;border-radius:999px;padding:.6em 1.3em;box-shadow:0 8px 24px rgba(0,0,0,.4);cursor:pointer}
@@ -101,7 +99,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 
 /* mode B takeover */
 .takeover{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.25em;padding:1em}
-.takeover .tl{color:#6e56c4;font-size:1.1em;line-height:.7}
+.takeover .tl0{color:#6e56c4;font-size:1.1em;line-height:.7}
 .takeover .slash{background:#7b5cd6;color:#fff;font-size:.72em;border-radius:.35em;padding:.05em .6em;margin:.15em 0}
 .takeover .tri{width:3.4em;height:3.4em;border-radius:.8em;background:#3a4358;display:flex;align-items:center;justify-content:center;font-size:1.8em;margin:.3em 0}
 .takeover .big{font-size:1.35em;font-weight:800;color:#aeb6c7}
@@ -125,24 +123,39 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 
 /* detail */
 .detail{padding:.8em;display:flex;flex-direction:column;gap:.2em}
-.d-sum{background:#152banner;background:#14203c;border-radius:.6em;padding:.7em .8em;font-size:.9em;margin-bottom:.6em}
+.d-sum{background:#14203c;border-radius:.6em;padding:.7em .8em;font-size:.9em;margin-bottom:.6em}
 .d-sum b{color:var(--redtx);font-weight:800}
 .d-sum.calm b{color:var(--rectx)}
-.d-grp{font-size:.78em;font-weight:800;margin:.6em 0 .35em;display:flex;align-items:center;gap:.35em}
-.d-grp.active{color:var(--redtx)}
-.d-grp.sched{color:var(--ambertx)}
+.d-grp{font-size:.78em;font-weight:800;margin:.7em 0 .35em;display:flex;align-items:center;gap:.35em}
 .d-grp.ended{color:var(--gray)}
 .p-item{border-radius:.7em;padding:.7em .8em;margin-bottom:.45em;border:1px solid var(--line)}
-.p-item.active{border-color:var(--redln)}
-.p-item.sched{border-color:var(--amberln)}
 .p-item.ended{opacity:.7}
-.p-item .pb{display:inline-block;font-size:.72em;font-weight:700;border-radius:.35em;padding:.15em .55em;margin-bottom:.4em}
-.p-item.active .pb{background:var(--redbg);color:var(--redtx)}
-.p-item.sched .pb{background:var(--amberbg);color:var(--ambertx)}
-.p-item.ended .pb{background:#222c40;color:var(--gray)}
+.p-item .pb{display:inline-block;font-size:.72em;font-weight:700;border-radius:.35em;padding:.15em .55em;margin-bottom:.4em;background:#222c40;color:var(--gray)}
 .p-item .pu{font-size:.92em;font-weight:800}
 .p-item .pd{font-size:.8em;color:var(--sub);margin-top:.2em;line-height:1.45}
 .p-item.ended .pu{text-decoration:line-through;color:var(--gray)}
+
+/* detail — stacked ban model */
+.pl-prod{border:1px solid var(--redln);border-radius:.8em;padding:.75em .8em;margin-bottom:.6em;background:#161f34}
+.pl-head{display:flex;align-items:center;justify-content:space-between;gap:.5em}
+.pl-badge{font-size:.72em;font-weight:700;background:var(--redbg);color:var(--redtx);border-radius:.35em;padding:.18em .55em}
+.pl-recalc{font-size:.64em;color:var(--sub);border:1px solid var(--line);border-radius:.35em;padding:.12em .45em;white-space:nowrap}
+.pl-until{font-size:1.02em;font-weight:800;margin:.55em 0 .1em}
+.pl-until b{color:var(--redtx)}
+.pl-sum{font-size:.75em;color:var(--sub);margin-bottom:.3em}
+.tlw{position:relative;margin-top:.5em}
+.tlw::before{content:'';position:absolute;left:.29em;top:.5em;bottom:.7em;width:2px;background:var(--line)}
+.tl-row{position:relative;padding:.15em 0 .5em 1.15em;font-size:.82em}
+.tl-row .dot{position:absolute;left:0;top:.3em;width:.62em;height:.62em;border-radius:50%;background:var(--line);border:2px solid var(--nv)}
+.tl-row.active .dot{background:var(--red)}
+.tl-row.sched .dot{background:var(--amber)}
+.tl-row .st{font-weight:800;font-size:.86em;margin-right:.35em}
+.tl-row.active .st{color:var(--redtx)}
+.tl-row.sched .st{color:var(--ambertx)}
+.tl-row .rng{font-weight:600}
+.tl-row .rs{color:var(--sub);font-size:.92em;margin-top:.12em}
+.pl-note{font-size:.72em;color:var(--sub);margin-top:.5em;border-top:1px solid var(--line);padding-top:.5em}
+.pl-note b{color:var(--txt)}
 .appeal{margin-top:.6em;background:#14203c;border-radius:.55em;padding:.7em .8em;font-size:.76em;color:var(--sub);line-height:1.5}
 .empty{text-align:center;color:var(--sub);font-size:.85em;padding:2em 1em}
 
@@ -158,12 +171,12 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
   <p style="margin:0 0 10px"><a href="index.html" style="color:#5b93ff;font-size:13px;text-decoration:none">← 셔틀 프로토타입 허브</a></p>
   <div class="head">
     <h1>⚠️ 드라이버앱 패널티 안내 <span style="font-family:var(--mono);font-size:11px;color:var(--btnln)">TADA-9314</span></h1>
-    <p>패널티 상태를 앱에서 어떻게 알려줄지. <b>시나리오를 바꿔가며</b> 홈 배너·예약콜 목록·패널티 현황 상세를 눌러보세요. (실데이터 아님)</p>
+    <p>패널티(정지)는 <b>누적 스택</b> 구조 — 만료일은 남은 정지들의 <b>합산·재계산</b> 값. <b>시나리오를 바꿔가며</b> 홈·목록·패널티 현황을 눌러보세요. (실데이터 아님)</p>
   </div>
 
   <div class="ctrl">
     <div class="grp"><span class="lbl">시나리오</span>
-      <button data-sc="general" class="on">일반예약 정지</button>
+      <button data-sc="general" class="on">일반예약 정지(누적 3건)</button>
       <button data-sc="charter_shuttle">시간대절·셔틀 정지</button>
       <button data-sc="noshow">노쇼(전 상품)</button>
       <button data-sc="realtime">실시간콜 초과</button>
@@ -189,28 +202,46 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 </div>
 
 <script>
-/* ---------- data ---------- */
+/* ---------- data ----------
+ 서버 정책(2026-05 김민욱): 동일 종류 정지(밴)는 누적 스택. 각 정지는 이의제기 3시간 유예 후 연속 적용.
+ 드라이버앱 만료일 = 남은 정지들의 "합산·재계산" 종료 시각(저장 스냅샷 아님). 중간 해제 시에도 빈 기간 없이 연속.
+ 상품별 products[{product, scope, bans[{reason,start,end,status}]}] 로 모델링. bans는 연속(gap 없음), 시간순. */
 const won = n => n.toLocaleString('ko-KR')+'원';
 
-// 시나리오별 활성 패널티. scope: '수락' = 수락만 정지(카드 딤+"수락 불가"), '조회+수락' = 조회까지 정지("조회 불가")
 const SCEN = {
-  none:            { label:'정상',              realtime:false, penalties:[] },
-  general:         { label:'일반예약 정지',       realtime:false, penalties:[
-    {product:'일반예약', reason:'예약 수락 후 취소', until:'07.30', scope:'수락'} ] },
-  charter_shuttle: { label:'시간대절·셔틀 정지',   realtime:false, penalties:[
-    {product:'시간대절', reason:'예약 수락 후 취소', until:'08.02', scope:'조회+수락'},
-    {product:'셔틀',    reason:'셔틀 수락 후 취소', until:'07.28', scope:'조회+수락'} ] },
-  noshow:          { label:'노쇼(전 상품)',       realtime:false, penalties:[
-    {product:'일반예약', reason:'예약 불이행(노쇼)', until:'07.30', scope:'수락'},
-    {product:'시간대절', reason:'예약 불이행(노쇼)', until:'07.30', scope:'조회+수락'},
-    {product:'셔틀',    reason:'예약 불이행(노쇼)', until:'07.30', scope:'조회+수락'} ] },
-  realtime:        { label:'실시간콜 취소 초과',   realtime:true,  penalties:[
-    {product:'실시간콜', reason:'다건 실시간 콜 수락 후 취소', until:'07.30', scope:'실시간'},
-    {product:'일반예약', reason:'다건 실시간 콜 수락 후 취소', until:'07.30', scope:'수락'} ] },
+  none: { label:'정상', realtime:false, products:[] },
+
+  general: { label:'일반예약 정지 (누적 3건)', realtime:false, products:[
+    { product:'일반예약', scope:'수락', bans:[
+      {reason:'예약 수락 후 취소', start:'07.28 12:00', end:'07.31 24:00', status:'active'},
+      {reason:'예약 수락 후 취소', start:'07.31 24:00', end:'08.07 24:00', status:'sched'},
+      {reason:'예약 수락 후 취소', start:'08.07 24:00', end:'08.15 24:00', status:'sched'},
+    ]},
+  ]},
+
+  charter_shuttle: { label:'시간대절·셔틀 정지', realtime:false, products:[
+    { product:'시간대절', scope:'조회+수락', bans:[
+      {reason:'예약 수락 후 취소', start:'07.28 09:00', end:'08.02 24:00', status:'active'},
+    ]},
+    { product:'셔틀', scope:'조회+수락', bans:[
+      {reason:'셔틀 수락 후 취소', start:'07.25 09:00', end:'07.27 24:00', status:'active'},
+      {reason:'셔틀 수락 후 취소', start:'07.27 24:00', end:'07.28 24:00', status:'sched'},
+    ]},
+  ]},
+
+  noshow: { label:'노쇼(전 상품)', realtime:false, products:[
+    { product:'일반예약', scope:'수락',    bans:[{reason:'예약 불이행(노쇼)', start:'07.27 12:00', end:'07.30 24:00', status:'active'}]},
+    { product:'시간대절', scope:'조회+수락', bans:[{reason:'예약 불이행(노쇼)', start:'07.27 12:00', end:'07.30 24:00', status:'active'}]},
+    { product:'셔틀',    scope:'조회+수락', bans:[{reason:'예약 불이행(노쇼)', start:'07.27 12:00', end:'07.30 24:00', status:'active'}]},
+  ]},
+
+  realtime: { label:'실시간콜 취소 초과', realtime:true, products:[
+    { product:'실시간콜', scope:'실시간', bans:[{reason:'다건 실시간 콜 수락 후 취소', start:'07.28 00:00', end:'07.30 24:00', status:'active'}]},
+    { product:'일반예약', scope:'수락',   bans:[{reason:'다건 실시간 콜 수락 후 취소', start:'07.28 00:00', end:'07.30 24:00', status:'active'}]},
+  ]},
 };
-// 상세 페이지 데모용 예정/종료 (시나리오 무관하게 그룹 구조를 보여주기 위함)
-const SCHED = {product:'시간대절', reason:'예약 불이행(노쇼)', range:'08.02 00:00 ~ 08.03 24:00'};
-const ENDED = {product:'셔틀', reason:'셔틀 수락 후 취소', range:'07.20 00:00 ~ 07.22 24:00'};
+// 종료 이력 데모(시나리오 무관)
+const ENDED = {product:'셔틀', reason:'셔틀 수락 후 취소', range:'07.18 00:00 ~ 07.20 24:00'};
 
 const CALLS = [
   {date:'오늘',          time:'아침 11:20', type:'셔틀예약', route:'성동구 성수동1가 → 인천국제공항', price:25000, badges:['임박']},
@@ -225,24 +256,26 @@ const state = { scenario:'general', screen:'home', big:false, hist:[] };
 const scr=document.getElementById('scr'), screen=document.getElementById('screen');
 
 const sc = () => SCEN[state.scenario];
-const resvPenalties = () => sc().penalties.filter(p=>p.product!=='실시간콜'); // 예약콜 목록에 영향 주는 것
+const products = () => sc().products;
+const resvProducts = () => products().filter(p=>p.product!=='실시간콜'); // 예약콜 목록에 영향
+const productFor = name => products().find(p=>p.product===name);
 const typeToProduct = t => ({'셔틀예약':'셔틀','일반예약':'일반예약','시간대절':'시간대절'})[t];
-const penaltyFor = product => sc().penalties.find(p=>p.product===product);
 const blockLabel = p => p.scope==='수락' ? '수락 불가' : '조회 불가';
-const scopeDesc = p => {
-  if(p.scope==='실시간') return '운행 시작되는 실시간 콜과 예약 콜 수락이 정지됩니다';
-  if(p.scope==='수락')   return `${p.product} 콜 수락이 정지됩니다`;
-  return `${p.product} 콜 조회·수락이 정지됩니다`;
-};
-const maxUntil = arr => arr.map(p=>p.until).sort().slice(-1)[0];
+const scopeDesc = p =>
+  p.scope==='실시간' ? '운행 시작되는 실시간 콜과 예약 콜 수락이 정지됩니다'
+  : p.scope==='수락' ? `${p.product} 콜 수락이 정지됩니다`
+  : `${p.product} 콜 조회·수락이 정지됩니다`;
+const untilFull  = p => p.bans[p.bans.length-1].end;             // 합산 만료(재계산): 마지막 정지 종료
+const untilShort = p => untilFull(p).split(' ')[0];              // MM.DD
+const maxUntil = arr => arr.map(untilShort).sort().slice(-1)[0]; // 여러 상품 중 가장 늦은 합산 만료
 
 /* ---------- screens ---------- */
 function homeMode(){ return sc().realtime; } // true = 모드 B takeover
 
 function renderHome(){
-  const rp = resvPenalties();
+  const rp = resvProducts();
   if(homeMode()){ // 모드 B: 실시간콜 정지 takeover (기존 화면 재사용)
-    const u = penaltyFor('실시간콜').until;
+    const u = untilShort(productFor('실시간콜'));
     return `
     <div class="ab home">
       <span class="ic menu" data-go="drawer">☰<i class="dot"></i></span><span class="sp"></span>
@@ -250,18 +283,18 @@ function renderHome(){
       <span class="chip ghost off">미리배차 꺼짐</span>
     </div>
     <div class="takeover">
-      <div class="tl">⋮</div><div class="slash">//</div><div class="tl">⋮</div>
+      <div class="tl0">⋮</div><div class="slash">//</div><div class="tl0">⋮</div>
       <div class="tri">⚠️</div>
       <div class="big">콜 정지 상태</div>
-      <div class="tl">⋮</div><div class="slash">//</div>
+      <div class="tl0">⋮</div><div class="slash">//</div>
     </div>
     <div class="takeovercard">
       <div class="m"><b>${u} 00:00</b> 부터<br>콜 수신이 가능합니다</div>
-      <div class="s">실시간 콜 + 예약 콜 수락 정지</div>
+      <div class="s">실시간 콜 + 예약 콜 수락 정지 · 합산 재계산</div>
       <div class="btn" data-go="detail">자세히 보기</div>
     </div>`;
   }
-  // 모드 A: 실시간콜 정상 + (패널티 있으면) 상단 슬림 배너
+  // 모드 A: 실시간콜 정상 + (패널티 있으면) 상단 슬림 배너 — 합산 만료 기준
   const banner = rp.length ? `
     <div class="banner amber" data-go="detail">
       <span>⚠️ 패널티 적용 중 · ~${maxUntil(rp)}까지 일부 예약 콜 제한</span><span class="cv">›</span>
@@ -283,7 +316,7 @@ function renderHome(){
 }
 
 function renderDrawer(){
-  const active = sc().penalties.length>0;
+  const active = products().length>0;
   const dot = active?'<i class="new">NEW · 적용중</i>':'<i class="new" style="background:transparent;border-color:var(--line);color:var(--sub)">NEW</i>';
   return `
     <div class="ab"><span class="ic" data-go="back">✕</span></div>
@@ -305,24 +338,23 @@ function renderDrawer(){
 }
 
 function callCard(c){
-  const product = typeToProduct(c.type);
-  const p = penaltyFor(product);
+  const p = productFor(typeToProduct(c.type));
   const blocked = !!p;
   const typeBadge = `<i class="type">${c.type}</i>`;
   const rest = (c.badges||[]).map(b=> b==='임박'?'<i class="im">임박</i>' : b==='추천'?'<i class="rec">추천</i>' : `<i>${b}</i>`).join('');
   const mult = c.mult?`<em>↗${c.mult.toFixed(1)}배</em>`:'';
   const lft = `<div class="lft"><b>${c.date}</b><span>${c.time}</span>${c.charter?`<span class="ch">${c.charter}</span>`:''}</div>`;
   const foot = blocked
-    ? `<div class="foot"><span class="blk">${p.scope==='수락'?'⊘':'🚫'} ${blockLabel(p)}</span><div class="pr">${won(c.price)}</div></div>`
+    ? `<div class="foot"><span class="blk">${p.scope==='수락'?'⊘':'🚫'} ${blockLabel(p)} · ~${untilShort(p)}</span><div class="pr">${won(c.price)}</div></div>`
     : `<div class="foot"><span></span><div class="pr">${mult}${won(c.price)}</div></div>`;
-  return `<div class="call ${blocked?'blocked':''}"><div class="rgt" style="display:none"></div>${lft}<div class="rgt"><div class="route">${c.route}</div><div class="bd">${typeBadge}${rest}</div>${foot}</div></div>`;
+  return `<div class="call ${blocked?'blocked':''}">${lft}<div class="rgt"><div class="route">${c.route}</div><div class="bd">${typeBadge}${rest}</div>${foot}</div></div>`;
 }
 
 function renderList(){
-  const rp = resvPenalties();
+  const rp = resvProducts();
   let banner='';
   if(rp.length){
-    const lines = rp.map(p=>`· ${p.product} — ${p.until}까지 <b>${blockLabel(p)}</b>`).join('<br>');
+    const lines = rp.map(p=>`· ${p.product} — ~${untilShort(p)}까지 <b>${blockLabel(p)}</b>${p.bans.length>1?` (누적 ${p.bans.length}건)`:''}`).join('<br>');
     banner = `<div class="banner red" data-go="detail"><div class="lines" style="flex:1">⚠️ 일부 예약 콜이 정지 중입니다<div style="font-size:.92em;margin-top:.2em;font-weight:400">${lines}</div></div><span class="cv">›</span></div>`;
   }
   const cards = CALLS.map(callCard).join('');
@@ -338,31 +370,39 @@ function renderList(){
 }
 
 function renderDetail(){
-  const active = sc().penalties;
-  const sum = active.length
-    ? `<div class="d-sum">현재 <b>${active.length}건</b>의 패널티가 적용 중입니다</div>`
+  const prods = products();
+  const total = prods.length;
+  const sum = total
+    ? `<div class="d-sum">현재 <b>${total}개 상품</b>에 패널티가 적용 중입니다 · 만료일은 남은 정지의 <b>합산 재계산</b> 값입니다</div>`
     : `<div class="d-sum calm">현재 적용 중인 패널티가 <b>없습니다</b></div>`;
-  const activeItems = active.map(p=>`
-    <div class="p-item active"><span class="pb">${p.product} 정지</span>
-      <div class="pu">~ ${p.until} 24:00 까지</div>
-      <div class="pd">${p.reason} · ${scopeDesc(p)}</div></div>`).join('');
-  const schedBlock = active.length? `
-    <div class="d-grp sched">⏱ 예정</div>
-    <div class="p-item sched"><span class="pb">${SCHED.product} 정지</span>
-      <div class="pu">${SCHED.range}</div>
-      <div class="pd">${SCHED.reason} · ${SCHED.product} 콜 조회·수락이 정지됩니다</div></div>` : '';
+  const cards = prods.map(p=>{
+    const rows = p.bans.map(b=>`
+      <div class="tl-row ${b.status}">
+        <span class="dot"></span>
+        <span class="st">${b.status==='active'?'적용 중':'예정'}</span>
+        <span class="rng">${b.start} ~ ${b.end}</span>
+        <div class="rs">${b.reason} · ${scopeDesc(p)}</div>
+      </div>`).join('');
+    return `
+     <div class="pl-prod">
+       <div class="pl-head"><span class="pl-badge">${p.product} 정지</span><span class="pl-recalc">⟳ 현재 기준 재계산</span></div>
+       <div class="pl-until">합산 만료 <b>~ ${untilFull(p)} 까지</b></div>
+       <div class="pl-sum">누적 정지 ${p.bans.length}건 · 빈 기간 없이 연속 적용</div>
+       <div class="tlw">${rows}</div>
+       <div class="pl-note">ⓘ 각 정지는 이의제기 <b>3시간 유예</b> 후 적용됩니다. 일부 정지가 해제되어도 남은 기간이 <b>연속으로</b> 재계산됩니다.</div>
+     </div>`;
+  }).join('');
   const endedBlock = `
-    <div class="d-grp ended">✓ 종료</div>
-    <div class="p-item ended"><span class="pb">${ENDED.product} 정지</span>
-      <div class="pu">${ENDED.range}</div>
-      <div class="pd">${ENDED.reason} · 정상 종료됨</div></div>`;
-  const activeBlock = active.length? `<div class="d-grp active">▶ 적용 중</div>${activeItems}` : `<div class="empty">적용 중인 패널티가 없습니다.<br>아래는 지난 이력입니다.</div>`;
+     <div class="d-grp ended">✓ 종료된 정지 (이력)</div>
+     <div class="p-item ended"><span class="pb">${ENDED.product} 정지</span>
+       <div class="pu">${ENDED.range}</div>
+       <div class="pd">${ENDED.reason} · 정상 종료됨</div></div>`;
+  const body = total ? cards : `<div class="empty">적용 중인 패널티가 없습니다.<br>아래는 지난 이력입니다.</div>`;
   return `
     <div class="ab"><span class="ic" data-go="back">←</span> 패널티 현황 <span class="sp"></span></div>
     <div class="scroll"><div class="detail">
       ${sum}
-      ${activeBlock}
-      ${schedBlock}
+      ${body}
       ${endedBlock}
       <div class="appeal">ⓘ 패널티 사유에 대한 이의제기는 타다 드라이버 콜센터(1800-9198) 또는 게시판으로 접수 가능합니다.</div>
     </div></div>`;
@@ -390,13 +430,14 @@ scr.addEventListener('click', e=>{
 
 function explain(){
   const s=sc();
-  const rp=resvPenalties();
+  const rp=resvProducts();
   let desc;
-  if(state.scenario==='none') desc='패널티 없음 — 홈 배너·목록 배너·카드 딤 모두 사라집니다. 서랍 ‘패널티 현황’은 남되 강조 해제, 상세는 지난 이력만.';
-  else if(s.realtime) desc='실시간콜 정지 — 홈이 <b>모드 B</b>(콜 정지 상태 takeover, <b>기존 실존 화면</b>)로 전환. 실시간+예약 동시 정지.';
-  else desc=`홈은 <b>모드 A</b>(콜 수신중 정상 + 상단 amber 배너). 예약콜 목록엔 <b>red 배너</b> + 정지 상품 카드 딤: ${rp.map(p=>p.product+'→'+blockLabel(p)).join(', ')}.`;
+  if(state.scenario==='none') desc='패널티 없음 — 홈 배너·목록 배너·카드 딤 모두 사라집니다. 상세는 지난 이력만.';
+  else if(s.realtime) desc='실시간콜 정지 — 홈이 <b>모드 B</b>(콜 정지 상태, 기존 실존 화면). 만료일은 실시간+예약 합산 재계산.';
+  else desc=`홈 <b>모드 A</b>(상단 amber 배너, 합산 만료). 목록 <b>red 배너</b> + 정지 카드 딤: ${rp.map(p=>p.product+'→'+blockLabel(p)+(p.bans.length>1?`(누적 ${p.bans.length})`:'')).join(', ')}.`;
   document.getElementById('explain').innerHTML =
-    `<b>시나리오: ${s.label}</b> — ${desc}<br><span style="color:var(--sub)">눌러볼 것: 홈 <code>☰</code>→서랍→패널티 현황 · 홈 <code>📅 예약콜</code>→목록 · 배너/카드 <code>자세히</code>→상세.</span>`;
+    `<b>시나리오: ${s.label}</b> — ${desc}<br>
+     <span style="color:var(--sub)">서버 정책 반영: <b style="color:var(--txt)">누적 스택</b>(만료=남은 정지 합산) · <b style="color:var(--txt)">현재 기준 재계산</b>(저장 스냅샷 금지) · <b style="color:var(--txt)">연속 기간</b>(중간 해제 gap 없음) · <b style="color:var(--txt)">3h 이의제기 유예</b>. 상세 페이지에서 상품별 <code>합산 만료 + 누적 정지 타임라인(적용중/예정)</code> 확인.</span>`;
 }
 
 /* ---------- controls ---------- */
