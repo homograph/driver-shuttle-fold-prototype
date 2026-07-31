@@ -11,7 +11,7 @@
   --badge:#334870; --badgetx:#cdd9f2; --imm:#8a3a58; --immtx:#ffb0c6; --rec:#1f3a2e; --rectx:#7fe3ac;
   --red:#ff5a5a; --redbg:rgba(255,90,90,.14); --redln:rgba(255,90,90,.45); --redtx:#ff9b9b;
   --amber:#ffcf6a; --amberbg:rgba(255,190,80,.13); --amberln:rgba(255,190,80,.42); --ambertx:#ffd98a;
-  --orange:#ff7a2f; --gray:#8791a6;
+  --green:#3ddc84; --orange:#ff7a2f; --gray:#8791a6;
   --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
   --kr:"Apple SD Gothic Neo","Pretendard",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif;
 }
@@ -121,49 +121,65 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .drow.penalty .new{font-size:.62em;background:var(--redbg);border:1px solid var(--redln);color:var(--redtx);border-radius:.35em;padding:.1em .5em}
 .drawer-foot{border-top:1px solid var(--line);padding:.8em .9em;font-size:.9em;color:var(--sub)}
 
-/* ===== 패널티 현황 (유저 중심 재설계) ===== */
-.detail{padding:.8em;display:flex;flex-direction:column;gap:.55em}
-.pcard{border:1px solid var(--redln);border-radius:.95em;padding:.95em;background:#14203c}
-.pcard-top{display:flex;align-items:center;gap:.45em;margin-bottom:.7em}
-.ptag{font-size:.82em;font-weight:800;background:#26324f;border-radius:.45em;padding:.22em .6em}
-.pstate{font-size:.72em;font-weight:800;color:var(--redtx);background:var(--redbg);border:1px solid var(--redln);border-radius:.4em;padding:.16em .5em}
-.phero{display:flex;flex-direction:column;gap:.2em;margin-bottom:.65em}
-.pdate{font-size:1.22em;font-weight:800;letter-spacing:-.01em}
-.pdate .cal{margin-right:.35em}
-.pdate b{color:var(--redtx)}
-.pdesc{font-size:.86em;color:var(--sub)}
-.pdesc b{color:var(--txt);font-weight:700}
-.pwhy{font-size:.83em;color:var(--sub);background:#0e1a34;border-radius:.6em;padding:.6em .7em;margin-bottom:.55em;line-height:1.5}
-.pdetails summary{list-style:none;cursor:pointer;font-size:.8em;color:var(--btnln);font-weight:700;padding:.25em 0}
-.pdetails summary::-webkit-details-marker{display:none}
-.pdetails summary::after{content:' ▾';font-size:.9em}
-.pdetails[open] summary::after{content:' ▴'}
-.tlw{position:relative;margin:.5em 0 .1em}
+/* ===== 패널티 현황 (2022 '콜 정지 현황' 스타일 재구성) ===== */
+.detail{padding:.85em .8em 1.4em;display:flex;flex-direction:column;gap:.85em}
+.grp2{display:flex;flex-direction:column;gap:.4em}
+.sec-title{font-size:.98em;font-weight:800;margin:.1em .1em 0}
+/* 상태 히어로 */
+.sthero{background:var(--card);border-radius:1em;padding:1.1em .9em .85em;text-align:center}
+.sthero .lab{font-size:.8em;color:var(--sub)}
+.sthero .state{font-size:1.55em;font-weight:800;margin:.15em 0 .65em;letter-spacing:-.01em}
+.sthero .state.stop{color:var(--red)} .sthero .state.soon{color:var(--amber)} .sthero .state.ok{color:var(--green)}
+.traffic{display:inline-flex;gap:.6em;background:#0a1324;border:1px solid #223350;border-radius:999px;padding:.42em .85em}
+.traffic .d{width:.85em;height:.85em;border-radius:50%;opacity:.26}
+.traffic .d.r{background:var(--red)} .traffic .d.a{background:var(--amber)} .traffic .d.g{background:var(--green)}
+.traffic .d.on{opacity:1}
+.traffic .d.r.on{box-shadow:0 0 .55em rgba(255,90,90,.9)}
+.traffic .d.a.on{box-shadow:0 0 .55em rgba(255,207,106,.9)}
+.traffic .d.g.on{box-shadow:0 0 .55em rgba(61,220,132,.9)}
+.legend{background:#0e1a34;border-radius:.7em;padding:.65em .8em;margin-top:.85em;text-align:left;font-size:.76em;color:var(--sub);line-height:1.65}
+.legend .lt{color:var(--txt);font-weight:700}
+/* 상품 카드 */
+.pcard{background:var(--card);border-radius:1em;padding:1em .9em .55em}
+.pcard-top{display:flex;align-items:center;justify-content:space-between;gap:.5em;margin-bottom:.4em}
+.pcard-top .pill{font-size:.72em;font-weight:800;color:#fff;background:var(--red);border-radius:.5em;padding:.24em .6em;white-space:nowrap}
+.pcard-top .pill.soon{background:#b6862a}
+.pcard .pdate{font-size:1.32em;font-weight:800;letter-spacing:-.01em}
+.pcard .pdate .cal{margin-right:.3em}
+.pcard .pdate b{color:var(--redtx)}
+.pcard .pdesc{font-size:.85em;color:var(--sub);margin-top:.15em}
+.pcard .pdesc b{color:var(--txt);font-weight:700}
+.ibul{display:flex;gap:.45em;font-size:.8em;color:var(--sub);line-height:1.5;margin-top:.65em;background:#0e1a34;border-radius:.6em;padding:.6em .7em}
+.ibul .ic{color:var(--btnln);flex:none;font-weight:700}
+.morerow{border-top:1px solid var(--line);margin-top:.65em}
+.morerow>summary{list-style:none;cursor:pointer;text-align:right;font-size:.8em;color:var(--sub);padding:.6em .1em .45em}
+.morerow>summary::-webkit-details-marker{display:none}
+.morerow>summary::after{content:' ⌄';font-size:1.1em}
+.morerow[open]>summary::after{content:' ⌃'}
+.tlw{position:relative;margin:.1em 0 .5em}
 .tlw::before{content:'';position:absolute;left:.29em;top:.5em;bottom:.6em;width:2px;background:var(--line)}
 .tl-row{position:relative;padding:.12em 0 .5em 1.15em;font-size:.82em}
 .tl-row .dot{position:absolute;left:0;top:.32em;width:.6em;height:.6em;border-radius:50%;background:var(--line);border:2px solid var(--card)}
-.tl-row.active .dot{background:var(--red)}
-.tl-row.sched .dot{background:var(--amber)}
+.tl-row.active .dot{background:var(--red)} .tl-row.sched .dot{background:var(--amber)}
 .tl-row .st{font-weight:800;font-size:.86em;margin-right:.35em}
-.tl-row.active .st{color:var(--redtx)}
-.tl-row.sched .st{color:var(--ambertx)}
-.tl-row .rng{font-weight:600}
-.pfine{font-size:.72em;color:var(--sub);line-height:1.55;margin:.35em 0 0;border-top:1px solid var(--line);padding-top:.5em}
+.tl-row.active .st{color:var(--redtx)} .tl-row.sched .st{color:var(--ambertx)}
+.pfine{font-size:.74em;color:var(--sub);line-height:1.55;margin:.1em 0 .5em}
 .pfine b{color:var(--txt)}
-.stillok{font-size:.84em;color:var(--rectx);background:var(--rec);border-radius:.65em;padding:.65em .8em;line-height:1.45}
-.appeal-btn{display:flex;align-items:center;justify-content:space-between;gap:.5em;border:1px solid var(--line);border-radius:.75em;padding:.85em .9em;font-size:.88em;font-weight:700;color:var(--txt);cursor:pointer;background:#16223d}
-.appeal-btn .cv{color:var(--btnln);font-weight:800;white-space:nowrap}
-.appeal-sub{font-size:.72em;color:var(--sub);text-align:center;margin-top:-.2em}
-details.hist{margin-top:.2em}
-details.hist>summary{list-style:none;cursor:pointer;font-size:.83em;color:var(--sub);padding:.45em 0}
-details.hist>summary::-webkit-details-marker{display:none}
-details.hist>summary::after{content:' ▾'}
-details.hist[open]>summary::after{content:' ▴'}
-.p-item{border-radius:.7em;padding:.65em .75em;margin-top:.4em;border:1px solid var(--line);opacity:.75}
-.p-item .pb{display:inline-block;font-size:.72em;font-weight:700;border-radius:.35em;padding:.15em .55em;margin-bottom:.35em;background:#222c40;color:var(--gray)}
-.p-item .pu{font-size:.9em;font-weight:800;text-decoration:line-through;color:var(--gray)}
-.p-item .pd{font-size:.78em;color:var(--sub);margin-top:.2em}
-.empty{text-align:center;color:var(--sub);font-size:.9em;padding:2em 1em;line-height:1.6}
+/* 안심 */
+.stillok{display:flex;gap:.45em;font-size:.84em;color:var(--rectx);background:var(--rec);border-radius:.7em;padding:.72em .8em;line-height:1.45}
+/* 이의제기 */
+.appeal-info{display:flex;gap:.45em;font-size:.79em;color:var(--sub);line-height:1.5;background:#0e1a34;border-radius:.6em;padding:.65em .75em}
+.appeal-info .ic{color:var(--btnln);flex:none;font-weight:700}
+.appeal-btn{display:flex;align-items:center;justify-content:center;gap:.4em;border:1px solid var(--btnln);background:var(--btn);border-radius:.75em;padding:.9em;font-size:.92em;font-weight:800;color:#fff;cursor:pointer}
+/* 이력 카드 */
+.histcard{background:var(--card);border-radius:1em;padding:.4em .9em}
+.hist-item{padding:.7em 0}
+.hist-item+.hist-item{border-top:1px solid var(--line)}
+.hist-item .hs{font-weight:800;font-size:.9em}
+.hist-item .hb{font-size:.8em;color:var(--sub);margin:.2em 0}
+.hist-item .hd{font-size:.8em;color:var(--gray)}
+.moremini{text-align:center;border-top:1px solid var(--line);padding:.65em 0 .55em;font-size:.82em;color:var(--sub);cursor:pointer}
+.empty{text-align:center;color:var(--sub);font-size:.9em;padding:1.6em 1em;line-height:1.6}
 
 .toast{position:absolute;left:50%;bottom:1.4em;transform:translateX(-50%) translateY(1em);opacity:0;transition:.2s;pointer-events:none;background:#0b1830;border:1px solid var(--line);color:var(--txt);font-size:.82em;padding:.55em .9em;border-radius:999px;white-space:nowrap;z-index:5}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -177,7 +193,7 @@ details.hist[open]>summary::after{content:' ▴'}
   <p style="margin:0 0 10px"><a href="index.html" style="color:#5b93ff;font-size:13px;text-decoration:none">← 셔틀 프로토타입 허브</a></p>
   <div class="head">
     <h1>⚠️ 드라이버앱 패널티 안내 <span style="font-family:var(--mono);font-size:11px;color:var(--btnln)">TADA-9314</span></h1>
-    <p>패널티 현황을 <b>유저 관점</b>으로 재설계 — "언제 풀리나 → 뭘 못 하나(뭐는 되나) → 왜 → 상세 → 이의제기". <b>시나리오를 바꿔가며</b> 눌러보세요. (실데이터 아님)</p>
+    <p>패널티 현황을 기존 <b>‘콜 정지 현황’ Figma 스타일</b>(상태 히어로+신호등·섹션 카드)로 재구성. 유저 카피는 유지. <b>시나리오를 바꿔가며</b> 눌러보세요. (실데이터 아님)</p>
   </div>
 
   <div class="ctrl">
@@ -211,7 +227,7 @@ details.hist[open]>summary::after{content:' ▴'}
 /* ---------- data ----------
  서버 정책(2026-05 김민욱): 동일 종류 정지는 누적 스택, 각 정지는 이의제기 3h 유예 후 연속 적용.
  만료일 = 남은 정지들의 합산·재계산 종료(스냅샷 아님), 중간 해제 시에도 빈 기간 없이 연속.
- → UI는 이 '결과'만 사람 언어로 노출하고, 내부 모델(누적/재계산/유예)은 접힌 상세로 숨김. */
+ → UI는 '결과'만 사람 언어로 노출, 내부 모델(누적/재계산/유예)은 접힌 상세로. 스타일은 2022 '콜 정지 현황'. */
 const won = n => n.toLocaleString('ko-KR')+'원';
 
 const SCEN = {
@@ -243,7 +259,6 @@ const SCEN = {
   ]},
 };
 const ENDED = {product:'셔틀', reason:'셔틀 수락 후 취소', range:'07.18 ~ 07.20'};
-// 사유 → 드라이버가 읽을 문장
 const WHY = {
   '예약 수락 후 취소':'예약을 수락한 뒤 취소해서 패널티가 적용됐어요.',
   '셔틀 수락 후 취소':'셔틀 콜을 수락한 뒤 취소해서 패널티가 적용됐어요.',
@@ -270,11 +285,11 @@ const resvProducts = () => products().filter(p=>p.product!=='실시간콜');
 const productFor = name => products().find(p=>p.product===name);
 const typeToProduct = t => ({'셔틀예약':'셔틀','일반예약':'일반예약','시간대절':'시간대절'})[t];
 const blockLabel = p => p.scope==='수락' ? '수락 불가' : '조회 불가';
-const actWord = p => p.scope==='수락' ? '수락' : '조회·수락';           // 유저용 동사
-const untilEnd  = p => p.bans[p.bans.length-1].end;                    // "08.15 24:00" (합산·재계산)
-const untilMMDD = p => untilEnd(p).split(' ')[0];                       // "08.15"
-const fmtK  = mmdd => { const [m,d]=mmdd.split('.'); return `${+m}월 ${+d}일`; }; // "08.15" → "8월 15일"
-const fmtSl = mmdd => mmdd.split('.').map(Number).join('/');            // "08.15" → "8/15"
+const actWord = p => p.scope==='수락' ? '수락' : '조회·수락';
+const untilEnd  = p => p.bans[p.bans.length-1].end;
+const untilMMDD = p => untilEnd(p).split(' ')[0];
+const fmtK  = mmdd => { const [m,d]=mmdd.split('.'); return `${+m}월 ${+d}일`; };
+const fmtSl = mmdd => mmdd.split('.').map(Number).join('/');
 const latestProd = arr => arr.slice().sort((a,b)=>untilMMDD(a)<untilMMDD(b)?-1:1).slice(-1)[0];
 
 /* ---------- screens ---------- */
@@ -376,51 +391,89 @@ function renderList(){
     <div class="fab" data-toast="전체 새로고침 (프로토타입)">↻ 새로고침</div>`;
 }
 
-/* ----- 패널티 현황: 유저 중심 ----- */
+/* ----- 패널티 현황: 2022 콜 정지 현황 스타일 ----- */
+function overallState(){
+  const ps=products();
+  if(!ps.length) return 'ok';
+  return ps.some(p=>p.bans.some(b=>b.status==='active')) ? 'stop' : 'soon';
+}
+const stateLabel = st => st==='stop'?'정지 중':st==='soon'?'정지 예정':'정상';
+function traffic(st){
+  return `<div class="traffic">
+    <span class="d r ${st==='stop'?'on':''}"></span>
+    <span class="d a ${st==='soon'?'on':''}"></span>
+    <span class="d g ${st==='ok'?'on':''}"></span></div>`;
+}
+function statusHero(){
+  const st=overallState();
+  return `<div class="sthero">
+     <div class="lab">현재 내 상태</div>
+     <div class="state ${st}">${stateLabel(st)}</div>
+     ${traffic(st)}
+     <div class="legend">현재 패널티 상태를 나타냅니다.<br>
+       • <span class="lt">정상</span> : 모든 콜을 정상 수신할 수 있어요<br>
+       • <span class="lt">정지 예정</span> : 정지가 예정돼 있지만 이의제기할 수 있어요<br>
+       • <span class="lt">정지 중</span> : 일부 또는 전체 콜을 받을 수 없어요</div>
+   </div>`;
+}
 function pcard(p){
-  const act = actWord(p);
+  const act=actWord(p);
+  const soon = !p.bans.some(b=>b.status==='active');
   const rows = p.bans.map(b=>`
     <div class="tl-row ${b.status}"><span class="dot"></span><span class="st">${b.status==='active'?'적용 중':'예정'}</span><span class="rng">${fmtSl(b.start.split(' ')[0])} ${b.start.split(' ')[1]} ~ ${fmtSl(b.end.split(' ')[0])} ${b.end.split(' ')[1]}</span></div>`).join('');
-  const detail = p.bans.length>1 ? `
-     <details class="pdetails"><summary>정지 내역 ${p.bans.length}건 자세히</summary>
+  const more = p.bans.length>1 ? `
+     <details class="morerow"><summary>정지 내역 ${p.bans.length}건 자세히</summary>
        <div class="tlw">${rows}</div>
        <p class="pfine">이의제기가 받아들여지면 남은 정지 기간이 자동으로 <b>앞당겨져요</b>. 표시되는 날짜는 항상 <b>현재 기준</b>이에요.</p>
      </details>` : '';
   return `
-   <div class="pcard">
-     <div class="pcard-top"><span class="ptag">${p.product}</span><span class="pstate">정지 중</span></div>
-     <div class="phero">
-       <div class="pdate"><span class="cal">🗓</span><b>${fmtK(untilMMDD(p))}</b>까지</div>
+   <div class="grp2">
+     <div class="sec-title">${p.product}</div>
+     <div class="pcard">
+       <div class="pcard-top">
+         <div class="pdate"><span class="cal">🗓</span><b>${fmtK(untilMMDD(p))}</b>까지</div>
+         <span class="pill ${soon?'soon':''}">❗ ${soon?'정지 예정':'정지 중'}</span>
+       </div>
        <div class="pdesc">이 날이 지나면 다시 <b>${p.product} 콜을 ${act}</b>할 수 있어요</div>
+       <div class="ibul"><span class="ic">ⓘ</span><span>${WHY[p.reason]||p.reason}</span></div>
+       ${more}
      </div>
-     <div class="pwhy">💬 ${WHY[p.reason]||p.reason}</div>
-     ${detail}
    </div>`;
 }
 function stillOkLine(){
   const banned = products().map(p=>p.product);
   const ok = ALL_PRODUCTS.filter(x=>!banned.includes(x)).map(x=> x==='실시간콜'?'실시간 콜':x+' 콜');
-  return ok.length ? `<div class="stillok">✅ ${ok.join(' · ')}은 지금도 정상 이용할 수 있어요</div>` : '';
+  return ok.length ? `<div class="stillok"><span>✅</span><span>${ok.join(' · ')}은 지금도 정상 이용할 수 있어요</span></div>` : '';
 }
 function histBlock(){
-  return `<details class="hist"><summary>지난 패널티 이력</summary>
-    <div class="p-item"><span class="pb">${ENDED.product}</span><div class="pu">${fmtSl(ENDED.range.split(' ~ ')[0])} ~ ${fmtSl(ENDED.range.split(' ~ ')[1])}</div><div class="pd">${ENDED.reason} · 정상 종료됨</div></div>
-  </details>`;
+  const [s,e]=ENDED.range.split(' ~ ');
+  return `<div class="grp2">
+    <div class="sec-title">패널티 이력</div>
+    <div class="histcard">
+      <div class="hist-item"><div class="hs">${ENDED.reason}</div><div class="hb">• 정상 종료됨</div><div class="hd">${fmtSl(s)} ~ ${fmtSl(e)}</div></div>
+      <div class="moremini" data-toast="이력 더 보기 (프로토타입)">더 보기 ⌄</div>
+    </div>
+  </div>`;
 }
 function renderDetail(){
-  const prods = products();
-  const ab = `<div class="ab"><span class="ic" data-go="back">←</span> 패널티 현황 <span class="sp"></span></div>`;
+  const prods=products();
+  const ab=`<div class="ab"><span class="ic" data-go="back">←</span> 패널티 현황 <span class="sp"></span></div>`;
   if(!prods.length){
     return `${ab}<div class="scroll"><div class="detail">
+      ${statusHero()}
       <div class="empty">✅ 지금은 적용 중인 패널티가 없어요.<br>안전 운행 감사합니다!</div>
       ${histBlock()}
     </div></div>`;
   }
   return `${ab}<div class="scroll"><div class="detail">
+    ${statusHero()}
     ${prods.map(pcard).join('')}
     ${stillOkLine()}
-    <div class="appeal-btn" data-toast="이의제기 접수 (프로토타입 · 콜센터 1800-9198)"><span>⚖️ 패널티가 부당하다고 생각하나요?</span><span class="cv">이의제기 ›</span></div>
-    <div class="appeal-sub">타다 드라이버 콜센터 1800-9198 · 게시판</div>
+    <div class="grp2">
+      <div class="sec-title">이의제기</div>
+      <div class="appeal-info"><span class="ic">ⓘ</span><span>패널티 사유에 이의가 있다면 타다 드라이버 콜센터(1800-9198) 또는 게시판으로 접수할 수 있어요.</span></div>
+      <div class="appeal-btn" data-toast="이의제기 접수 (프로토타입 · 콜센터 1800-9198)">⚖️ 이의제기하기</div>
+    </div>
     ${histBlock()}
   </div></div>`;
 }
@@ -440,7 +493,7 @@ function go(target){
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),1400); }
 
 scr.addEventListener('click', e=>{
-  if(e.target.closest('summary')) return; // 접기/펼치기는 기본 동작
+  if(e.target.closest('summary')) return;
   const g=e.target.closest('[data-go]'); if(g){ go(g.dataset.go); return; }
   const t=e.target.closest('[data-toast]'); if(t){ toast(t.dataset.toast); return; }
   const call=e.target.closest('.call'); if(call){ toast(call.classList.contains('blocked')?'정지 기간 동안 이용할 수 없어요':'콜 상세로 이동 (프로토타입)'); return; }
@@ -450,12 +503,12 @@ function explain(){
   const s=sc();
   const rp=resvProducts();
   let desc;
-  if(state.scenario==='none') desc='패널티 없음 — 상세는 “적용 중 없음” + 지난 이력만.';
-  else if(s.realtime) desc='실시간콜 정지 — 홈 모드 B(콜 정지 상태). 상세는 사람 언어 히어로 + 이유 + 이의제기.';
-  else desc=`상세는 상품별 카드: <b>“${fmtK(untilMMDD(latestProd(rp)))}까지 · 이 날 지나면 다시 ~할 수 있어요”</b> 히어로 → 사유 → (누적이면) 접힌 상세 → 뭐는 되는지 → 이의제기.`;
+  if(state.scenario==='none') desc='패널티 없음 — 상태 히어로 신호등 <b>녹색(정상)</b> + “적용 중 없음” + 이력.';
+  else if(s.realtime) desc='실시간콜 정지 — 홈 모드 B. 상세는 히어로 신호등 <b>적색(정지 중)</b> + 실시간콜/일반예약 카드.';
+  else desc=`상세 = 2022 ‘콜 정지 현황’ 스타일: <b>상태 히어로+신호등</b> → 상품별 <b>섹션 카드</b>(만료일 히어로·정지중 pill·ⓘ 사유·자세히) → 안심 → 이의제기 → 이력.`;
   document.getElementById('explain').innerHTML =
     `<b>시나리오: ${s.label}</b> — ${desc}<br>
-     <span style="color:var(--sub)">유저 관점 재설계: <b style="color:var(--txt)">언제 풀리나</b>(사람 날짜)를 히어로로 → <b style="color:var(--txt)">뭘 못 하나/뭐는 되나</b> → <b style="color:var(--txt)">왜</b>(쉬운 문장) → 내부 모델(누적·재계산·유예)은 <code>정지 내역 자세히</code> 접힘 속으로 → <b style="color:var(--txt)">이의제기</b> 버튼.</span>`;
+     <span style="color:var(--sub)">기존 Figma 스타일 재구성: <code>현재 내 상태 + 신호등(적/황/녹)</code> · <code>섹션 타이틀+카드</code> · <code>ⓘ 인포 불릿</code> · <code>자세히 보기 ⌄</code> · <code>패널티 이력 + 더 보기</code>. 신규 모델이라 임계 진행도 대신 <b style="color:var(--txt)">상품별 정지</b>로 대응.</span>`;
 }
 
 /* ---------- controls ---------- */
