@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>패널티 안내 프로토타입 · TADA-9314</title>
+<style>
+:root{
+  --page:#0c1526; --nv:#0f1c37; --card:#1a2c50; --line:#2b4067; --txt:#f2f6ff; --sub:#a7b8d6;
+  --blue:#3d7bff; --btn:#1b3e79; --btnln:#5b93ff; --sh:#bcd3ff; --mult:#c7ef4c;
+  --badge:#334870; --badgetx:#cdd9f2; --imm:#8a3a58; --immtx:#ffb0c6; --rec:#1f3a2e; --rectx:#7fe3ac;
+  --red:#ff5a5a; --redbg:rgba(255,90,90,.14); --redln:rgba(255,90,90,.45); --redtx:#ff9b9b;
+  --amber:#ffcf6a; --amberbg:rgba(255,190,80,.13); --amberln:rgba(255,190,80,.42); --ambertx:#ffd98a;
+  --orange:#ff7a2f; --gray:#8791a6;
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  --kr:"Apple SD Gothic Neo","Pretendard",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line-height:1.5}
+.app{max-width:920px;margin:0 auto;padding:18px 16px 40px}
+.head h1{font-size:18px;margin:0 0 3px;letter-spacing:-.02em}
+.head p{margin:0;color:var(--sub);font-size:12.5px}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0 16px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#0e1c38}
+.ctrl .grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.ctrl .lbl{font-size:11px;color:var(--sub);font-family:var(--mono);margin-right:2px}
+.ctrl button{font-family:var(--kr);font-size:12px;color:var(--sub);background:transparent;border:1px solid var(--line);border-radius:999px;padding:5px 11px;cursor:pointer}
+.ctrl button.on{color:#fff;background:var(--btn);border-color:var(--btnln)}
+.ctrl .sep{width:1px;height:20px;background:var(--line);margin:0 4px}
+
+.stage{display:flex;justify-content:center}
+.phone{width:100%;max-width:390px;background:#0a1428;border:1px solid var(--line);border-radius:26px;padding:8px;box-shadow:0 18px 50px rgba(0,0,0,.4)}
+.scr{background:var(--nv);border:1px solid var(--line);border-radius:19px;overflow:hidden;display:flex;flex-direction:column;height:730px;font-size:14px;position:relative}
+.scr.big{font-size:18px}
+.sb{height:1.4em;background:#0b1730;flex:none}
+.screen{flex:1;display:flex;flex-direction:column;min-height:0}
+
+/* app bar */
+.ab{padding:.7em .85em;font-weight:800;display:flex;align-items:center;gap:.5em;border-bottom:1px solid var(--line);flex:none}
+.ab .sp{flex:1}.ab .i{color:var(--sub);font-weight:600;font-size:.8em}
+.ab .ic{cursor:pointer}
+.ab.home{font-weight:700;gap:.4em}
+.ab.home .menu{position:relative;font-size:1.05em}
+.ab.home .menu .dot{position:absolute;top:-.1em;right:-.2em;width:.42em;height:.42em;background:var(--orange);border-radius:50%}
+.ab.home .chip{font-size:.8em;font-weight:700;background:#26324f;border-radius:.7em;padding:.35em .7em;color:#fff;cursor:pointer}
+.ab.home .chip.ghost{background:#16223d;color:var(--sub);cursor:default}
+.ab.home .chip.ghost.off{color:#5a647e}
+
+/* tabs */
+.tabs{display:flex;font-size:.92em;border-bottom:1px solid var(--line);flex:none}
+.tabs div{flex:1;text-align:center;padding:.7em 0;color:var(--sub);cursor:pointer}
+.tabs .on{color:var(--txt);font-weight:800;box-shadow:inset 0 -3px 0 var(--blue)}
+
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0}
+.list{padding:.6em;display:flex;flex-direction:column;gap:.55em}
+.sortrow{display:flex;gap:.4em;font-size:.82em;color:var(--sub);margin-bottom:.1em}
+.sortrow .c{border:1px solid var(--line);border-radius:999px;padding:.3em .7em;cursor:pointer;background:transparent;color:var(--sub);font-family:var(--kr)}
+.sortrow .c.act{color:#fff;border-color:var(--btnln)}
+.sortrow .f{margin-left:auto}
+
+/* banners */
+.banner{margin:.55em .6em 0;border-radius:.7em;padding:.7em .8em;display:flex;align-items:center;gap:.5em;cursor:pointer;font-size:.86em;line-height:1.4}
+.banner .cv{margin-left:auto;font-size:1.2em}
+.banner.amber{background:var(--amberbg);border:1px solid var(--amberln);color:var(--ambertx)}
+.banner.red{background:var(--redbg);border:1px solid var(--redln);color:var(--redtx)}
+.banner.red .lines b{font-weight:800;color:#ffbcbc}
+
+/* call cards */
+.call{background:var(--card);border-radius:.75em;padding:.72em;display:flex;gap:.6em;cursor:pointer;border:1px solid transparent}
+.call:active{border-color:var(--btnln)}
+.call.blocked{opacity:.5;background:#182238;cursor:default}
+.call .lft{width:4.8em;flex:none}
+.call .lft b{font-weight:800}.call .lft span{display:block;font-size:.78em;color:var(--sub)}
+.call .lft .ch{display:block;font-size:.72em;color:var(--sub);margin-top:.2em}
+.call .rgt{flex:1;min-width:0}
+.call .route{font-size:.92em}
+.call .bd{display:flex;flex-wrap:wrap;gap:.3em;margin:.38em 0}
+.call .bd i{font-style:normal;font-size:.72em;background:var(--badge);color:var(--badgetx);border-radius:.4em;padding:.17em .5em}
+.call .bd i.type{font-weight:700}
+.call .bd i.im{background:var(--imm);color:var(--immtx)}
+.call .bd i.rec{background:var(--rec);color:var(--rectx)}
+.call .foot{display:flex;justify-content:space-between;align-items:center;margin-top:.3em}
+.call .pr{text-align:right;font-weight:800}
+.call .pr em{font-style:normal;color:var(--mult);font-size:.78em;font-weight:700;margin-right:.25em}
+.call .blk{font-size:.78em;font-weight:800;color:var(--redtx)}
+.call.ok{border-color:rgba(127,227,172,.35)}
+.okline{font-size:.72em;color:var(--rectx);text-align:center;margin-top:-.15em}
+
+/* fab */
+.fab{position:absolute;left:50%;bottom:1em;transform:translateX(-50%);background:#fff;color:#0b1220;font-weight:800;font-size:.82em;border-radius:999px;padding:.6em 1.3em;box-shadow:0 8px 24px rgba(0,0,0,.4);cursor:pointer}
+
+/* home map / status */
+.map{flex:1;margin:.6em;border-radius:.9em;background:radial-gradient(120% 90% at 50% 20%,#1a2b4d 0,#12203c 60%,#0e1a32 100%);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4em;min-height:8em;overflow:hidden}
+.map .reccard{position:absolute;top:.7em;left:.7em;right:.7em;background:#0e1830;border:1px solid #26324f;border-radius:.6em;padding:.5em .7em;font-size:.76em;color:#c9d2e3}
+.map .reccard b{color:var(--redtx);font-weight:700}
+.map .statusic{width:2.6em;height:2.6em;border-radius:50%;background:#1f3a2e;display:flex;align-items:center;justify-content:center;font-size:1.2em}
+.map .statustx{font-weight:800;color:var(--rectx)}
+.map .statussub{font-size:.76em;color:var(--sub)}
+.homectrl{display:flex;gap:.5em;padding:.6em}
+.homectrl .hc{flex:1;text-align:center;font-size:.82em;padding:.75em;border-radius:.7em;background:#16223d;color:var(--sub)}
+.homectrl .hc.solid{background:#26324f;color:#fff;font-weight:700}
+
+/* mode B takeover */
+.takeover{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.25em;padding:1em}
+.takeover .tl{color:#6e56c4;font-size:1.1em;line-height:.7}
+.takeover .slash{background:#7b5cd6;color:#fff;font-size:.72em;border-radius:.35em;padding:.05em .6em;margin:.15em 0}
+.takeover .tri{width:3.4em;height:3.4em;border-radius:.8em;background:#3a4358;display:flex;align-items:center;justify-content:center;font-size:1.8em;margin:.3em 0}
+.takeover .big{font-size:1.35em;font-weight:800;color:#aeb6c7}
+.takeovercard{margin:0 .8em .9em;border:1px solid #26324f;border-radius:.9em;padding:.9em}
+.takeovercard .m{text-align:center;font-size:.95em;line-height:1.5}
+.takeovercard .m b{color:var(--orange);font-weight:800}
+.takeovercard .s{text-align:center;font-size:.76em;color:var(--sub);margin:.35em 0 .7em}
+.takeovercard .btn{background:#26324f;border-radius:.55em;text-align:center;font-weight:800;padding:.7em;cursor:pointer}
+
+/* drawer */
+.drawer-prof{display:flex;align-items:center;gap:.6em;padding:0 .9em .8em;border-bottom:1px solid var(--line)}
+.drawer-prof .av{width:2.6em;height:2.6em;border-radius:50%;background:#26324f;flex:none}
+.drawer-prof b{font-weight:800}
+.drawer-prof span{display:block;font-size:.78em;color:var(--sub)}
+.dsec{font-size:.72em;color:#5a647e;padding:.9em .9em .35em}
+.drow{padding:.65em .9em;font-size:.92em;color:var(--sub);cursor:pointer}
+.drow.penalty{margin:.15em .6em;padding:.7em .7em;border:1.5px solid var(--redln);border-radius:.6em;color:var(--redtx);font-weight:800;display:flex;align-items:center;justify-content:space-between}
+.drow.penalty.calm{border-color:var(--line);color:var(--txt)}
+.drow.penalty .new{font-size:.62em;background:var(--redbg);border:1px solid var(--redln);color:var(--redtx);border-radius:.35em;padding:.1em .5em}
+.drawer-foot{border-top:1px solid var(--line);padding:.8em .9em;font-size:.9em;color:var(--sub)}
+
+/* detail */
+.detail{padding:.8em;display:flex;flex-direction:column;gap:.2em}
+.d-sum{background:#152banner;background:#14203c;border-radius:.6em;padding:.7em .8em;font-size:.9em;margin-bottom:.6em}
+.d-sum b{color:var(--redtx);font-weight:800}
+.d-sum.calm b{color:var(--rectx)}
+.d-grp{font-size:.78em;font-weight:800;margin:.6em 0 .35em;display:flex;align-items:center;gap:.35em}
+.d-grp.active{color:var(--redtx)}
+.d-grp.sched{color:var(--ambertx)}
+.d-grp.ended{color:var(--gray)}
+.p-item{border-radius:.7em;padding:.7em .8em;margin-bottom:.45em;border:1px solid var(--line)}
+.p-item.active{border-color:var(--redln)}
+.p-item.sched{border-color:var(--amberln)}
+.p-item.ended{opacity:.7}
+.p-item .pb{display:inline-block;font-size:.72em;font-weight:700;border-radius:.35em;padding:.15em .55em;margin-bottom:.4em}
+.p-item.active .pb{background:var(--redbg);color:var(--redtx)}
+.p-item.sched .pb{background:var(--amberbg);color:var(--ambertx)}
+.p-item.ended .pb{background:#222c40;color:var(--gray)}
+.p-item .pu{font-size:.92em;font-weight:800}
+.p-item .pd{font-size:.8em;color:var(--sub);margin-top:.2em;line-height:1.45}
+.p-item.ended .pu{text-decoration:line-through;color:var(--gray)}
+.appeal{margin-top:.6em;background:#14203c;border-radius:.55em;padding:.7em .8em;font-size:.76em;color:var(--sub);line-height:1.5}
+.empty{text-align:center;color:var(--sub);font-size:.85em;padding:2em 1em}
+
+.toast{position:absolute;left:50%;bottom:1.4em;transform:translateX(-50%) translateY(1em);opacity:0;transition:.2s;pointer-events:none;background:#0b1830;border:1px solid var(--line);color:var(--txt);font-size:.82em;padding:.55em .9em;border-radius:999px;white-space:nowrap;z-index:5}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.note{margin-top:12px;color:var(--sub);font-size:12px;border:1px dashed var(--line);border-radius:10px;padding:10px 12px}
+.note b{color:var(--txt)}
+.note code{font-family:var(--mono);color:var(--sh);font-size:.92em}
+</style>
+</head>
+<body>
+<div class="app">
+  <p style="margin:0 0 10px"><a href="index.html" style="color:#5b93ff;font-size:13px;text-decoration:none">← 셔틀 프로토타입 허브</a></p>
+  <div class="head">
+    <h1>⚠️ 드라이버앱 패널티 안내 <span style="font-family:var(--mono);font-size:11px;color:var(--btnln)">TADA-9314</span></h1>
+    <p>패널티 상태를 앱에서 어떻게 알려줄지. <b>시나리오를 바꿔가며</b> 홈 배너·예약콜 목록·패널티 현황 상세를 눌러보세요. (실데이터 아님)</p>
+  </div>
+
+  <div class="ctrl">
+    <div class="grp"><span class="lbl">시나리오</span>
+      <button data-sc="general" class="on">일반예약 정지</button>
+      <button data-sc="charter_shuttle">시간대절·셔틀 정지</button>
+      <button data-sc="noshow">노쇼(전 상품)</button>
+      <button data-sc="realtime">실시간콜 초과</button>
+      <button data-sc="none">정상</button>
+    </div>
+    <div class="sep"></div>
+    <div class="grp"><span class="lbl">글씨</span>
+      <button data-fs="0" class="on">기본</button>
+      <button data-fs="1">크게(sp)</button>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="phone"><div class="scr" id="scr">
+      <div class="sb"></div>
+      <div class="screen" id="screen"></div>
+      <div class="toast" id="toast"></div>
+    </div></div>
+  </div>
+
+  <div class="note" id="explain"></div>
+  <p style="margin-top:10px;text-align:center;color:var(--sub);font-size:12px">기존 셔틀 프로토타입은 그대로 · <a href="index.html" style="color:var(--btnln)">허브 →</a></p>
+</div>
+
+<script>
+/* ---------- data ---------- */
+const won = n => n.toLocaleString('ko-KR')+'원';
+
+// 시나리오별 활성 패널티. scope: '수락' = 수락만 정지(카드 딤+"수락 불가"), '조회+수락' = 조회까지 정지("조회 불가")
+const SCEN = {
+  none:            { label:'정상',              realtime:false, penalties:[] },
+  general:         { label:'일반예약 정지',       realtime:false, penalties:[
+    {product:'일반예약', reason:'예약 수락 후 취소', until:'07.30', scope:'수락'} ] },
+  charter_shuttle: { label:'시간대절·셔틀 정지',   realtime:false, penalties:[
+    {product:'시간대절', reason:'예약 수락 후 취소', until:'08.02', scope:'조회+수락'},
+    {product:'셔틀',    reason:'셔틀 수락 후 취소', until:'07.28', scope:'조회+수락'} ] },
+  noshow:          { label:'노쇼(전 상품)',       realtime:false, penalties:[
+    {product:'일반예약', reason:'예약 불이행(노쇼)', until:'07.30', scope:'수락'},
+    {product:'시간대절', reason:'예약 불이행(노쇼)', until:'07.30', scope:'조회+수락'},
+    {product:'셔틀',    reason:'예약 불이행(노쇼)', until:'07.30', scope:'조회+수락'} ] },
+  realtime:        { label:'실시간콜 취소 초과',   realtime:true,  penalties:[
+    {product:'실시간콜', reason:'다건 실시간 콜 수락 후 취소', until:'07.30', scope:'실시간'},
+    {product:'일반예약', reason:'다건 실시간 콜 수락 후 취소', until:'07.30', scope:'수락'} ] },
+};
+// 상세 페이지 데모용 예정/종료 (시나리오 무관하게 그룹 구조를 보여주기 위함)
+const SCHED = {product:'시간대절', reason:'예약 불이행(노쇼)', range:'08.02 00:00 ~ 08.03 24:00'};
+const ENDED = {product:'셔틀', reason:'셔틀 수락 후 취소', range:'07.20 00:00 ~ 07.22 24:00'};
+
+const CALLS = [
+  {date:'오늘',          time:'아침 11:20', type:'셔틀예약', route:'성동구 성수동1가 → 인천국제공항', price:25000, badges:['임박']},
+  {date:'내일',          time:'아침 11:20', type:'일반예약', route:'성동구 성수동1가 → 인천국제공항', price:25000, mult:1.9, badges:['단골','임박','추천']},
+  {date:'10월 16일 (수)', time:'아침 11:20', type:'일반예약', route:'용산구 동자동 → 경유지 2곳 → 동대문구 답십리1동', price:25000, mult:0.9, badges:['카시트']},
+  {date:'10월 19일 (목)', time:'아침 11:40', type:'시간대절', charter:'2시간 대절', route:'동대문구 답십리1동 → 인천국제공항', price:81400, mult:0.9, badges:['카시트']},
+  {date:'10월 21일 (화)', time:'아침 11:20', type:'일반예약', route:'동대문구 답십리1동 → 성동구 성수동1가', price:81400, badges:[]},
+];
+
+/* ---------- state ---------- */
+const state = { scenario:'general', screen:'home', big:false, hist:[] };
+const scr=document.getElementById('scr'), screen=document.getElementById('screen');
+
+const sc = () => SCEN[state.scenario];
+const resvPenalties = () => sc().penalties.filter(p=>p.product!=='실시간콜'); // 예약콜 목록에 영향 주는 것
+const typeToProduct = t => ({'셔틀예약':'셔틀','일반예약':'일반예약','시간대절':'시간대절'})[t];
+const penaltyFor = product => sc().penalties.find(p=>p.product===product);
+const blockLabel = p => p.scope==='수락' ? '수락 불가' : '조회 불가';
+const scopeDesc = p => {
+  if(p.scope==='실시간') return '운행 시작되는 실시간 콜과 예약 콜 수락이 정지됩니다';
+  if(p.scope==='수락')   return `${p.product} 콜 수락이 정지됩니다`;
+  return `${p.product} 콜 조회·수락이 정지됩니다`;
+};
+const maxUntil = arr => arr.map(p=>p.until).sort().slice(-1)[0];
+
+/* ---------- screens ---------- */
+function homeMode(){ return sc().realtime; } // true = 모드 B takeover
+
+function renderHome(){
+  const rp = resvPenalties();
+  if(homeMode()){ // 모드 B: 실시간콜 정지 takeover (기존 화면 재사용)
+    const u = penaltyFor('실시간콜').until;
+    return `
+    <div class="ab home">
+      <span class="ic menu" data-go="drawer">☰<i class="dot"></i></span><span class="sp"></span>
+      <span class="chip" data-go="list">📅 예약콜</span>
+      <span class="chip ghost off">미리배차 꺼짐</span>
+    </div>
+    <div class="takeover">
+      <div class="tl">⋮</div><div class="slash">//</div><div class="tl">⋮</div>
+      <div class="tri">⚠️</div>
+      <div class="big">콜 정지 상태</div>
+      <div class="tl">⋮</div><div class="slash">//</div>
+    </div>
+    <div class="takeovercard">
+      <div class="m"><b>${u} 00:00</b> 부터<br>콜 수신이 가능합니다</div>
+      <div class="s">실시간 콜 + 예약 콜 수락 정지</div>
+      <div class="btn" data-go="detail">자세히 보기</div>
+    </div>`;
+  }
+  // 모드 A: 실시간콜 정상 + (패널티 있으면) 상단 슬림 배너
+  const banner = rp.length ? `
+    <div class="banner amber" data-go="detail">
+      <span>⚠️ 패널티 적용 중 · ~${maxUntil(rp)}까지 일부 예약 콜 제한</span><span class="cv">›</span>
+    </div>` : '';
+  return `
+    <div class="ab home">
+      <span class="ic menu" data-go="drawer">☰${rp.length?'<i class="dot"></i>':''}</span><span class="sp"></span>
+      <span class="chip" data-go="list">📅 예약콜</span>
+      <span class="chip ghost">미리배차 켜짐</span>
+    </div>
+    ${banner}
+    <div class="map">
+      <div class="reccard">언주역 근처 · <b>콜 증가 지역(~12:40)</b></div>
+      <div class="statusic">📡</div>
+      <div class="statustx">콜 수신중</div>
+      <div class="statussub">거절/미수락 1</div>
+    </div>
+    <div class="homectrl"><div class="hc" data-toast="콜 휴식 (프로토타입)">콜 휴식</div><div class="hc solid" data-toast="퇴근콜 받기 (프로토타입)">퇴근콜 받기</div></div>`;
+}
+
+function renderDrawer(){
+  const active = sc().penalties.length>0;
+  const dot = active?'<i class="new">NEW · 적용중</i>':'<i class="new" style="background:transparent;border-color:var(--line);color:var(--sub)">NEW</i>';
+  return `
+    <div class="ab"><span class="ic" data-go="back">✕</span></div>
+    <div class="drawer-prof"><div class="av"></div><div><b>김재욱</b><span>드라이버</span></div></div>
+    <div class="scroll">
+      <div class="dsec">타다 운행</div>
+      <div class="drow" data-toast="운행 이력 (프로토타입)">운행 이력</div>
+      <div class="drow" data-toast="내 운행리포트 (프로토타입)">내 운행리포트</div>
+      <div class="drow" data-toast="내 대기순번 (프로토타입)">내 대기순번</div>
+      <div class="drow penalty ${active?'':'calm'}" data-go="detail"><span>⚠️ 패널티 현황</span>${dot}</div>
+      <div class="drow" data-go="list">예약콜 목록</div>
+      <div class="drow" data-toast="대시보드 (프로토타입)">대시보드</div>
+      <div class="dsec">안내/지원</div>
+      <div class="drow" data-toast="공지사항 (프로토타입)">공지사항</div>
+      <div class="drow" data-toast="고객센터 (프로토타입)">고객센터</div>
+      <div class="drow" data-toast="도움말 (프로토타입)">도움말</div>
+    </div>
+    <div class="drawer-foot">⎋ 퇴근하기</div>`;
+}
+
+function callCard(c){
+  const product = typeToProduct(c.type);
+  const p = penaltyFor(product);
+  const blocked = !!p;
+  const typeBadge = `<i class="type">${c.type}</i>`;
+  const rest = (c.badges||[]).map(b=> b==='임박'?'<i class="im">임박</i>' : b==='추천'?'<i class="rec">추천</i>' : `<i>${b}</i>`).join('');
+  const mult = c.mult?`<em>↗${c.mult.toFixed(1)}배</em>`:'';
+  const lft = `<div class="lft"><b>${c.date}</b><span>${c.time}</span>${c.charter?`<span class="ch">${c.charter}</span>`:''}</div>`;
+  const foot = blocked
+    ? `<div class="foot"><span class="blk">${p.scope==='수락'?'⊘':'🚫'} ${blockLabel(p)}</span><div class="pr">${won(c.price)}</div></div>`
+    : `<div class="foot"><span></span><div class="pr">${mult}${won(c.price)}</div></div>`;
+  return `<div class="call ${blocked?'blocked':''}"><div class="rgt" style="display:none"></div>${lft}<div class="rgt"><div class="route">${c.route}</div><div class="bd">${typeBadge}${rest}</div>${foot}</div></div>`;
+}
+
+function renderList(){
+  const rp = resvPenalties();
+  let banner='';
+  if(rp.length){
+    const lines = rp.map(p=>`· ${p.product} — ${p.until}까지 <b>${blockLabel(p)}</b>`).join('<br>');
+    banner = `<div class="banner red" data-go="detail"><div class="lines" style="flex:1">⚠️ 일부 예약 콜이 정지 중입니다<div style="font-size:.92em;margin-top:.2em;font-weight:400">${lines}</div></div><span class="cv">›</span></div>`;
+  }
+  const cards = CALLS.map(callCard).join('');
+  return `
+    <div class="ab"><span class="ic" data-go="back">←</span> 예약콜 목록 <span class="sp"></span><span class="i">ⓘ 도움말</span></div>
+    <div class="tabs"><div class="on">수락가능 콜</div><div data-toast="내 예약 (프로토타입)">내 예약(9)</div></div>
+    ${banner}
+    <div class="scroll"><div class="list">
+      <div class="sortrow"><button class="f c" data-toast="공항콜만 보기 (프로토타입)">✈ 공항콜만 보기</button><button class="c act" data-toast="정렬 (프로토타입)">↕ 추천순</button></div>
+      ${cards}
+    </div></div>
+    <div class="fab" data-toast="전체 새로고침 (프로토타입)">↻ 새로고침</div>`;
+}
+
+function renderDetail(){
+  const active = sc().penalties;
+  const sum = active.length
+    ? `<div class="d-sum">현재 <b>${active.length}건</b>의 패널티가 적용 중입니다</div>`
+    : `<div class="d-sum calm">현재 적용 중인 패널티가 <b>없습니다</b></div>`;
+  const activeItems = active.map(p=>`
+    <div class="p-item active"><span class="pb">${p.product} 정지</span>
+      <div class="pu">~ ${p.until} 24:00 까지</div>
+      <div class="pd">${p.reason} · ${scopeDesc(p)}</div></div>`).join('');
+  const schedBlock = active.length? `
+    <div class="d-grp sched">⏱ 예정</div>
+    <div class="p-item sched"><span class="pb">${SCHED.product} 정지</span>
+      <div class="pu">${SCHED.range}</div>
+      <div class="pd">${SCHED.reason} · ${SCHED.product} 콜 조회·수락이 정지됩니다</div></div>` : '';
+  const endedBlock = `
+    <div class="d-grp ended">✓ 종료</div>
+    <div class="p-item ended"><span class="pb">${ENDED.product} 정지</span>
+      <div class="pu">${ENDED.range}</div>
+      <div class="pd">${ENDED.reason} · 정상 종료됨</div></div>`;
+  const activeBlock = active.length? `<div class="d-grp active">▶ 적용 중</div>${activeItems}` : `<div class="empty">적용 중인 패널티가 없습니다.<br>아래는 지난 이력입니다.</div>`;
+  return `
+    <div class="ab"><span class="ic" data-go="back">←</span> 패널티 현황 <span class="sp"></span></div>
+    <div class="scroll"><div class="detail">
+      ${sum}
+      ${activeBlock}
+      ${schedBlock}
+      ${endedBlock}
+      <div class="appeal">ⓘ 패널티 사유에 대한 이의제기는 타다 드라이버 콜센터(1800-9198) 또는 게시판으로 접수 가능합니다.</div>
+    </div></div>`;
+}
+
+/* ---------- render / nav ---------- */
+function render(){
+  scr.classList.toggle('big', state.big);
+  const map = {home:renderHome, drawer:renderDrawer, list:renderList, detail:renderDetail};
+  screen.innerHTML = map[state.screen]();
+  explain();
+}
+function go(target){
+  if(target==='back'){ state.screen = state.hist.pop() || 'home'; }
+  else { if(state.screen!==target){ state.hist.push(state.screen); state.screen=target; } }
+  render();
+}
+function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),1400); }
+
+scr.addEventListener('click', e=>{
+  const g=e.target.closest('[data-go]'); if(g){ go(g.dataset.go); return; }
+  const t=e.target.closest('[data-toast]'); if(t){ toast(t.dataset.toast); return; }
+  const call=e.target.closest('.call'); if(call){ toast(call.classList.contains('blocked')?'정지 기간 동안 이용할 수 없습니다':'콜 상세로 이동 (프로토타입)'); return; }
+});
+
+function explain(){
+  const s=sc();
+  const rp=resvPenalties();
+  let desc;
+  if(state.scenario==='none') desc='패널티 없음 — 홈 배너·목록 배너·카드 딤 모두 사라집니다. 서랍 ‘패널티 현황’은 남되 강조 해제, 상세는 지난 이력만.';
+  else if(s.realtime) desc='실시간콜 정지 — 홈이 <b>모드 B</b>(콜 정지 상태 takeover, <b>기존 실존 화면</b>)로 전환. 실시간+예약 동시 정지.';
+  else desc=`홈은 <b>모드 A</b>(콜 수신중 정상 + 상단 amber 배너). 예약콜 목록엔 <b>red 배너</b> + 정지 상품 카드 딤: ${rp.map(p=>p.product+'→'+blockLabel(p)).join(', ')}.`;
+  document.getElementById('explain').innerHTML =
+    `<b>시나리오: ${s.label}</b> — ${desc}<br><span style="color:var(--sub)">눌러볼 것: 홈 <code>☰</code>→서랍→패널티 현황 · 홈 <code>📅 예약콜</code>→목록 · 배너/카드 <code>자세히</code>→상세.</span>`;
+}
+
+/* ---------- controls ---------- */
+document.querySelectorAll('.ctrl [data-sc]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.ctrl [data-sc]').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  state.scenario=b.dataset.sc; state.screen='home'; state.hist=[]; render();
+}));
+document.querySelectorAll('.ctrl [data-fs]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.ctrl [data-fs]').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  state.big=b.dataset.fs==='1'; render();
+}));
+
+render();
+</script>
+</body>
+</html>
