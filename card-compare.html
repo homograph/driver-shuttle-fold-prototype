@@ -7,7 +7,7 @@
 <style>
 :root{
   --page:#0c1526; --nv:#0f1c37; --card:#1a2c50; --line:#2b4067; --txt:#f2f6ff; --sub:#a7b8d6; --sub2:#98a4c2;
-  --blue:#3d7bff; --btn:#1b3e79; --btnln:#5b93ff; --mult:#c7ef4c; --y:#ffe14d;
+  --blue:#3d7bff; --btn:#1b3e79; --btnln:#5b93ff; --mult:#c7ef4c; --y:#ffe14d; --earn:#8fe3b0;
   --g-grey:#334870; --g-greytx:#cdd9f2; --g-imm:#8a3a58; --g-immtx:#ff9db6; --g-dangol:#6b4a1f; --g-dangoltx:#ffcf87;
   --g-rec:#3f5a2a; --g-rectx:#c7f08a; --g-seatG:#1e5140; --g-seatGtx:#7fe3b8;
   --t-shuttle:#234f96; --t-shuttletx:#bcd6ff;
@@ -68,19 +68,21 @@ h1{font-size:19px;margin:0 0 4px;letter-spacing:-.02em}
 .nc .price b{font-size:1.4em;font-weight:800}
 .nc .price.y b{color:var(--y)}
 .nc .price em{font-style:normal;color:var(--mult);font-size:.8em;font-weight:700;margin-left:.4em}
-.nc .bonus{font-size:.82em;font-weight:700;margin-top:.15em}
-.nc .bonus span{color:var(--sub2);font-weight:500}
+.nc .earn{font-size:.84em;margin-top:.15em}
+.nc .earn b{color:var(--earn);font-weight:800}
+.nc .earn span{color:var(--sub2);font-weight:500;margin-left:.15em}
+.nc .earn .dg{color:var(--g-dangoltx);font-weight:700}
 .nc .route{margin-top:.5em}
 .nc .attrs{display:flex;flex-wrap:wrap;gap:.35em;align-items:center;margin-top:.5em}
 .nc .attrs .a{font-size:.74em;color:var(--sub)}
 .nc .attrs .dot{color:var(--sub2)}
 .nc .attrs .none{font-size:.74em;color:var(--sub2)}
 
-/* 위계 강화 (v2) — ①가격 지배 ②색예산 ③수익그룹 타이트 ④조건 뮤트 */
+/* 위계 강화 (v2) */
 .nc.v2 .tline{margin-bottom:.3em}
 .nc.v2 .tchip{font-size:.74em;padding:.18em .52em}
 .nc.v2 .price b{font-size:1.7em;letter-spacing:-.01em}
-.nc.v2 .bonus{margin-top:.02em}
+.nc.v2 .earn{margin-top:.04em}
 .nc.v2 .route{margin-top:.85em;font-size:.88em}
 .nc.v2 .attrs{margin-top:.62em}
 .nc.v2 .attrs .a{font-size:.7em;color:var(--sub2)}
@@ -95,7 +97,7 @@ h1{font-size:19px;margin:0 0 4px;letter-spacing:-.02em}
 <div class="app">
   <p class="back"><a href="index.html">← 방식 목록</a></p>
   <h1>🃏 콜 카드 — 현행 · 개선안 · 위계강화(v2)</h1>
-  <p class="lead">v2 = 타사(Uber·Grab) <b>레이아웃/정보위계 기법</b>을 우리 필드에만 적용 — ①가격 지배력↑ ②색 예산 ③수익 그룹 타이트 ④조건 뮤트. (운행시간·시간당은 상세로) <b>크게(sp)</b>로 견딤 확인.</p>
+  <p class="lead">v2 = 타사 레이아웃/위계 기법 + <b>부가수익 표기 정정(TADA-8462)</b>. 운행 요금=메인, 그 아래 <b>부가서비스 기대 수익</b>을 별도 ＋항목으로(카시트·단골 합산). 마이드라이버 지정+본인이면 “단골 수익 포함”.</p>
 
   <div class="ctrl"><span class="lbl">글씨</span>
     <button data-fs="0" class="on">기본</button>
@@ -112,18 +114,17 @@ h1{font-size:19px;margin:0 0 4px;letter-spacing:-.02em}
       <div class="stack" id="after"></div>
     </div>
     <div class="col v2">
-      <h2><span class="t">위계강화 v2</span> 타사 기법 반영</h2>
+      <h2><span class="t">위계강화 v2</span> 타사 기법 + 부가수익 정정</h2>
       <div class="stack" id="v2"></div>
     </div>
   </div>
 
   <div class="note">
-    <b>v2에서 조인 것 (타사 레이아웃·위계 기법)</b><br>
-    ① <b>가격 지배력↑</b> — 요금 글자를 더 키워 “한눈에(glanceable)”. 나머지는 상대적으로 더 작게.<br>
-    ② <b>색 예산 ≤3</b> — 색은 의미 있을 때만(종류·서지 초록·임박 빨강). 추천은 색 대신 <b>가장자리</b>(더 얇게).<br>
-    ③ <b>수익 그룹 타이트</b> — 가격+단골 보너스를 붙이고, 경로/조건은 <b>여백으로 분리</b>(존 그룹핑).<br>
-    ④ <b>조건 뮤트</b> — 카시트·현장결제는 더 작고 흐리게(스캔 방해 최소).<br>
-    ※ 운행시간·시간당 예상수익·경유 상세는 <b>상세 화면</b>으로(progressive disclosure).
+    <b>＋부가수익 부분 개선 (PRD TADA-8462 반영)</b><br>
+    ① <b>용어 정정</b> — “단골 보너스” → <b>기대 수익</b>, 마이드라이버 지정+본인은 <b>단골 수익 포함</b>(‘보너스’ 삭제).<br>
+    ② <b>합산 정확화</b> — 카시트(1개 3,000·2개 6,000) + 단골 1,500 → <b>＋7,500원</b> 식 총 기대수익(카드는 총액, 항목 breakdown은 상세).<br>
+    ③ <b>메인/추가 위계</b> — 운행 요금이 메인(합산 X), 기대 수익은 별도 ＋항목. 셔틀은 부가서비스 없어 미표기.<br>
+    ④ <b>존재감</b> — ＋금액을 <b>초록 강조</b>로 “더 버는 돈”이 읽히되, 큰 운행 요금엔 종속.
   </div>
 </div>
 
@@ -131,19 +132,22 @@ h1{font-size:19px;margin:0 0 4px;letter-spacing:-.02em}
 const won=n=>n.toLocaleString('ko-KR')+'원';
 const typeCls=t=> t==='묶음예약'?'bundle':(t==='셔틀예약'?'shuttle':'grey');
 const typeIcon=t=> t==='묶음예약'?'🔗 ':(t==='셔틀예약'?'🚐 ':(t==='시간대절'?'⏱ ':''));
+// 부가서비스 기대 수익 (셔틀 제외): 카시트 개수*3,000 + 단골(마이드라이버) 1,500
+const expEarn=c=> c.type==='셔틀예약'?0:((c.seat||0)*3000 + (c.dangol?1500:0));
 const calls=[
-  {when:'오늘',time:'아침 11:20',product:'2시간 대절',route:'성동구 성수동1가 → 인천국제공항',price:25000,surge:'1.9',bonus:1500,type:'시간대절',attrs:['카시트','현장결제'],urgent:true,dangol:true,rec:true},
-  {when:'오늘',time:'아침 11:20',product:null,dur:'3시간 40분',route:'성동구 성수동1가 → {N}건 예약 수행 → 인천국제공항',price:66000,surge:'1.9',bonus:1500,type:'묶음예약',attrs:['카시트','현장결제'],urgent:true,bundle:true},
-  {when:'오늘',time:'낮 12:00',product:null,route:'용산구 한강로3가 → 인천국제공항',price:85000,surge:'2.0',bonus:0,type:'셔틀예약',attrs:['카시트'],urgent:false},
-  {when:'내일',time:'아침 08:20',product:null,route:'답십리1동 → 성동구 성수동1가',price:81400,surge:null,bonus:0,type:'일반예약',attrs:[],urgent:false},
+  {when:'오늘',time:'아침 11:20',product:'2시간 대절',route:'성동구 성수동1가 → 인천국제공항',price:25000,surge:'1.9',type:'시간대절',seat:1,dangol:true,cash:true,urgent:true,rec:true},
+  {when:'오늘',time:'아침 11:20',dur:'3시간 40분',route:'성동구 성수동1가 → {N}건 예약 수행 → 인천국제공항',price:66000,surge:'1.9',type:'묶음예약',seat:2,dangol:true,cash:true,urgent:true,bundle:true},
+  {when:'오늘',time:'낮 12:00',route:'용산구 한강로3가 → 인천국제공항',price:85000,surge:'2.0',type:'셔틀예약',seat:0,dangol:false,cash:false,urgent:false},
+  {when:'내일',time:'아침 08:20',route:'답십리1동 → 성동구 성수동1가',price:81400,surge:null,type:'일반예약',seat:0,dangol:false,cash:false,urgent:false},
 ];
+function attrArr(c){ const a=[]; if(c.seat) a.push(c.seat===2?'카시트 2개':'카시트'); if(c.cash) a.push('현장결제'); return a; }
 
 function oldCard(c){
   const bd=[`<i class="chip ${typeCls(c.type)}">${c.type}</i>`];
   if(c.dangol) bd.push('<i class="chip dangol">단골</i>');
   if(c.urgent) bd.push('<i class="chip imm">임박</i>');
   if(c.rec) bd.push('<i class="chip rec">추천</i>');
-  if((c.attrs||[]).includes('카시트')) bd.push('<i class="chip seat">카시트</i>');
+  if(c.seat) bd.push('<i class="chip seat">카시트</i>');
   const surge=c.surge?`<em>↗${c.surge}배</em>`:'';
   return `<div class="c oc">
     <div class="l"><b>${c.when}</b><span>${c.time}</span>${c.product?`<span>${c.product}</span>`:''}</div>
@@ -151,15 +155,16 @@ function oldCard(c){
 }
 function newCard(c,v2){
   const surge=c.surge?`<em>↗${c.surge}배</em>`:'';
-  const attrs=(c.attrs||[]).length
-    ? (c.attrs||[]).map((a,i)=>`${i?'<span class="dot">·</span>':''}<span class="a">${a}</span>`).join('')
-    : '<span class="none">추가 조건 없음</span>';
+  const al=attrArr(c);
+  const attrs=al.length ? al.map((a,i)=>`${i?'<span class="dot">·</span>':''}<span class="a">${a}</span>`).join('') : '<span class="none">추가 조건 없음</span>';
+  const e=expEarn(c);
+  const earn = e>0 ? `<div class="earn">＋${won(e)} ${c.dangol?'<span class="dg">단골 수익 포함</span>':'<span>기대 수익</span>'}</div>` : '';
   return `<div class="c nc ${c.rec?'rec':''} ${v2?'v2':''}">
     <div class="l"><b>${c.when}</b><span>${c.time}</span>${c.product?`<span>${c.product}</span>`:''}${c.urgent?`<span class="urg">⏰ 임박</span>`:''}</div>
     <div class="r">
       <div class="tline"><span class="tchip ${typeCls(c.type)}">${typeIcon(c.type)}${c.type}</span></div>
       <div class="price ${c.bundle?'y':''}">${c.bundle?`<span class="pre">${c.dur} 으로</span>`:''}<b>${won(c.price)}</b>${surge}</div>
-      ${c.bonus?`<div class="bonus">+${won(c.bonus)} <span>단골 보너스 포함</span></div>`:''}
+      ${earn}
       <div class="route">${c.route}</div>
       <div class="attrs">${attrs}</div>
     </div></div>`;
