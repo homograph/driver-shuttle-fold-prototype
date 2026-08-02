@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>콜 카드 — 합산(부가수익 연결) · TADA-9317</title>
+<title>콜 카드 — 부가수익 위치(중간 vs 하단) · TADA-9317</title>
 <style>
 :root{
   --page:#0c1526; --nv:#0f1c37; --card:#1a2c50; --line:#2b4067; --txt:#f2f6ff; --sub:#a7b8d6; --sub2:#98a4c2;
@@ -26,7 +26,7 @@ h1{font-size:19px;margin:0 0 4px;letter-spacing:-.02em}
 .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:16px}
 .col h2{font-size:12.5px;margin:0 0 4px;display:flex;align-items:center;gap:7px}
 .col h2 .t{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:999px}
-.col.a h2 .t{color:#ffb3a8;background:color-mix(in srgb,#e5674f 16%,transparent);border:1px solid color-mix(in srgb,#e5674f 40%,transparent)}
+.col.a h2 .t{color:#cde0ff;background:color-mix(in srgb,var(--blue) 20%,transparent);border:1px solid color-mix(in srgb,var(--blue) 45%,transparent)}
 .col.b h2 .t{color:#0c1526;background:var(--mult)}
 .col .desc{color:var(--sub2);font-size:11.5px;margin:0 0 10px}
 .stack{background:#0a1428;border:1px solid var(--line);border-radius:16px;padding:8px;display:flex;flex-direction:column;gap:8px;font-size:13.5px}
@@ -48,13 +48,10 @@ h1{font-size:19px;margin:0 0 4px;letter-spacing:-.02em}
 .price b{font-size:1.7em;font-weight:800;letter-spacing:-.01em}
 .price.y b{color:var(--y)}
 .price em{font-style:normal;color:var(--mult);font-size:.8em;font-weight:700;margin-left:.4em}
-.subln{font-size:.8em;color:var(--sub2);margin-top:.12em}
-.subln .src{color:var(--sub)}
-.subln .dg{color:var(--g-dangoltx);font-weight:700}
-.route{margin-top:.85em;font-size:.88em}
-.attrs{display:flex;flex-wrap:wrap;gap:.35em;align-items:center;margin-top:.62em}
-.attrs .a{font-size:.72em;color:var(--sub2)}.attrs .dot{color:var(--sub2)}.attrs .none{font-size:.72em;color:var(--sub2)}
-.mark{outline:1.5px dashed color-mix(in srgb,var(--mult) 60%,transparent);outline-offset:2px;border-radius:.35em}
+.route{font-size:.88em}
+.detail{font-size:.78em;color:var(--sub2)}
+.detail .src{color:var(--sub)}.detail .dg{color:var(--g-dangoltx);font-weight:700}
+.cond{font-size:.72em;color:var(--sub2)}
 
 .note{margin-top:22px;color:var(--sub);font-size:12.5px;border:1px dashed var(--line);border-radius:11px;padding:12px 14px;line-height:1.7}
 .note b{color:var(--txt)}
@@ -63,8 +60,8 @@ h1{font-size:19px;margin:0 0 4px;letter-spacing:-.02em}
 <body>
 <div class="app">
   <p class="back"><a href="index.html">← 방식 목록</a></p>
-  <h1>🃏 합산안 — 부가수익 원천 연결</h1>
-  <p class="lead">합산 총액으로 확정. 문제였던 <b>“부가수익 ＋금액”(위)과 “카시트”(아래) 분리</b>를 고침 — 카시트를 부가수익 줄로 끌어올려 <b>원천을 한곳에</b>, 하단엔 순수 조건만. (점선=바뀐 부분) <b>크게(sp)</b> 토글.</p>
+  <h1>🃏 부가수익 줄 — 중간 vs 하단</h1>
+  <p class="lead">합산 총액 확정. <b>부가수익 구성 줄</b>(부가수익 7,500 · 카시트 2개 · 단골)을 <b>가격↔경로 사이(현재)</b> vs <b>카드 맨 아래(제안)</b> 비교. 라임 점선은 없앴습니다(실제 디자인 아님). <b>크게(sp)</b> 토글.</p>
 
   <div class="ctrl"><span class="lbl">글씨</span>
     <button data-fs="0" class="on">기본</button>
@@ -73,22 +70,20 @@ h1{font-size:19px;margin:0 0 4px;letter-spacing:-.02em}
 
   <div class="cols">
     <div class="col a">
-      <h2><span class="t">현재 합산</span> 부가수익과 카시트 분리</h2>
-      <p class="desc">＋금액은 위, 카시트는 아래 → 연결이 안 보임</p>
-      <div class="stack" id="cur"></div>
+      <h2><span class="t">현재</span> 가격↔경로 사이</h2>
+      <p class="desc">가격 → 부가수익 → 경로 → 조건</p>
+      <div class="stack" id="mid"></div>
     </div>
     <div class="col b">
-      <h2><span class="t">개선</span> 원천을 부가수익 줄로</h2>
-      <p class="desc">부가수익 4,500 포함 · 카시트·단골 (하단=순수 조건)</p>
-      <div class="stack" id="fix"></div>
+      <h2><span class="t">제안</span> 카드 맨 아래</h2>
+      <p class="desc">가격 → 경로 → 조건 → 부가수익(맨 아래)</p>
+      <div class="stack" id="bot"></div>
     </div>
   </div>
 
   <div class="note">
-    <b>무엇이 바뀌었나</b><br>
-    · <b>현재</b>: `부가수익 4,500원 포함 · 단골`(위) … `카시트 · 현장결제`(아래) → 카시트가 그 ＋금액의 원천인데 <b>떨어져 있어 연결이 안 보임</b>.<br>
-    · <b>개선</b>: `부가수익 4,500원 포함 · <span style="color:#cdd9f2">카시트</span> · <span style="color:var(--g-dangoltx)">단골</span>` 로 <b>원천을 한 줄에 모음</b>. 하단엔 순수 조건(<b>현장결제</b>)만 → 중복·분리 해소.<br>
-    ※ 카시트는 “돈의 원천”으로 위에 표기(운영상 ‘카시트 필요’도 이 문구로 인지). 상세엔 항목별 breakdown.
+    <b>제안(하단)의 장점</b> — 1차 정보(종류·가격·경로)가 붙어 <b>스캔이 가벼워짐</b>. 합산 총액이 이미 헤드라인이라, 부가수익 <b>구성 설명은 디테일 존(맨 아래)</b>이 위계상 맞음. 카시트가 그 줄에 있어 <b>원천 연결도 유지</b>.<br>
+    ※ 단, 부가수익을 맨 아래로 내리면 “추가로 더 번다”는 매력 신호가 약해질 수 있음 → 필요 시 그 줄만 살짝 강조(굵기/초록) 가능.
   </div>
 </div>
 
@@ -108,31 +103,27 @@ function head(c){ return `<div class="l"><b>${c.when}</b><span>${c.time}</span>$
 function tchip(c){ return `<div class="tline"><span class="tchip ${typeCls(c.type)}">${typeIcon(c.type)}${c.type}</span></div>`; }
 function priceRow(c){ const surge=c.surge?`<em>↗${c.surge}배</em>`:''; const total=c.price+expEarn(c);
   return `<div class="price ${c.bundle?'y':''}">${c.bundle?`<span class="pre">${c.dur} 으로</span>`:''}<b>${won(total)}</b>${surge}</div>`; }
-function dots(arr,cls){ return arr.length? arr.map((a,i)=>`${i?'<span class="dot">·</span>':''}<span class="${cls||'a'}">${a}</span>`).join('') : '<span class="none">추가 조건 없음</span>'; }
+function detailLine(c){ const e=expEarn(c); if(!e) return '';
+  const src=[]; if(c.seat) src.push(`<span class="src">${seatLabel(c)}</span>`); if(c.dangol) src.push('<span class="dg">단골</span>');
+  return `<div class="detail" style="margin-top:.5em">부가수익 ${won(e)} 포함 · ${src.join(' · ')}</div>`; }
+function condLine(c){ const b=[]; if(c.cash) b.push('현장결제'); if(!expEarn(c) && c.seat) b.push(seatLabel(c));
+  return `<div class="cond" style="margin-top:.5em">${b.length?b.join(' · '):'추가 조건 없음'}</div>`; }
 
-// 현재: 부가수익 subline(단골만) + 하단(카시트·현장결제)
-function curCard(c){
-  const e=expEarn(c);
-  const sub = e>0 ? `<div class="subln mark">부가수익 ${won(e)} 포함${c.dangol?' <span class="dg">· 단골</span>':''}</div>` : '';
-  const bottom=[]; if(c.seat) bottom.push(seatLabel(c)); if(c.cash) bottom.push('현장결제');
-  return `<div class="c ${c.rec?'rec':''}">${head(c)}<div class="r">${tchip(c)}${priceRow(c)}${sub}
-    <div class="route">${c.route}</div><div class="attrs ${e>0?'mark':''}">${dots(bottom)}</div></div></div>`;
+function midCard(c){ // 가격 → 부가수익 → 경로 → 조건
+  const d=detailLine(c);
+  return `<div class="c ${c.rec?'rec':''}">${head(c)}<div class="r">${tchip(c)}${priceRow(c)}
+    ${d?d.replace('margin-top:.5em','margin-top:.12em'):''}
+    <div class="route" style="margin-top:.85em">${c.route}</div>${condLine(c)}</div></div>`;
 }
-// 개선: 부가수익 subline에 원천(카시트·단골) + 하단은 순수 조건(현장결제)만
-function fixCard(c){
-  const e=expEarn(c);
-  let sub='';
-  if(e>0){ const src=[]; if(c.seat) src.push(`<span class="src">${seatLabel(c)}</span>`); if(c.dangol) src.push('<span class="dg">단골</span>');
-    sub=`<div class="subln mark">부가수익 ${won(e)} 포함 · ${src.join(' · ')}</div>`; }
-  const bottom=[]; if(c.cash) bottom.push('현장결제'); if(!e && c.seat) bottom.push(seatLabel(c));
-  return `<div class="c ${c.rec?'rec':''}">${head(c)}<div class="r">${tchip(c)}${priceRow(c)}${sub}
-    <div class="route">${c.route}</div><div class="attrs">${dots(bottom)}</div></div></div>`;
+function botCard(c){ // 가격 → 경로 → 조건 → 부가수익(맨 아래)
+  return `<div class="c ${c.rec?'rec':''}">${head(c)}<div class="r">${tchip(c)}${priceRow(c)}
+    <div class="route" style="margin-top:.5em">${c.route}</div>${condLine(c)}${detailLine(c)}</div></div>`;
 }
-document.getElementById('cur').innerHTML=calls.map(curCard).join('');
-document.getElementById('fix').innerHTML=calls.map(fixCard).join('');
+document.getElementById('mid').innerHTML=calls.map(midCard).join('');
+document.getElementById('bot').innerHTML=calls.map(botCard).join('');
 document.querySelectorAll('.ctrl [data-fs]').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('.ctrl [data-fs]').forEach(x=>x.classList.remove('on')); b.classList.add('on');
-  const big=b.dataset.fs==='1'; ['cur','fix'].forEach(id=>document.getElementById(id).classList.toggle('big',big));
+  const big=b.dataset.fs==='1'; ['mid','bot'].forEach(id=>document.getElementById(id).classList.toggle('big',big));
 }));
 </script>
 </body>
