@@ -69,10 +69,15 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .call .price b{font-size:1.5em;font-weight:800;letter-spacing:-.01em}
 .call .price.y b{color:var(--y)}
 .call .price em{font-style:normal;color:var(--mult);font-size:.78em;font-weight:700;margin-left:.35em}
-.call .route{margin-top:.5em;font-size:.9em}
-.call .cond{margin-top:.5em;font-size:.72em;color:var(--sub2)}
-.call .detail{margin-top:.4em;font-size:.78em;color:var(--sub2)}
+.call .route{margin-top:.5em;font-size:.9em;word-break:keep-all;overflow-wrap:break-word}
+.call .cond{margin-top:.5em;font-size:.72em;color:var(--sub2);word-break:keep-all}
+.call .detail{margin-top:.4em;font-size:.78em;color:var(--sub2);word-break:keep-all;overflow-wrap:break-word}
 .call .detail .src{color:var(--sub)}.call .detail .dg{color:var(--dangol);font-weight:700}
+/* 큰글씨(sp): 다단 → 단일 컬럼 스택 (ServiceNow Horizon 원칙: 폰트 커질수록 컬럼 축소) */
+.scr.big .call{flex-direction:column;gap:.3em}
+.scr.big .call .lft{width:auto;flex-direction:row;align-items:baseline;flex-wrap:wrap;gap:.15em .5em}
+.scr.big .call .lft .urg{margin-top:0}
+.scr.big .call .tline{margin-bottom:0}
 
 .navbtn{display:flex;align-items:center;gap:.45em;flex-wrap:wrap;min-height:2.9em;padding:.8em .85em;
   background:var(--btn);border:1px solid var(--btnln);border-left:.26em solid var(--blue);border-radius:.75em;
