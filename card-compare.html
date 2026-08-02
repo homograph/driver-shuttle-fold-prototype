@@ -3,20 +3,20 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>콜 카드 — 현행 vs 개선안 · TADA-9317</title>
+<title>콜 카드 — 현행 vs 개선안 vs 위계강화 · TADA-9317</title>
 <style>
 :root{
   --page:#0c1526; --nv:#0f1c37; --card:#1a2c50; --line:#2b4067; --txt:#f2f6ff; --sub:#a7b8d6; --sub2:#98a4c2;
   --blue:#3d7bff; --btn:#1b3e79; --btnln:#5b93ff; --mult:#c7ef4c; --y:#ffe14d;
   --g-grey:#334870; --g-greytx:#cdd9f2; --g-imm:#8a3a58; --g-immtx:#ff9db6; --g-dangol:#6b4a1f; --g-dangoltx:#ffcf87;
   --g-rec:#3f5a2a; --g-rectx:#c7f08a; --g-seatG:#1e5140; --g-seatGtx:#7fe3b8;
-  --g-cashtx:#c3b4ff; --t-shuttle:#234f96; --t-shuttletx:#bcd6ff;
+  --t-shuttle:#234f96; --t-shuttletx:#bcd6ff;
   --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
   --kr:"Apple SD Gothic Neo","Pretendard",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line-height:1.5}
-.app{max-width:900px;margin:0 auto;padding:18px 16px 50px}
+.app{max-width:1040px;margin:0 auto;padding:18px 16px 50px}
 .app>.back{margin:0 0 10px}
 .app>.back a{color:var(--btnln);font-size:13px;text-decoration:none}
 h1{font-size:19px;margin:0 0 4px;letter-spacing:-.02em}
@@ -26,13 +26,14 @@ h1{font-size:19px;margin:0 0 4px;letter-spacing:-.02em}
 .ctrl button{font-family:var(--kr);font-size:12px;color:var(--sub);background:transparent;border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer}
 .ctrl button.on{color:#fff;background:var(--btn);border-color:var(--btnln)}
 
-.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
-.col h2{font-size:13px;margin:0 0 10px;display:flex;align-items:center;gap:8px}
-.col h2 .t{font-family:var(--mono);font-size:10.5px;padding:3px 9px;border-radius:999px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(272px,1fr));gap:18px}
+.col h2{font-size:12.5px;margin:0 0 10px;display:flex;align-items:center;gap:7px}
+.col h2 .t{font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:999px}
 .col.before h2 .t{color:#ffb3a8;background:color-mix(in srgb,#e5674f 16%,transparent);border:1px solid color-mix(in srgb,#e5674f 40%,transparent)}
-.col.after h2 .t{color:#0c1526;background:var(--mult)}
-.stack{background:#0a1428;border:1px solid var(--line);border-radius:16px;padding:8px;display:flex;flex-direction:column;gap:8px;font-size:14px}
-.stack.big{font-size:19px}
+.col.v1 h2 .t{color:#cde0ff;background:color-mix(in srgb,var(--blue) 20%,transparent);border:1px solid color-mix(in srgb,var(--blue) 45%,transparent)}
+.col.v2 h2 .t{color:#0c1526;background:var(--mult)}
+.stack{background:#0a1428;border:1px solid var(--line);border-radius:16px;padding:8px;display:flex;flex-direction:column;gap:8px;font-size:13.5px}
+.stack.big{font-size:18px}
 
 .c{background:var(--card);border-radius:.8em;padding:.75em;display:flex;gap:.7em;border:1px solid transparent}
 .c .l{width:5em;flex:none;display:flex;flex-direction:column;gap:.15em}
@@ -43,7 +44,6 @@ h1{font-size:19px;margin:0 0 4px;letter-spacing:-.02em}
 .won{font-weight:800}
 .won em{font-style:normal;color:var(--mult);font-size:.72em;font-weight:700;margin-left:.35em}
 
-/* small badge (BEFORE mixed row) */
 .chip{font-style:normal;font-size:.72em;border-radius:.42em;padding:.16em .5em;white-space:nowrap;display:inline-block}
 .chip.grey{background:var(--g-grey);color:var(--g-greytx)}
 .chip.imm{background:var(--g-imm);color:var(--g-immtx);font-weight:700}
@@ -52,11 +52,10 @@ h1{font-size:19px;margin:0 0 4px;letter-spacing:-.02em}
 .chip.seat{background:var(--g-seatG);color:var(--g-seatGtx)}
 .chip.bundle{background:transparent;color:var(--y);border:1px solid var(--y);font-weight:700}
 .chip.shuttle{background:var(--t-shuttle);color:var(--t-shuttletx);font-weight:700}
-
 .oc .badges{display:flex;flex-wrap:wrap;gap:.3em;margin:.45em 0}
 .oc .price{text-align:right;font-size:1em}
 
-/* AFTER: type(격상) → price → bonus → route → 속성만 */
+/* 개선안 (v1) */
 .nc.rec{border-left:.24em solid var(--btnln)}
 .nc .l .urg{margin-top:.3em;font-size:.72em;font-weight:800;color:#fff;background:var(--g-imm);border-radius:.42em;padding:.2em .5em;width:fit-content}
 .nc .tline{margin-bottom:.35em}
@@ -73,9 +72,20 @@ h1{font-size:19px;margin:0 0 4px;letter-spacing:-.02em}
 .nc .bonus span{color:var(--sub2);font-weight:500}
 .nc .route{margin-top:.5em}
 .nc .attrs{display:flex;flex-wrap:wrap;gap:.35em;align-items:center;margin-top:.5em}
-.nc .attrs .a{font-size:.74em;color:var(--sub);display:inline-flex;align-items:center;gap:.2em}
+.nc .attrs .a{font-size:.74em;color:var(--sub)}
 .nc .attrs .dot{color:var(--sub2)}
 .nc .attrs .none{font-size:.74em;color:var(--sub2)}
+
+/* 위계 강화 (v2) — ①가격 지배 ②색예산 ③수익그룹 타이트 ④조건 뮤트 */
+.nc.v2 .tline{margin-bottom:.3em}
+.nc.v2 .tchip{font-size:.74em;padding:.18em .52em}
+.nc.v2 .price b{font-size:1.7em;letter-spacing:-.01em}
+.nc.v2 .bonus{margin-top:.02em}
+.nc.v2 .route{margin-top:.85em;font-size:.88em}
+.nc.v2 .attrs{margin-top:.62em}
+.nc.v2 .attrs .a{font-size:.7em;color:var(--sub2)}
+.nc.v2 .attrs .none{font-size:.7em}
+.nc.v2.rec{border-left-width:.17em}
 
 .note{margin-top:22px;color:var(--sub);font-size:12.5px;border:1px dashed var(--line);border-radius:11px;padding:12px 14px;line-height:1.7}
 .note b{color:var(--txt)}
@@ -84,8 +94,8 @@ h1{font-size:19px;margin:0 0 4px;letter-spacing:-.02em}
 <body>
 <div class="app">
   <p class="back"><a href="index.html">← 방식 목록</a></p>
-  <h1>🃏 콜 카드 — 현행 vs 개선안</h1>
-  <p class="lead">개선안 = <b>가격 상단(①)</b> + <b>콜 종류 격상</b>(묶음/셔틀/대절을 색 라벨로) + <b>속성만 하단 축약</b> + <b>임박 격상</b>. <b>크게(sp)</b>로 견딤 확인.</p>
+  <h1>🃏 콜 카드 — 현행 · 개선안 · 위계강화(v2)</h1>
+  <p class="lead">v2 = 타사(Uber·Grab) <b>레이아웃/정보위계 기법</b>을 우리 필드에만 적용 — ①가격 지배력↑ ②색 예산 ③수익 그룹 타이트 ④조건 뮤트. (운행시간·시간당은 상세로) <b>크게(sp)</b>로 견딤 확인.</p>
 
   <div class="ctrl"><span class="lbl">글씨</span>
     <button data-fs="0" class="on">기본</button>
@@ -94,19 +104,26 @@ h1{font-size:19px;margin:0 0 4px;letter-spacing:-.02em}
 
   <div class="cols">
     <div class="col before">
-      <h2><span class="t">BEFORE</span> 현행 (경로→뱃지→가격, 종류·속성 혼재)</h2>
+      <h2><span class="t">현행</span> 경로→뱃지→가격</h2>
       <div class="stack" id="before"></div>
     </div>
-    <div class="col after">
-      <h2><span class="t">AFTER</span> 개선안 (가격 상단·종류 격상·속성 축약)</h2>
+    <div class="col v1">
+      <h2><span class="t">개선안</span> 가격 상단·종류 격상</h2>
       <div class="stack" id="after"></div>
+    </div>
+    <div class="col v2">
+      <h2><span class="t">위계강화 v2</span> 타사 기법 반영</h2>
+      <div class="stack" id="v2"></div>
     </div>
   </div>
 
   <div class="note">
-    <b>지적 반영 — 콜 종류는 ‘속성’과 급이 다르다</b><br>
-    묶음/셔틀/시간대절은 <b>일의 성격 자체</b>(수익 모델·소요·취소 패널티)를 바꾸는 정보라, 카시트·현장결제 같은 속성과 같은 칩에 묶으면 안 됨.<br>
-    → 개선안: <b>콜 종류 = 상단에 색 라벨로 격상</b>(묶음=노랑, 셔틀=파랑, 대절/일반=회색). <b>속성(카시트·현장결제)만 하단에 작게.</b> 임박=시간 옆 격상, 단골=보너스 줄, 추천=좌측 강조선.
+    <b>v2에서 조인 것 (타사 레이아웃·위계 기법)</b><br>
+    ① <b>가격 지배력↑</b> — 요금 글자를 더 키워 “한눈에(glanceable)”. 나머지는 상대적으로 더 작게.<br>
+    ② <b>색 예산 ≤3</b> — 색은 의미 있을 때만(종류·서지 초록·임박 빨강). 추천은 색 대신 <b>가장자리</b>(더 얇게).<br>
+    ③ <b>수익 그룹 타이트</b> — 가격+단골 보너스를 붙이고, 경로/조건은 <b>여백으로 분리</b>(존 그룹핑).<br>
+    ④ <b>조건 뮤트</b> — 카시트·현장결제는 더 작고 흐리게(스캔 방해 최소).<br>
+    ※ 운행시간·시간당 예상수익·경유 상세는 <b>상세 화면</b>으로(progressive disclosure).
   </div>
 </div>
 
@@ -122,8 +139,7 @@ const calls=[
 ];
 
 function oldCard(c){
-  const bd=[];
-  bd.push(`<i class="chip ${typeCls(c.type)}">${c.type}</i>`);
+  const bd=[`<i class="chip ${typeCls(c.type)}">${c.type}</i>`];
   if(c.dangol) bd.push('<i class="chip dangol">단골</i>');
   if(c.urgent) bd.push('<i class="chip imm">임박</i>');
   if(c.rec) bd.push('<i class="chip rec">추천</i>');
@@ -131,18 +147,14 @@ function oldCard(c){
   const surge=c.surge?`<em>↗${c.surge}배</em>`:'';
   return `<div class="c oc">
     <div class="l"><b>${c.when}</b><span>${c.time}</span>${c.product?`<span>${c.product}</span>`:''}</div>
-    <div class="r">
-      <div class="route">${c.route}</div>
-      <div class="badges">${bd.join('')}</div>
-      <div class="price won">${surge}${won(c.price)}</div>
-    </div></div>`;
+    <div class="r"><div class="route">${c.route}</div><div class="badges">${bd.join('')}</div><div class="price won">${surge}${won(c.price)}</div></div></div>`;
 }
-function newCard(c){
+function newCard(c,v2){
   const surge=c.surge?`<em>↗${c.surge}배</em>`:'';
   const attrs=(c.attrs||[]).length
     ? (c.attrs||[]).map((a,i)=>`${i?'<span class="dot">·</span>':''}<span class="a">${a}</span>`).join('')
     : '<span class="none">추가 조건 없음</span>';
-  return `<div class="c nc ${c.rec?'rec':''}">
+  return `<div class="c nc ${c.rec?'rec':''} ${v2?'v2':''}">
     <div class="l"><b>${c.when}</b><span>${c.time}</span>${c.product?`<span>${c.product}</span>`:''}${c.urgent?`<span class="urg">⏰ 임박</span>`:''}</div>
     <div class="r">
       <div class="tline"><span class="tchip ${typeCls(c.type)}">${typeIcon(c.type)}${c.type}</span></div>
@@ -153,12 +165,12 @@ function newCard(c){
     </div></div>`;
 }
 document.getElementById('before').innerHTML=calls.map(oldCard).join('');
-document.getElementById('after').innerHTML=calls.map(newCard).join('');
+document.getElementById('after').innerHTML=calls.map(c=>newCard(c,false)).join('');
+document.getElementById('v2').innerHTML=calls.map(c=>newCard(c,true)).join('');
 document.querySelectorAll('.ctrl [data-fs]').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('.ctrl [data-fs]').forEach(x=>x.classList.remove('on')); b.classList.add('on');
   const big=b.dataset.fs==='1';
-  document.getElementById('before').classList.toggle('big',big);
-  document.getElementById('after').classList.toggle('big',big);
+  ['before','after','v2'].forEach(id=>document.getElementById(id).classList.toggle('big',big));
 }));
 </script>
 </body>
