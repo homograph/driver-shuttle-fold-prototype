@@ -72,6 +72,10 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .call .price.y b{color:var(--y)}
 .call .price em{font-style:normal;color:var(--mult);font-size:.78em;font-weight:700;margin-left:.35em}
 .call .route{margin-top:.5em;font-size:.9em;word-break:keep-all;overflow-wrap:break-word}
+.call .route .o{color:var(--sub)}
+.call .route .d{font-weight:700;color:var(--txt)}
+.call .route .wp{color:var(--sub);font-size:.88em}
+.call .route .ar{color:var(--sub);margin:0 .12em}
 .call .cond{margin-top:.5em;font-size:.72em;color:var(--sub2);word-break:keep-all}
 .call .detail{margin-top:.4em;font-size:.78em;color:var(--sub2);word-break:keep-all;overflow-wrap:break-word}
 .call .detail .src{color:var(--sub)}.call .detail .dg{color:var(--dangol);font-weight:700}
@@ -155,7 +159,7 @@ const won=n=>n.toLocaleString('ko-KR')+'원';
 function mkTime(base,i,step){ const t=base+i*step; const hh=String(Math.floor(t/60)).padStart(2,'0'); const mm=String(t%60).padStart(2,'0'); return {label:t<24*60?'오늘':'내일', time:hh+':'+mm, min:t}; }
 const SH=Array.from({length:SH_TOTAL},(_,i)=>{ const t=mkTime(8*60,i,7); return {...t, type:'셔틀예약', from:froms[i%froms.length], to:(i%2?'김포공항':'인천공항'), price:60000+(i%31)*1000, mult:1.5+(i%9)*0.1, imm:i<3, seat:0, dangol:false, cash:false}; });
 const GEN=Array.from({length:GEN_TOTAL},(_,i)=>{
-  if(i===0) return {bundle:true,type:'묶음예약',label:'오늘',time:'11:20',min:680,from:'성수동1가',to:'{N}건 예약 → 인천공항',price:66000,dur:'3시간 40분',mult:1.9,imm:true,seat:2,dangol:true,cash:true,rec:true};
+  if(i===0) return {bundle:true,type:'묶음예약',label:'오늘',time:'11:20',min:680,from:'성수동1가',waypoint:'예약 2건 경유',to:'인천공항',price:66000,dur:'3시간 40분',mult:1.9,imm:true,seat:2,dangol:true,cash:true,rec:true};
   const t=mkTime(9*60,i,11); const charter=i%4===0;
   return {...t, type:charter?'시간대절':'일반예약', product:charter?'2시간 대절':null, from:froms[i%froms.length], to:(i%2?'인천국제공항':'김포공항'), price:20000+(i%20)*3200, mult:(i%3?1.5+(i%5)*0.1:null), imm:i%7===0, seat:(i%4===1?1:(i%11===0?2:0)), dangol:i%5===0, cash:i%3===0, rec:i%6===0};
 });
@@ -170,8 +174,9 @@ const expEarn=c=> c.type==='셔틀예약'?0:((c.seat||0)*3000 + (c.dangol?1500:0
 const seatLabel=c=> c.seat===2?'카시트 2개':'카시트';
 function condLine(c){ const b=[]; if(c.cash) b.push('현장결제'); if(!expEarn(c)&&c.seat) b.push(seatLabel(c)); return b.length?`<div class="cond">${b.join(' · ')}</div>`:''; }
 function detailLine(c){ const e=expEarn(c); if(!e) return ''; const src=[]; if(c.seat) src.push(`<span class="src">${seatLabel(c)}</span>`); if(c.dangol) src.push('<span class="dg">단골</span>'); return `<div class="detail">부가수익 ${won(e)} 포함 · ${src.join(' · ')}</div>`; }
+function routeLine(c){ const ar='<span class="ar">→</span>'; const wp=c.waypoint?`${ar}<span class="wp">${c.waypoint}</span>`:''; return `<div class="route"><span class="o">${c.from}</span>${wp}${ar}<span class="d">${c.to}</span></div>`; }
 function card(c){ const total=c.price+expEarn(c); const surge=c.mult?`<em>↗${c.mult.toFixed(1)}배</em>`:'';
-  return `<div class="call ${c.rec?'rec':''}"><div class="lft"><span class="dy">${c.label}</span><b class="tm">${c.time}</b>${c.product?`<span class="pr">${c.product}</span>`:''}${c.imm?`<span class="urg">⏰ 임박</span>`:''}</div><div class="rgt"><div class="tline"><span class="tchip ${typeCls(c.type)}">${typeIcon(c.type)}${c.type}</span></div><div class="price ${c.bundle?'y':''}">${c.bundle?`<span class="pre">${c.dur} 으로</span>`:''}<b>${won(total)}</b>${surge}</div><div class="route">${c.from} → ${c.to}</div>${condLine(c)}${detailLine(c)}</div></div>`; }
+  return `<div class="call ${c.rec?'rec':''}"><div class="lft"><span class="dy">${c.label}</span><b class="tm">${c.time}</b>${c.product?`<span class="pr">${c.product}</span>`:''}${c.imm?`<span class="urg">⏰ 임박</span>`:''}</div><div class="rgt"><div class="tline"><span class="tchip ${typeCls(c.type)}">${typeIcon(c.type)}${c.type}</span></div><div class="price ${c.bundle?'y':''}">${c.bundle?`<span class="pre">${c.dur} 으로</span>`:''}<b>${won(total)}</b>${surge}</div>${routeLine(c)}${condLine(c)}${detailLine(c)}</div></div>`; }
 const shCard=card, genCard=card;
 const sortChip=()=>`<div class="sortrow"><button class="c act" data-opensheet>↕ ${state.sort}</button><button class="f c" data-filter>공항콜만 보기</button></div>`;
 const endLine=(k,t)=>`<div class="endmsg">— ${k} ${t}건 끝 —</div>`;
