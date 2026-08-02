@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>콜 카드 — 현행 vs 개선안 · TADA-9317</title>
+<style>
+:root{
+  --page:#0c1526; --nv:#0f1c37; --card:#1a2c50; --line:#2b4067; --txt:#f2f6ff; --sub:#a7b8d6; --sub2:#7f8db0;
+  --blue:#3d7bff; --btn:#1b3e79; --btnln:#5b93ff; --mult:#c7ef4c; --y:#ffe14d;
+  --g-grey:#334870; --g-greytx:#cdd9f2; --g-imm:#8a3a58; --g-immtx:#ff9db6; --g-dangol:#6b4a1f; --g-dangoltx:#ffcf87;
+  --g-rec:#3f5a2a; --g-rectx:#c7f08a; --g-seat:#234f96; --g-seattx:#a9c8ff; --g-seatG:#1e5140; --g-seatGtx:#7fe3b8;
+  --g-cash:#3a3170; --g-cashtx:#c3b4ff; --g-bundle:#5a5320;
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  --kr:"Apple SD Gothic Neo","Pretendard",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line-height:1.5}
+.app{max-width:900px;margin:0 auto;padding:18px 16px 50px}
+.app>.back{margin:0 0 10px}
+.app>.back a{color:var(--btnln);font-size:13px;text-decoration:none}
+h1{font-size:19px;margin:0 0 4px;letter-spacing:-.02em}
+.lead{margin:0;color:var(--sub);font-size:13px}
+.ctrl{display:flex;gap:8px;align-items:center;margin:14px 0 18px;padding:9px 12px;border:1px solid var(--line);border-radius:11px;background:#0e1c38;width:fit-content}
+.ctrl .lbl{font-size:11px;color:var(--sub);font-family:var(--mono)}
+.ctrl button{font-family:var(--kr);font-size:12px;color:var(--sub);background:transparent;border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer}
+.ctrl button.on{color:#fff;background:var(--btn);border-color:var(--btnln)}
+
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.col h2{font-size:13px;margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.col h2 .t{font-family:var(--mono);font-size:10.5px;padding:3px 9px;border-radius:999px}
+.col.before h2 .t{color:#ffb3a8;background:color-mix(in srgb,#e5674f 16%,transparent);border:1px solid color-mix(in srgb,#e5674f 40%,transparent)}
+.col.after h2 .t{color:#0c1526;background:var(--mult)}
+.stack{background:#0a1428;border:1px solid var(--line);border-radius:16px;padding:8px;display:flex;flex-direction:column;gap:8px;font-size:14px}
+.stack.big{font-size:19px}
+
+/* generic card shell */
+.c{background:var(--card);border-radius:.8em;padding:.75em;display:flex;gap:.7em;border:1px solid transparent}
+.c .l{width:5em;flex:none;display:flex;flex-direction:column;gap:.15em}
+.c .l b{font-weight:800;font-size:1em}
+.c .l span{font-size:.82em;color:var(--sub)}
+.c .r{flex:1;min-width:0}
+.route{font-size:.9em}
+.won{font-weight:800}
+.won em{font-style:normal;color:var(--mult);font-size:.72em;font-weight:700;margin-left:.35em}
+.chip{font-style:normal;font-size:.72em;border-radius:.42em;padding:.16em .5em;white-space:nowrap;display:inline-block}
+.chip.grey{background:var(--g-grey);color:var(--g-greytx)}
+.chip.imm{background:var(--g-imm);color:var(--g-immtx);font-weight:700}
+.chip.dangol{background:var(--g-dangol);color:var(--g-dangoltx)}
+.chip.rec{background:var(--g-rec);color:var(--g-rectx)}
+.chip.seat{background:var(--g-seatG);color:var(--g-seatGtx)}
+.chip.cash{background:transparent;color:var(--g-cashtx);border:1px solid var(--g-cashtx)}
+.chip.bundle{background:transparent;color:var(--y);border:1px solid var(--y);font-weight:700}
+
+/* BEFORE: route → many badges → price */
+.oc .badges{display:flex;flex-wrap:wrap;gap:.3em;margin:.45em 0}
+.oc .price{text-align:right;font-size:1em}
+
+/* AFTER: price(top) → bonus → route → attrs */
+.nc.rec{border-left:.24em solid var(--btnln)}
+.nc .l .urg{margin-top:.3em;font-size:.72em;font-weight:800;color:#fff;background:var(--g-imm);border-radius:.42em;padding:.2em .5em;width:fit-content}
+.nc .price{display:flex;align-items:baseline;gap:.1em;flex-wrap:wrap}
+.nc .price .pre{width:100%;font-size:.82em;color:var(--sub);font-weight:600}
+.nc .price b{font-size:1.4em;font-weight:800}
+.nc .price.y b{color:var(--y)}
+.nc .price em{font-style:normal;color:var(--mult);font-size:.8em;font-weight:700;margin-left:.4em}
+.nc .bonus{font-size:.82em;font-weight:700;margin-top:.15em}
+.nc .bonus span{color:var(--sub2);font-weight:500}
+.nc .route{margin-top:.5em}
+.nc .attrs{display:flex;flex-wrap:wrap;gap:.35em;align-items:center;margin-top:.5em}
+.nc .attrs .a{font-size:.74em;color:var(--sub);display:inline-flex;align-items:center;gap:.2em}
+.nc .attrs .dot{color:var(--sub2)}
+
+.note{margin-top:22px;color:var(--sub);font-size:12.5px;border:1px dashed var(--line);border-radius:11px;padding:12px 14px;line-height:1.7}
+.note b{color:var(--txt)}
+</style>
+</head>
+<body>
+<div class="app">
+  <p class="back"><a href="index.html">← 방식 목록</a></p>
+  <h1>🃏 콜 카드 — 현행 vs 개선안</h1>
+  <p class="lead">개선안 = <b>가격 상단(①)</b> + <b>뱃지 4역할군 재편</b> + <b>임박 격상</b>. 글씨를 <b>크게(sp)</b>로 바꿔 두 안이 어떻게 견디는지 보세요.</p>
+
+  <div class="ctrl"><span class="lbl">글씨</span>
+    <button data-fs="0" class="on">기본</button>
+    <button data-fs="1">크게(sp)</button>
+  </div>
+
+  <div class="cols">
+    <div class="col before">
+      <h2><span class="t">BEFORE</span> 현행 (경로→뱃지→가격, 뱃지 혼재)</h2>
+      <div class="stack" id="before"></div>
+    </div>
+    <div class="col after">
+      <h2><span class="t">AFTER</span> 개선안 (가격 상단·뱃지 재편·임박 격상)</h2>
+      <div class="stack" id="after"></div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>무엇이 바뀌었나</b><br>
+    ① <b>가격을 최상단</b>으로 → 리스트를 내릴 때 가격이 같은 위치에 반복(스캔↑), sp에서도 안 밀림.<br>
+    ② <b>뱃지 재편</b> — 콜 종류/속성만 하단에 작게(시간대절·카시트·현장결제), <b>임박(긴급)은 시간 옆으로 격상</b>, <b>단골</b>은 ‘단골 보너스’ 줄로, <b>추천</b>은 카드 좌측 강조선으로. → 최대 6줄 뱃지가 사라짐.<br>
+    ③ 묶음도 같은 틀(가격 노랑 + ‘N시간 M분 으로’)로 통일.
+  </div>
+</div>
+
+<script>
+const won=n=>n.toLocaleString('ko-KR')+'원';
+const calls=[
+  {when:'오늘',time:'아침 11:20',product:'2시간 대절',route:'성동구 성수동1가 → 인천국제공항',price:25000,surge:'1.9',bonus:1500,type:'시간대절',attrs:['카시트','현장결제'],urgent:true,dangol:true,rec:true},
+  {when:'오늘',time:'아침 11:20',product:null,dur:'3시간 40분',route:'성동구 성수동1가 → {N}건 예약 수행 → 인천국제공항',price:66000,surge:'1.9',bonus:1500,type:'묶음예약',attrs:['카시트','현장결제'],urgent:true,bundle:true},
+  {when:'내일',time:'아침 08:20',product:null,route:'답십리1동 → 성동구 성수동1가',price:81400,surge:null,bonus:0,type:'일반예약',attrs:[],urgent:false},
+];
+
+function oldCard(c){
+  const bd=[];
+  bd.push(`<i class="chip grey">${c.type}</i>`);
+  if(c.dangol) bd.push('<i class="chip dangol">단골</i>');
+  if(c.urgent) bd.push('<i class="chip imm">임박</i>');
+  if(c.rec) bd.push('<i class="chip rec">추천</i>');
+  if((c.attrs||[]).includes('카시트')) bd.push('<i class="chip seat">카시트</i>');
+  const surge=c.surge?`<em>↗${c.surge}배</em>`:'';
+  return `<div class="c oc">
+    <div class="l"><b>${c.when}</b><span>${c.time}</span>${c.product?`<span>${c.product}</span>`:''}</div>
+    <div class="r">
+      <div class="route">${c.route}</div>
+      <div class="badges">${bd.join('')}</div>
+      <div class="price won">${surge}${won(c.price)}</div>
+    </div></div>`;
+}
+function newCard(c){
+  const surge=c.surge?`<em>↗${c.surge}배</em>`:'';
+  const attrs=[`<span class="a">${c.type}</span>`]
+    .concat((c.attrs||[]).map(a=>`<span class="dot">·</span><span class="a">${a}</span>`)).join('');
+  return `<div class="c nc ${c.rec?'rec':''}">
+    <div class="l"><b>${c.when}</b><span>${c.time}</span>${c.product?`<span>${c.product}</span>`:''}${c.urgent?`<span class="urg">임박</span>`:''}</div>
+    <div class="r">
+      <div class="price ${c.bundle?'y':''}">${c.bundle?`<span class="pre">${c.dur} 으로</span>`:''}<b>${won(c.price)}</b>${surge}</div>
+      ${c.bonus?`<div class="bonus">+${won(c.bonus)} <span>단골 보너스 포함</span></div>`:''}
+      <div class="route">${c.route}</div>
+      <div class="attrs">${attrs}</div>
+    </div></div>`;
+}
+document.getElementById('before').innerHTML=calls.map(oldCard).join('');
+document.getElementById('after').innerHTML=calls.map(newCard).join('');
+document.querySelectorAll('.ctrl [data-fs]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.ctrl [data-fs]').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  const big=b.dataset.fs==='1';
+  document.getElementById('before').classList.toggle('big',big);
+  document.getElementById('after').classList.toggle('big',big);
+}));
+</script>
+</body>
+</html>
