@@ -6,7 +6,7 @@
 <title>콜 카드 — 현행 vs 개선안 · TADA-9317</title>
 <style>
 :root{
-  --page:#0c1526; --nv:#0f1c37; --card:#1a2c50; --line:#2b4067; --txt:#f2f6ff; --sub:#a7b8d6; --sub2:#7f8db0;
+  --page:#0c1526; --nv:#0f1c37; --card:#1a2c50; --line:#2b4067; --txt:#f2f6ff; --sub:#a7b8d6; --sub2:#98a4c2;
   --blue:#3d7bff; --btn:#1b3e79; --btnln:#5b93ff; --mult:#c7ef4c; --y:#ffe14d;
   --g-grey:#334870; --g-greytx:#cdd9f2; --g-imm:#8a3a58; --g-immtx:#ff9db6; --g-dangol:#6b4a1f; --g-dangoltx:#ffcf87;
   --g-rec:#3f5a2a; --g-rectx:#c7f08a; --g-seatG:#1e5140; --g-seatGtx:#7fe3b8;
@@ -113,6 +113,7 @@ h1{font-size:19px;margin:0 0 4px;letter-spacing:-.02em}
 <script>
 const won=n=>n.toLocaleString('ko-KR')+'원';
 const typeCls=t=> t==='묶음예약'?'bundle':(t==='셔틀예약'?'shuttle':'grey');
+const typeIcon=t=> t==='묶음예약'?'🔗 ':(t==='셔틀예약'?'🚐 ':(t==='시간대절'?'⏱ ':''));
 const calls=[
   {when:'오늘',time:'아침 11:20',product:'2시간 대절',route:'성동구 성수동1가 → 인천국제공항',price:25000,surge:'1.9',bonus:1500,type:'시간대절',attrs:['카시트','현장결제'],urgent:true,dangol:true,rec:true},
   {when:'오늘',time:'아침 11:20',product:null,dur:'3시간 40분',route:'성동구 성수동1가 → {N}건 예약 수행 → 인천국제공항',price:66000,surge:'1.9',bonus:1500,type:'묶음예약',attrs:['카시트','현장결제'],urgent:true,bundle:true},
@@ -142,9 +143,9 @@ function newCard(c){
     ? (c.attrs||[]).map((a,i)=>`${i?'<span class="dot">·</span>':''}<span class="a">${a}</span>`).join('')
     : '<span class="none">추가 조건 없음</span>';
   return `<div class="c nc ${c.rec?'rec':''}">
-    <div class="l"><b>${c.when}</b><span>${c.time}</span>${c.product?`<span>${c.product}</span>`:''}${c.urgent?`<span class="urg">임박</span>`:''}</div>
+    <div class="l"><b>${c.when}</b><span>${c.time}</span>${c.product?`<span>${c.product}</span>`:''}${c.urgent?`<span class="urg">⏰ 임박</span>`:''}</div>
     <div class="r">
-      <div class="tline"><span class="tchip ${typeCls(c.type)}">${c.type}</span></div>
+      <div class="tline"><span class="tchip ${typeCls(c.type)}">${typeIcon(c.type)}${c.type}</span></div>
       <div class="price ${c.bundle?'y':''}">${c.bundle?`<span class="pre">${c.dur} 으로</span>`:''}<b>${won(c.price)}</b>${surge}</div>
       ${c.bonus?`<div class="bonus">+${won(c.bonus)} <span>단골 보너스 포함</span></div>`:''}
       <div class="route">${c.route}</div>
