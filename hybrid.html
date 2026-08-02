@@ -56,7 +56,9 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .call:active{border-color:var(--btnln)}
 .call.rec{border-left:.2em solid var(--btnln)}
 .call .lft{width:5em;flex:none;display:flex;flex-direction:column;gap:.12em}
-.call .lft b{font-weight:800}.call .lft span{font-size:.8em;color:var(--sub)}
+.call .lft .dy{font-size:.82em;color:var(--sub);font-weight:600}
+.call .lft .tm{font-weight:800;color:var(--txt);font-size:1.05em;letter-spacing:-.01em}
+.call .lft .pr{font-size:.8em;color:var(--sub)}
 .call .lft .urg{margin-top:.2em;font-size:.72em;font-weight:800;color:#ff8fab;display:inline-flex;align-items:center;gap:.1em;width:fit-content}
 .call .rgt{flex:1;min-width:0}
 .call .tline{margin-bottom:.28em}
@@ -169,7 +171,7 @@ const seatLabel=c=> c.seat===2?'카시트 2개':'카시트';
 function condLine(c){ const b=[]; if(c.cash) b.push('현장결제'); if(!expEarn(c)&&c.seat) b.push(seatLabel(c)); return b.length?`<div class="cond">${b.join(' · ')}</div>`:''; }
 function detailLine(c){ const e=expEarn(c); if(!e) return ''; const src=[]; if(c.seat) src.push(`<span class="src">${seatLabel(c)}</span>`); if(c.dangol) src.push('<span class="dg">단골</span>'); return `<div class="detail">부가수익 ${won(e)} 포함 · ${src.join(' · ')}</div>`; }
 function card(c){ const total=c.price+expEarn(c); const surge=c.mult?`<em>↗${c.mult.toFixed(1)}배</em>`:'';
-  return `<div class="call ${c.rec?'rec':''}"><div class="lft"><b>${c.label}</b><span>${c.time}</span>${c.product?`<span>${c.product}</span>`:''}${c.imm?`<span class="urg">⏰ 임박</span>`:''}</div><div class="rgt"><div class="tline"><span class="tchip ${typeCls(c.type)}">${typeIcon(c.type)}${c.type}</span></div><div class="price ${c.bundle?'y':''}">${c.bundle?`<span class="pre">${c.dur} 으로</span>`:''}<b>${won(total)}</b>${surge}</div><div class="route">${c.from} → ${c.to}</div>${condLine(c)}${detailLine(c)}</div></div>`; }
+  return `<div class="call ${c.rec?'rec':''}"><div class="lft"><span class="dy">${c.label}</span><b class="tm">${c.time}</b>${c.product?`<span class="pr">${c.product}</span>`:''}${c.imm?`<span class="urg">⏰ 임박</span>`:''}</div><div class="rgt"><div class="tline"><span class="tchip ${typeCls(c.type)}">${typeIcon(c.type)}${c.type}</span></div><div class="price ${c.bundle?'y':''}">${c.bundle?`<span class="pre">${c.dur} 으로</span>`:''}<b>${won(total)}</b>${surge}</div><div class="route">${c.from} → ${c.to}</div>${condLine(c)}${detailLine(c)}</div></div>`; }
 const shCard=card, genCard=card;
 const sortChip=()=>`<div class="sortrow"><button class="c act" data-opensheet>↕ ${state.sort}</button><button class="f c" data-filter>공항콜만 보기</button></div>`;
 const endLine=(k,t)=>`<div class="endmsg">— ${k} ${t}건 끝 —</div>`;
