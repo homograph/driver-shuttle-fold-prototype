@@ -76,32 +76,35 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .grp.closed .chev{transform:rotate(-90deg)}
 .grpwrap{display:flex;flex-direction:column;gap:.5em;overflow:hidden}
 
-/* neutral placeholder card */
-.rc{background:var(--card);border-radius:.7em;display:flex;cursor:pointer;border:1px solid transparent}
+/* 콜카드 — Figma 시안3 디자인 반영 (개선: 시간 흰색→서브) */
+.rc{background:var(--card);border-radius:.75em;display:flex;cursor:pointer;border:1px solid transparent}
 .rc:active{border-color:var(--btnln)}
-.rc .date{width:6.4em;flex:none;padding:1.15em .5em 1.15em 1.05em;display:flex;flex-direction:column;gap:.2em}
-.rc .date .d1{font-weight:800}
-.rc .date .d2{font-size:.86em;color:var(--sub)}
+.rc .date{width:6.6em;flex:none;padding:1.25em .6em 1.25em 1.15em;display:flex;flex-direction:column;gap:.28em}
+.rc .date .drow{display:flex;align-items:baseline;gap:.35em;flex-wrap:wrap}
+.rc .date .d1{font-size:1.05em;font-weight:800;color:var(--txt)}
+.rc .date .imm{font-size:.72em;font-weight:800;color:#fe6f59}
+.rc .date .d2{font-size:.9em;color:var(--sub)}            /* 시간: #fff→서브 (개선 포인트) */
 .rc .date .d3{font-size:.82em;color:var(--sub2)}
-.rc .date .chg{font-size:.8em;color:var(--sub2);margin-top:.1em}
-.rc .dv{width:1px;background:var(--line);margin:1.15em 0}
-.rc .body{flex:1;min-width:0;padding:1.15em 1.05em 1.15em .95em;display:flex;flex-direction:column;gap:.5em}
-.rc .route{font-size:.92em;word-break:keep-all;overflow-wrap:break-word}
+.rc .date .chg{font-size:.8em;color:var(--sub2);margin-top:.05em}
+.rc .dv{width:1px;background:var(--line);margin:1.25em 0}
+.rc .body{flex:1;min-width:0;padding:1.25em 1.15em 1.25em 1em;display:flex;flex-direction:column;gap:.55em}
+.rc .chiprow{display:flex;flex-wrap:wrap;gap:.4em;align-items:center}
+.rc .chip{font-size:.72em;font-weight:700;border-radius:999px;padding:.2em .7em;white-space:nowrap}
+.rc .chip.t-shuttle{background:rgba(255,148,0,.22);color:#ffc700}
+.rc .chip.t-normal{background:#39456099;color:#cdd9f2}
+.rc .chip.t-charter{background:#2f3f66;color:#bcd6ff}
+.rc .chip.t-bundle{background:transparent;border:1.5px solid #ffd54a;color:#ffd54a;padding:.14em .66em}
+.rc .chip.cash{background:transparent;border:1.5px solid #9a8cff;color:#bcb0ff;padding:.14em .66em}
+.rc .prefix{font-size:.86em;color:var(--sub)}
+.rc .pricerow{display:flex;align-items:baseline;gap:.45em;flex-wrap:wrap}
+.rc .pricerow .price{font-size:1.72em;font-weight:800;color:#f9f9f9;letter-spacing:-.01em}
+.rc .pricerow .surge{font-size:.82em;font-weight:700}
+.rc .pricerow .surge.up{color:#eeff00}
+.rc .pricerow .surge.down{color:#c0c8d9}
+.rc .detail{font-size:.82em;color:var(--sub2);word-break:keep-all}
+.rc .detail .dg{color:#ffcf87;font-weight:700}
+.rc .route{font-size:.92em;color:var(--txt);word-break:keep-all;overflow-wrap:break-word}
 .rc .route .ar{color:var(--sub)}
-.rc .badges{display:flex;flex-wrap:wrap;gap:.32em}
-.rc .bg{font-size:.72em;font-weight:700;border-radius:.4em;padding:.16em .5em}
-.rc .bg.shuttle{background:var(--b-shuttle-bg);color:var(--b-shuttle-tx)}
-.rc .bg.normal{background:var(--b-normal-bg);color:var(--b-normal-tx)}
-.rc .bg.charter{background:var(--b-charter-bg);color:var(--b-charter-tx)}
-.rc .bg.dangol{background:var(--b-dangol-bg);color:var(--b-dangol-tx)}
-.rc .bg.imm{background:var(--b-imm-bg);color:var(--b-imm-tx)}
-.rc .bg.seat{background:var(--b-seat-bg);color:var(--b-seat-tx)}
-.rc .bg.rec{background:var(--b-rec-bg);color:var(--b-rec-tx)}
-.rc .price{display:flex;align-items:baseline;justify-content:flex-end;gap:.4em}
-.rc .price .surge{font-size:.78em;color:var(--sub);font-weight:600}
-.rc .price b{font-size:1.15em;font-weight:800}
-.rc.ph{opacity:.9}
-.rc .phtag{font-size:.66em;color:var(--sub2);border:1px dashed var(--line);border-radius:.35em;padding:.05em .35em;align-self:flex-start}
 
 .endmsg{text-align:center;color:var(--sub2);font-size:.8em;padding:.8em}
 
@@ -145,7 +148,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
   </div>
 
   <div class="note">
-    <b>인터랙션:</b> <b>셔틀 포함↔제외</b> 세그먼트 전환(헬퍼문구 변경) · 포함 시 <b>「셔틀 예약 N건 · 접기」</b> 그룹 접기/펼치기로 일반 콜 즉시 노출 · <b>🔔 새 셔틀 도착 시뮬</b> → 제외 중이면 상단 배너(탭 시 포함 전환), 포함 중이면 그룹 수 +1 · 스크롤 시 <b>맨 위로</b> · <b>내 예약</b> 탭은 달력/기간 필터 + <b>새로고침</b>. 색·구조는 실제 앱(시안3) 기준, 카드 내부만 플레이스홀더.
+    <b>인터랙션:</b> <b>셔틀 포함↔제외</b> 세그먼트 전환(헬퍼문구 변경) · 포함 시 <b>「셔틀 예약 N건 · 접기」</b> 그룹 접기/펼치기로 일반 콜 즉시 노출 · <b>🔔 새 셔틀 도착 시뮬</b> → 제외 중이면 상단 배너(탭 시 포함 전환), 포함 중이면 그룹 수 +1 · 스크롤 시 <b>맨 위로</b> · <b>내 예약</b> 탭은 달력/기간 필터 + <b>새로고침</b>. 색·구조·<b>콜카드는 Figma 시안3 디자인 반영</b>(개선: 시간 <code>11:20</code> 색을 서브로 낮춤).
   </div>
 </div>
 
@@ -157,10 +160,10 @@ const tos=['인천국제 공항','김포공항'];
 // 일반/시간대절 (수락가능, 비셔틀)
 const GEN=[
   {date:'오늘',time:'아침 11:20',route:'성동구 성수동1가 → 인천국제 공항',type:'charter',product:'2시간 대절',badges:['dangol'],price:25000,surge:'↗1.9배',rec:true},
-  {date:'오늘',time:'낮 12:40',route:'용산구 한강로3가 → 김포공항',type:'normal',badges:['imm','seat'],price:31000,surge:null},
+  {date:'오늘',time:'낮 12:40',route:'용산구 한강로3가 → 김포공항',type:'normal',badges:['imm','seat'],price:31000,surge:null,cash:true},
   {date:'내일',time:'아침 08:20',route:'동대문구 답십리1동 → 성동구 성수동1가',type:'normal',badges:['dangol'],price:22400,surge:'↘0.9배'},
   {date:'10월 16일 (수)',time:'아침 11:20',route:'용산구 동자동 → 경유지 2곳 → 동대문구 답십리1동',type:'charter',product:'3시간 대절',badges:['seat'],price:74000,surge:'↗1.5배'},
-  {date:'10월 19일 (목)',time:'낮 13:10',route:'동대문구 답십리1동 → 성동구 성수동1가',type:'normal',badges:[],price:19800,surge:null},
+  {date:'10월 19일 (목)',time:'낮 13:10',route:'동대문구 답십리1동 → 성동구 성수동1가',type:'normal',badges:[],price:19800,surge:null,cash:true},
   {date:'10월 21일 (화)',time:'저녁 18:30',route:'성동구 옥수동 → 인천국제 공항',type:'charter',product:'2시간 대절',badges:['dangol','rec'],price:81400,surge:'↗1.9배'},
 ];
 // 셔틀 (셔틀 포함 시 그룹)
@@ -177,24 +180,27 @@ const MY=[
   {date:'10월 19일 (목)',time:'아침 11:20',route:'동대문구 답십리1동 → 성동구 성수동1가',type:'charter',product:'2시간 대절',badges:['dangol'],price:81400,surge:null,changed:true,day:'tmr'},
 ];
 
-const BLABEL={shuttle:'셔틀예약',normal:'일반예약',charter:'시간대절',dangol:'단골',imm:'임박',seat:'카시트',rec:'추천'};
-function typeBadge(c){ return c.type==='shuttle'?'shuttle':(c.type==='charter'?'charter':'normal'); }
-function badgesHTML(c){
-  const arr=[`<span class="bg ${typeBadge(c)}">${BLABEL[c.type]}</span>`];
-  for(const b of (c.badges||[])) arr.push(`<span class="bg ${b}">${BLABEL[b]}</span>`);
-  return `<div class="badges">${arr.join('')}</div>`;
-}
+const TLABEL={shuttle:'셔틀예약',normal:'일반예약',charter:'시간대절',bundle:'묶음예약'};
 function routeHTML(r){ return r.replace(/→/g,'<span class="ar">→</span>'); }
+function expEarn(c){ if(c.type==='shuttle') return 0; const b=c.badges||[]; return (b.includes('seat')?3000:0)+(b.includes('dangol')?1500:0); }
+function detailHTML(c){ const e=expEarn(c); if(!e) return ''; const dg=(c.badges||[]).includes('dangol')?'<span class="dg">단골</span> ':''; return `<div class="detail">${dg}부가수익 ${won(e)} 포함</div>`; }
 function cardHTML(c){
-  const surge=c.surge?`<span class="surge">${c.surge}</span>`:'';
-  return `<div class="rc ph" data-call>
-    <div class="date"><span class="d1">${c.date}</span><span class="d2">${c.time}</span>${c.product?`<span class="d3">${c.product}</span>`:''}${c.changed?'<span class="chg">(변경됨)</span>':''}</div>
+  const imm=(c.badges||[]).includes('imm');
+  const surge=c.surge?`<span class="surge ${c.surge.startsWith('↗')?'up':'down'}">${c.surge}</span>`:'';
+  const cash=c.cash?'<span class="chip cash">현장결제</span>':'';
+  const prefix=c.prefix?`<div class="prefix">${c.prefix}</div>`:'';
+  return `<div class="rc" data-call>
+    <div class="date">
+      <div class="drow"><span class="d1">${c.date}</span>${imm?'<span class="imm">임박</span>':''}</div>
+      <span class="d2">${c.time}</span>${c.product?`<span class="d3">${c.product}</span>`:''}${c.changed?'<span class="chg">(변경됨)</span>':''}
+    </div>
     <div class="dv"></div>
     <div class="body">
-      <span class="phtag">카드 재디자인 예정 · 플레이스홀더</span>
+      <div class="chiprow"><span class="chip t-${c.type}">${TLABEL[c.type]}</span>${cash}</div>
+      ${prefix}
+      <div class="pricerow"><b class="price">${won(c.price)}</b>${surge}</div>
+      ${detailHTML(c)}
       <div class="route">${routeHTML(c.route)}</div>
-      ${badgesHTML(c)}
-      <div class="price">${surge}<b>${won(c.price)}</b></div>
     </div></div>`;
 }
 
