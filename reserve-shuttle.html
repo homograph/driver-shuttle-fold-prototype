@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>예약콜 목록 — 셔틀 처리(세그먼트 필터) · TADA-9317 시안3</title>
+<style>
+:root{
+  /* 실제 앱 색(Figma Driver Handoff 시안3) */
+  --page:#0c1430; --screen:#101a3d; --card:#1e2d59; --card2:#19254d; --line:#293f71; --edge:#26365f;
+  --txt:#f9f9f9; --sub:#aeb8d4; --sub2:#8f9bbd;
+  --blue:#3d7bff; --btnln:#5b93ff; --tabon:#19254d;
+  --b-shuttle-bg:#574a35; --b-shuttle-tx:#ecd6a6;
+  --b-normal-bg:#37436099; --b-normal-tx:#cdd9f2;
+  --b-charter-bg:#2f3f66; --b-charter-tx:#bcd6ff;
+  --b-dangol-bg:#553f22; --b-dangol-tx:#ffcf87;
+  --b-imm-bg:#6e2b3f; --b-imm-tx:#ffb0c6;
+  --b-seat-bg:#264f3b; --b-seat-tx:#a8f0c8;
+  --b-rec-bg:#43521c; --b-rec-tx:#d6f07a;
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  --kr:"Apple SD Gothic Neo","Pretendard",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line-height:1.5}
+.app{max-width:920px;margin:0 auto;padding:18px 16px 40px}
+.head h1{font-size:18px;margin:0 0 3px;letter-spacing:-.02em}
+.head p{margin:0;color:var(--sub);font-size:12.5px}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0 16px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#0e1836}
+.ctrl .lbl{font-size:11px;color:var(--sub);font-family:var(--mono);margin-right:2px}
+.ctrl button{font-family:var(--kr);font-size:12px;color:var(--sub);background:transparent;border:1px solid var(--line);border-radius:999px;padding:5px 11px;cursor:pointer}
+.ctrl button.on{color:#fff;background:var(--btnln);border-color:var(--btnln)}
+.ctrl .sep{width:1px;height:20px;background:var(--line);margin:0 2px}
+
+.stage{display:flex;justify-content:center}
+.phone{width:100%;max-width:390px;background:#0a1330;border:1px solid var(--line);border-radius:26px;padding:8px;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+.scr{background:var(--screen);border:1px solid var(--line);border-radius:19px;overflow:hidden;display:flex;flex-direction:column;height:720px;font-size:14px;position:relative}
+.scr.big{font-size:19px}
+.sb{height:1.5em;background:#0b1024;flex:none;display:flex;align-items:center;justify-content:flex-end;padding:0 1em;color:#fff;font-size:.8em;font-weight:600}
+
+/* appbar */
+.appbar{display:flex;align-items:center;gap:.4em;padding:.5em .3em .5em .5em;flex:none}
+.appbar .bk{font-size:1.3em;color:#fff;padding:0 .25em;cursor:pointer}
+.appbar .ttl{font-size:1.05em;font-weight:800;flex:1}
+.appbar .sort{color:var(--sub);padding:.3em .5em;cursor:pointer;font-size:1.05em}
+
+/* primary tabs */
+.tabs{display:flex;gap:.5em;padding:.3em .6em .55em;flex:none}
+.tabs button{flex:1;font-family:var(--kr);font-weight:800;font-size:1em;color:var(--sub);background:transparent;border:1px solid var(--edge);border-radius:.7em;padding:.85em .3em;cursor:pointer}
+.tabs button.on{color:#fff;background:var(--tabon);border-color:var(--btnln)}
+
+/* segment 셔틀 포함/제외 */
+.seg{display:flex;gap:.5em;padding:.15em .6em .3em;flex:none}
+.seg button{font-family:var(--kr);font-size:.92em;font-weight:700;color:var(--sub);background:transparent;border:1px solid var(--edge);border-radius:.6em;padding:.62em 1.15em;cursor:pointer}
+.seg button.on{color:#fff;background:var(--card2);border-color:var(--btnln)}
+.helper{padding:.35em .95em .5em;color:var(--sub);font-size:.82em;flex:none}
+
+/* new shuttle banner */
+.banner{margin:.1em .6em .3em;padding:.7em .85em;border:1px solid var(--btnln);background:#16265a;border-radius:.7em;color:#eaf1ff;font-size:.86em;font-weight:600;display:flex;align-items:center;gap:.5em;cursor:pointer;flex:none}
+.banner b{color:var(--btnln)}
+.banner .x{margin-left:auto;color:var(--sub);font-weight:400}
+
+/* period filter (내 예약) */
+.period{display:flex;gap:.4em;padding:.2em .6em .4em;flex:none;overflow-x:auto}
+.period button{font-family:var(--kr);font-size:.86em;font-weight:600;white-space:nowrap;color:var(--sub);background:transparent;border:1px solid var(--edge);border-radius:.55em;padding:.55em .85em;cursor:pointer;display:flex;gap:.3em;align-items:center}
+.period button.on{color:#fff;background:var(--card2);border-color:var(--btnln)}
+.period .cal{background:var(--card2);border-color:var(--edge)}
+
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.15em 0 4em}
+.list{padding:.5em .6em;display:flex;flex-direction:column;gap:.5em}
+
+/* group header (셔틀 예약 N · 접기) */
+.grp{display:flex;align-items:center;gap:.5em;padding:.7em .3em .5em;color:var(--txt);font-size:.92em;font-weight:800;cursor:pointer}
+.grp .cnt{color:var(--sub);font-weight:600}
+.grp .fold{margin-left:auto;color:var(--btnln);font-size:.86em;font-weight:700;display:flex;align-items:center;gap:.25em}
+.grp .chev{transition:transform .2s}
+.grp.closed .chev{transform:rotate(-90deg)}
+.grpwrap{display:flex;flex-direction:column;gap:.5em;overflow:hidden}
+
+/* neutral placeholder card */
+.rc{background:var(--card);border-radius:.7em;display:flex;cursor:pointer;border:1px solid transparent}
+.rc:active{border-color:var(--btnln)}
+.rc .date{width:6.4em;flex:none;padding:1.15em .5em 1.15em 1.05em;display:flex;flex-direction:column;gap:.2em}
+.rc .date .d1{font-weight:800}
+.rc .date .d2{font-size:.86em;color:var(--sub)}
+.rc .date .d3{font-size:.82em;color:var(--sub2)}
+.rc .date .chg{font-size:.8em;color:var(--sub2);margin-top:.1em}
+.rc .dv{width:1px;background:var(--line);margin:1.15em 0}
+.rc .body{flex:1;min-width:0;padding:1.15em 1.05em 1.15em .95em;display:flex;flex-direction:column;gap:.5em}
+.rc .route{font-size:.92em;word-break:keep-all;overflow-wrap:break-word}
+.rc .route .ar{color:var(--sub)}
+.rc .badges{display:flex;flex-wrap:wrap;gap:.32em}
+.rc .bg{font-size:.72em;font-weight:700;border-radius:.4em;padding:.16em .5em}
+.rc .bg.shuttle{background:var(--b-shuttle-bg);color:var(--b-shuttle-tx)}
+.rc .bg.normal{background:var(--b-normal-bg);color:var(--b-normal-tx)}
+.rc .bg.charter{background:var(--b-charter-bg);color:var(--b-charter-tx)}
+.rc .bg.dangol{background:var(--b-dangol-bg);color:var(--b-dangol-tx)}
+.rc .bg.imm{background:var(--b-imm-bg);color:var(--b-imm-tx)}
+.rc .bg.seat{background:var(--b-seat-bg);color:var(--b-seat-tx)}
+.rc .bg.rec{background:var(--b-rec-bg);color:var(--b-rec-tx)}
+.rc .price{display:flex;align-items:baseline;justify-content:flex-end;gap:.4em}
+.rc .price .surge{font-size:.78em;color:var(--sub);font-weight:600}
+.rc .price b{font-size:1.15em;font-weight:800}
+.rc.ph{opacity:.9}
+.rc .phtag{font-size:.66em;color:var(--sub2);border:1px dashed var(--line);border-radius:.35em;padding:.05em .35em;align-self:flex-start}
+
+.endmsg{text-align:center;color:var(--sub2);font-size:.8em;padding:.8em}
+
+/* floating buttons */
+.fab{position:absolute;left:50%;transform:translateX(-50%);bottom:1.1em;background:#f4f6ff;color:#14203f;font-weight:800;font-size:.9em;border:none;border-radius:999px;padding:.7em 1.4em;box-shadow:0 6px 20px rgba(0,0,0,.4);cursor:pointer;display:none;align-items:center;gap:.4em;z-index:5}
+.fab.show{display:inline-flex}
+
+.toast{position:absolute;left:50%;bottom:4.2em;transform:translateX(-50%) translateY(1em);opacity:0;transition:.2s;pointer-events:none;background:#0b1830;border:1px solid var(--line);color:var(--txt);font-size:.82em;padding:.55em .9em;border-radius:999px;white-space:nowrap;z-index:6}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.note{margin-top:12px;color:var(--sub);font-size:12px;border:1px dashed var(--line);border-radius:10px;padding:11px 13px;line-height:1.65}
+.note b{color:var(--txt)}
+.back{margin:0 0 10px}.back a{color:var(--btnln);font-size:13px;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <p class="back"><a href="index.html">← 방식 목록</a></p>
+  <div class="head">
+    <h1>🚐 예약콜 목록 — 셔틀 처리(세그먼트 필터) <span style="font-family:var(--mono);font-size:11px;color:var(--btnln)">TADA-9317 · 시안3</span></h1>
+    <p>기존 「예약콜 목록」에 <b>셔틀 포함 / 셔틀 제외</b> 세그먼트를 얹어 셔틀 노출을 제어. 포함 시 <b>셔틀 그룹 접기</b>로 일반 콜을 빠르게, 제외 시 새 셔틀이 오면 <b>배너</b>로 알림. 카드는 재디자인 중이라 <b>중립 플레이스홀더</b>.</p>
+  </div>
+
+  <div class="ctrl">
+    <span class="lbl">글씨</span>
+    <button data-fs="0" class="on">기본</button>
+    <button data-fs="1">크게(sp)</button>
+    <span class="sep"></span>
+    <button id="simShuttle">🔔 새 셔틀 도착 시뮬</button>
+  </div>
+
+  <div class="stage">
+    <div class="phone"><div class="scr" id="scr">
+      <div class="sb">12:30</div>
+      <div id="chrome"></div>
+      <div class="scroll" id="scroll"><div class="list" id="list"></div></div>
+      <button class="fab" id="fabTop">↑ 맨 위로</button>
+      <button class="fab" id="fabRefresh">↻ 새로고침</button>
+      <div class="toast" id="toast"></div>
+    </div></div>
+  </div>
+
+  <div class="note">
+    <b>인터랙션:</b> <b>셔틀 포함↔제외</b> 세그먼트 전환(헬퍼문구 변경) · 포함 시 <b>「셔틀 예약 N건 · 접기」</b> 그룹 접기/펼치기로 일반 콜 즉시 노출 · <b>🔔 새 셔틀 도착 시뮬</b> → 제외 중이면 상단 배너(탭 시 포함 전환), 포함 중이면 그룹 수 +1 · 스크롤 시 <b>맨 위로</b> · <b>내 예약</b> 탭은 달력/기간 필터 + <b>새로고침</b>. 색·구조는 실제 앱(시안3) 기준, 카드 내부만 플레이스홀더.
+  </div>
+</div>
+
+<script>
+const won=n=>n.toLocaleString('ko-KR')+'원';
+/* ---------- 데이터 (더미) ---------- */
+const froms=['성동구 성수동1가','용산구 한강로3가','동대문구 답십리1동','성동구 금호동','성동구 옥수동','용산구 동자동'];
+const tos=['인천국제 공항','김포공항'];
+// 일반/시간대절 (수락가능, 비셔틀)
+const GEN=[
+  {date:'오늘',time:'아침 11:20',route:'성동구 성수동1가 → 인천국제 공항',type:'charter',product:'2시간 대절',badges:['dangol'],price:25000,surge:'↗1.9배',rec:true},
+  {date:'오늘',time:'낮 12:40',route:'용산구 한강로3가 → 김포공항',type:'normal',badges:['imm','seat'],price:31000,surge:null},
+  {date:'내일',time:'아침 08:20',route:'동대문구 답십리1동 → 성동구 성수동1가',type:'normal',badges:['dangol'],price:22400,surge:'↘0.9배'},
+  {date:'10월 16일 (수)',time:'아침 11:20',route:'용산구 동자동 → 경유지 2곳 → 동대문구 답십리1동',type:'charter',product:'3시간 대절',badges:['seat'],price:74000,surge:'↗1.5배'},
+  {date:'10월 19일 (목)',time:'낮 13:10',route:'동대문구 답십리1동 → 성동구 성수동1가',type:'normal',badges:[],price:19800,surge:null},
+  {date:'10월 21일 (화)',time:'저녁 18:30',route:'성동구 옥수동 → 인천국제 공항',type:'charter',product:'2시간 대절',badges:['dangol','rec'],price:81400,surge:'↗1.9배'},
+];
+// 셔틀 (셔틀 포함 시 그룹)
+let SH_COUNT=50;
+const SH=Array.from({length:8},(_,i)=>({
+  date:i<3?'오늘':(i<5?'내일':'10월 '+(16+i)+'일'), time:['아침 09:00','아침 10:20','아침 11:20','낮 12:00','낮 13:40','오후 15:10','오후 16:30','저녁 18:00'][i],
+  route:froms[i%froms.length]+' → '+tos[i%2], type:'shuttle', badges:i<4?['imm']:[], price:23000+(i%6)*2000, surge:i%3?'↗1.5배':null
+}));
+// 내 예약 (변경됨)
+const MY=[
+  {date:'오늘',time:'아침 11:20',route:'성동구 성수동1가 → 인천국제 공항',type:'normal',badges:['imm','seat'],price:25000,surge:null,changed:true,day:'today'},
+  {date:'오늘',time:'낮 12:20',route:'성동구 성수동1가 → 인천국제 공항',type:'normal',badges:['dangol','imm','rec'],price:25000,surge:null,changed:true,day:'today'},
+  {date:'10월 16일 (수)',time:'아침 11:20',route:'용산구 동자동 → 경유지 2곳 → 동대문구 답십리1동',type:'charter',product:'3시간 대절',badges:['seat'],price:25000,surge:'↘0.9배',changed:true,day:'tmr'},
+  {date:'10월 19일 (목)',time:'아침 11:20',route:'동대문구 답십리1동 → 성동구 성수동1가',type:'charter',product:'2시간 대절',badges:['dangol'],price:81400,surge:null,changed:true,day:'tmr'},
+];
+
+const BLABEL={shuttle:'셔틀예약',normal:'일반예약',charter:'시간대절',dangol:'단골',imm:'임박',seat:'카시트',rec:'추천'};
+function typeBadge(c){ return c.type==='shuttle'?'shuttle':(c.type==='charter'?'charter':'normal'); }
+function badgesHTML(c){
+  const arr=[`<span class="bg ${typeBadge(c)}">${BLABEL[c.type]}</span>`];
+  for(const b of (c.badges||[])) arr.push(`<span class="bg ${b}">${BLABEL[b]}</span>`);
+  return `<div class="badges">${arr.join('')}</div>`;
+}
+function routeHTML(r){ return r.replace(/→/g,'<span class="ar">→</span>'); }
+function cardHTML(c){
+  const surge=c.surge?`<span class="surge">${c.surge}</span>`:'';
+  return `<div class="rc ph" data-call>
+    <div class="date"><span class="d1">${c.date}</span><span class="d2">${c.time}</span>${c.product?`<span class="d3">${c.product}</span>`:''}${c.changed?'<span class="chg">(변경됨)</span>':''}</div>
+    <div class="dv"></div>
+    <div class="body">
+      <span class="phtag">카드 재디자인 예정 · 플레이스홀더</span>
+      <div class="route">${routeHTML(c.route)}</div>
+      ${badgesHTML(c)}
+      <div class="price">${surge}<b>${won(c.price)}</b></div>
+    </div></div>`;
+}
+
+/* ---------- 상태 ---------- */
+const state={tab:'accept', seg:'include', big:false, foldShuttle:false, period:'전체', banner:false};
+
+function chrome(){
+  const sort = state.tab==='accept' ? `<span class="sort" data-sort>↕</span>` : `<span class="sort" data-sort>↕</span>`;
+  let sub='';
+  if(state.tab==='accept'){
+    sub=`<div class="seg">
+      <button data-seg="include" class="${state.seg==='include'?'on':''}">셔틀 포함</button>
+      <button data-seg="exclude" class="${state.seg==='exclude'?'on':''}">셔틀 제외</button>
+    </div>
+    <div class="helper">${state.seg==='include'?'셔틀과 일반 예약이 함께 표시됩니다':'셔틀을 제외한 예약이 표시됩니다'}</div>
+    ${state.banner&&state.seg==='exclude'?`<div class="banner" data-banner>⬆️ 방금 새 <b>셔틀</b> 예약이 들어왔어요<span class="x" data-bannerx>✕</span></div>`:''}`;
+  } else {
+    sub=`<div class="period">
+      <button class="cal">📅 달력</button>
+      <button data-pd="전체" class="${state.period==='전체'?'on':''}">전체</button>
+      <button data-pd="오늘" class="${state.period==='오늘'?'on':''}">오늘 <b>2</b></button>
+      <button data-pd="내일" class="${state.period==='내일'?'on':''}">내일 <b>6</b></button>
+    </div>`;
+  }
+  return `<div class="appbar"><span class="bk">←</span><span class="ttl">예약콜 목록</span>${sort}</div>
+    <div class="tabs">
+      <button data-tab="accept" class="${state.tab==='accept'?'on':''}">수락가능 콜</button>
+      <button data-tab="my" class="${state.tab==='my'?'on':''}">내 예약(8)</button>
+    </div>${sub}`;
+}
+
+function listHTML(){
+  if(state.tab==='my'){
+    let arr=MY.slice();
+    if(state.period==='오늘') arr=arr.filter(c=>c.day==='today');
+    else if(state.period==='내일') arr=arr.filter(c=>c.day==='tmr');
+    return arr.map(cardHTML).join('') + `<div class="endmsg">— 내 예약 ${arr.length}건 —</div>`;
+  }
+  // accept
+  let html='';
+  if(state.seg==='include'){
+    // 셔틀 그룹 (접기)
+    const open=!state.foldShuttle;
+    html += `<div class="grp ${open?'':'closed'}" data-fold>🚐 셔틀 예약 <span class="cnt">${SH_COUNT}건</span>
+      <span class="fold">${open?'접기':'펼치기'}<span class="chev">▾</span></span></div>`;
+    if(open){
+      html += `<div class="grpwrap">${SH.map(cardHTML).join('')}
+        <div class="endmsg">셔틀 예약 ${SH_COUNT}건 중 8건 표시 · 스크롤로 더 보기(프로토)</div></div>`;
+    }
+    // 일반/시간대절
+    html += GEN.map(cardHTML).join('');
+  } else {
+    html += GEN.map(cardHTML).join('');
+  }
+  html += `<div class="endmsg">— 목록 끝 —</div>`;
+  return html;
+}
+
+function render(){
+  document.getElementById('scr').classList.toggle('big',state.big);
+  document.getElementById('chrome').innerHTML=chrome();
+  document.getElementById('list').innerHTML=listHTML();
+  document.getElementById('scroll').scrollTop=0;
+  updateFabs();
+}
+function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),1500); }
+
+function updateFabs(){
+  const sc=document.getElementById('scroll');
+  const scrolled=sc.scrollTop>180;
+  const top=document.getElementById('fabTop'), rf=document.getElementById('fabRefresh');
+  if(state.tab==='my'){ rf.classList.add('show'); top.classList.remove('show'); }
+  else { rf.classList.remove('show'); top.classList.toggle('show',scrolled); }
+}
+document.getElementById('scroll').addEventListener('scroll',updateFabs);
+
+document.getElementById('scr').addEventListener('click',e=>{
+  const tb=e.target.closest('[data-tab]'); if(tb){ state.tab=tb.dataset.tab; render(); return; }
+  const sg=e.target.closest('[data-seg]'); if(sg){ state.seg=sg.dataset.seg; if(state.seg==='include')state.banner=false; render(); return; }
+  const pd=e.target.closest('[data-pd]'); if(pd){ state.period=pd.dataset.pd; render(); return; }
+  if(e.target.closest('[data-fold]')){ state.foldShuttle=!state.foldShuttle; render(); toast(state.foldShuttle?'셔틀 예약 접음 · 일반 콜이 위로':'셔틀 예약 펼침'); return; }
+  if(e.target.closest('[data-bannerx]')){ state.banner=false; render(); return; }
+  if(e.target.closest('[data-banner]')){ state.seg='include'; state.banner=false; render(); toast('셔틀 포함으로 전환 · 최신 셔틀 표시'); return; }
+  if(e.target.closest('[data-sort]')){ toast('정렬 (프로토타입)'); return; }
+  if(e.target.closest('[data-call]')){ toast('콜 상세로 이동 (프로토타입)'); return; }
+});
+
+document.getElementById('fabTop').addEventListener('click',()=>{ document.getElementById('scroll').scrollTo({top:0,behavior:'smooth'}); });
+document.getElementById('fabRefresh').addEventListener('click',()=>{ toast('새로고침 완료'); });
+
+document.getElementById('simShuttle').addEventListener('click',()=>{
+  if(state.tab!=='accept'){ state.tab='accept'; }
+  if(state.seg==='exclude'){ state.banner=true; render(); toast('새 셔틀 도착 → 배너 노출(제외 중)'); }
+  else { SH_COUNT+=1; if(state.foldShuttle) state.foldShuttle=false; render(); toast('셔틀 예약 +1건 ('+SH_COUNT+'건)'); }
+});
+
+document.querySelectorAll('.ctrl [data-fs]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.ctrl [data-fs]').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+  state.big=b.dataset.fs==='1'; render();
+}));
+
+render();
+</script>
+</body>
+</html>
