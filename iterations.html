@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>콜카드 개선안 이터레이션 비교 (원본 → 5) · TADA-9317</title>
+<style>
+:root{
+  --page:#0c1526; --nv:#0f1c37; --card:#1a2c50; --line:#2b4067; --txt:#f2f6ff; --sub:#a7b8d6; --sub2:#98a4c2;
+  --blue:#3d7bff; --btn:#1b3e79; --btnln:#5b93ff; --mult:#c7ef4c; --y:#ffe14d; --dangol:#ffcf87;
+  --badge:#334870; --shbadge:#234f96; --shbadgetx:#cfe0ff;
+  --bad:#8a3a58; --badtx:#ffb0c6; --good:#2f6b4a; --goodtx:#a8f0c8;
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  --kr:"Apple SD Gothic Neo","Pretendard",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line-height:1.5}
+.app{max-width:100%;margin:0 auto;padding:18px 16px 44px}
+.back{margin:0 0 10px}.back a{color:var(--btnln);font-size:13px;text-decoration:none}
+h1{font-size:18px;margin:0 0 3px;letter-spacing:-.02em}
+.lead{margin:0;color:var(--sub);font-size:12.5px;max-width:760px}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0 6px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#0e1c38;width:fit-content}
+.ctrl .lbl{font-size:11px;color:var(--sub);font-family:var(--mono);margin-right:2px}
+.ctrl button{font-family:var(--kr);font-size:12px;color:var(--sub);background:transparent;border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer}
+.ctrl button.on{color:#fff;background:var(--btn);border-color:var(--btnln)}
+.hint{margin:8px 0 14px;color:var(--sub2);font-size:11.5px;font-family:var(--mono)}
+
+.strip{display:flex;gap:16px;overflow-x:auto;padding-bottom:14px;-webkit-overflow-scrolling:touch}
+.col{flex:0 0 auto;width:340px}
+.col .cap{margin:0 0 8px;min-height:88px}
+.col .num{display:inline-flex;align-items:center;justify-content:center;min-width:1.7em;height:1.7em;padding:0 .5em;border-radius:999px;font-family:var(--mono);font-size:12px;font-weight:700;background:var(--btn);color:#fff;border:1px solid var(--btnln)}
+.col.v0 .num{background:var(--bad);border-color:#b56;color:#ffdbe6}
+.col.v5 .num{background:var(--good);border-color:#4a9;color:#d6ffe9}
+.col .nm{font-size:13px;font-weight:800;margin:.4em 0 .15em}
+.col .dl{font-size:11.5px;color:var(--sub2);line-height:1.5}
+.col .dl b{color:var(--txt)}
+
+.scr{width:340px;background:var(--nv);border:1px solid var(--line);border-radius:16px;padding:10px;font-size:14px}
+.col.v0 .scr{border-color:#5b3550}
+.col.v5 .scr{border-color:#2f6b4a}
+.wrap.big .scr{font-size:19px}
+.list{display:flex;flex-direction:column;gap:.55em}
+
+/* ===== base card = 원본(v0) ===== */
+.call{background:var(--card);border-radius:.75em;padding:.72em;display:flex;gap:.6em;border:1px solid transparent}
+.call.rec{border-left:.2em solid var(--btnln)}
+.call .lft{width:5em;flex:none;display:flex;flex-direction:column;gap:.12em}
+.call .lft .dy{font-weight:800;color:var(--txt)}
+.call .lft .tm{font-weight:400;color:var(--sub);font-size:.8em}
+.call .lft .urg{margin-top:.2em;font-size:.72em;font-weight:800;color:#ff8fab;display:inline-flex;align-items:center;gap:.1em;width:fit-content}
+.call .rgt{flex:1;min-width:0}
+.call .tline{margin-bottom:.28em}
+.call .tchip{font-size:.72em;font-weight:800;border-radius:.44em;padding:.16em .5em;display:inline-block;background:transparent;color:var(--y);border:1.5px solid var(--y)}
+.call .price{display:flex;align-items:baseline;gap:.1em;flex-wrap:wrap}
+.call .price .pre{width:100%;font-size:.82em;color:var(--sub);font-weight:600}
+.call .price b{font-size:1.5em;font-weight:800;letter-spacing:-.01em}
+.call .price.y b{color:var(--y)}
+.call .price em{font-style:normal;color:var(--mult);font-size:.78em;font-weight:700;margin-left:.35em}
+.call .route{margin-top:.5em;font-size:.9em}
+.call .cond{margin-top:.5em;font-size:.72em;color:var(--sub2)}
+.call .detail{margin-top:.4em;font-size:.78em;color:var(--sub2)}
+.call .detail .src{color:var(--sub)}.call .detail .dg{color:var(--dangol);font-weight:700}
+
+/* ===== iter1: keep-all + 큰글씨 단일컬럼 스택 ===== */
+.scr.keepall .route,.scr.keepall .detail,.scr.keepall .cond{word-break:keep-all;overflow-wrap:break-word}
+.wrap.big .scr.stack .call{flex-direction:column;gap:.35em}
+.wrap.big .scr.stack .lft{width:auto;flex-direction:row;align-items:baseline;flex-wrap:wrap;gap:.15em .5em}
+.wrap.big .scr.stack .lft .urg{margin-top:0}
+.wrap.big .scr.stack .tline{margin-bottom:0}
+
+/* ===== iter2: 존 스페이싱 리듬(큰글씨) ===== */
+.wrap.big .scr.zones .price{margin-top:.1em}
+.wrap.big .scr.zones .route{margin-top:.72em}
+.wrap.big .scr.zones .cond{margin-top:.6em}
+.wrap.big .scr.zones .detail{margin-top:.28em}
+
+/* ===== iter3: 시간 앵커 승격 ===== */
+.scr.timeanchor .lft .dy{font-size:.82em;color:var(--sub);font-weight:600}
+.scr.timeanchor .lft .tm{font-weight:800;color:var(--txt);font-size:1.05em;letter-spacing:-.01em}
+
+/* ===== iter4: 경로 위계 ===== */
+.scr.routehier .route .o{color:var(--sub)}
+.scr.routehier .route .d{font-weight:700;color:var(--txt)}
+.scr.routehier .route .wp{color:var(--sub);font-size:.88em}
+.scr.routehier .route .ar{color:var(--sub);margin:0 .12em}
+
+/* ===== iter5: 컨테인먼트 여백(큰글씨) ===== */
+.wrap.big .scr.pad .call{padding:.9em .95em}
+
+.note{margin-top:8px;color:var(--sub);font-size:12px;border:1px dashed var(--line);border-radius:10px;padding:11px 13px;line-height:1.7;max-width:760px}
+.note b{color:var(--txt)}
+.note .kbad{color:var(--badtx)}.note .kgood{color:var(--goodtx)}
+</style>
+</head>
+<body>
+<div class="app">
+  <p class="back"><a href="index.html">← 방식 목록</a></p>
+  <h1>🃏 콜카드 개선안 이터레이션 비교 <span style="font-family:var(--mono);font-size:11px;color:var(--btnln)">TADA-9317</span></h1>
+  <p class="lead">확정 개선안(합산 총액·타입칩·부가수익 하단)을 큰글씨(sp) 가독성 기준으로 5회 발전시킨 전 과정입니다. 문제의 <b>묶음 콜카드</b>를 동일 데이터로 각 단계 CSS/마크업 그대로 재현했습니다. 화면 폭(340px)은 실기기와 동일하게 고정 — 글씨만 스케일됩니다.</p>
+
+  <div class="ctrl">
+    <span class="lbl">글씨</span>
+    <button data-fs="0">기본</button>
+    <button data-fs="1" class="on">크게(sp)</button>
+  </div>
+  <p class="hint">← 가로 스크롤로 원본 → 5단계 비교. 차이는 <b>크게(sp)</b>에서 가장 크게 드러납니다.</p>
+
+  <div class="strip" id="strip"></div>
+
+  <div class="note">
+    <b>핵심 스토리</b> — <span class="kbad">원본</span>: 좌측 시간레일(고정)이 폭 40%를 먹어 우측 압축 → 큰글씨서 “인/천공항”, “·단골” 단어 중간 줄바꿈.<br>
+    <b>1</b> 큰글씨서 단일컬럼 스택 + 한글 keep-all → 줄바꿈 붕괴 해소 · <b>2</b> 4존 스페이싱 리듬 · <b>3</b> 픽업 시각을 굵은 앵커로 · <b>4</b> 목적지 강조·경유지 muted·{N}→실제 건수 · <span class="kgood">5</span> 컨테인먼트 여백 폴리시.
+  </div>
+</div>
+
+<script>
+const VERS=[
+  {n:0,tag:'원본',nm:'적용된 개선안 (문제 상태)',dl:'2단 레일 · keep-all 없음 → 큰글씨서 <b>“인/천공항”·“·단골” 깨짐</b>'},
+  {n:1,tag:'1',nm:'단일컬럼 + keep-all',dl:'큰글씨서 2단→<b>단일컬럼 스택</b>, 한글 단어중간 줄바꿈 제거'},
+  {n:2,tag:'2',nm:'존 스페이싱 리듬',dl:'컨텍스트·가격·경로·메타 <b>4존 그룹핑</b>'},
+  {n:3,tag:'3',nm:'시간 앵커 승격',dl:'픽업 시각 <b>11:20 굵게</b> → 예약 결정 앵커'},
+  {n:4,tag:'4',nm:'경로 위계',dl:'<b>목적지 강조</b>·경유지 muted·{N}→실제 건수'},
+  {n:5,tag:'5',nm:'컨테인먼트 여백 (최종)',dl:'큰글씨 카드 <b>패딩 확대</b>로 밀도 완화'},
+];
+const feats=n=>['s2col', n>=1&&'keepall', n>=1&&'stack', n>=2&&'zones', n>=3&&'timeanchor', n>=4&&'routehier', n>=5&&'pad'].filter(Boolean).join(' ');
+function routeHTML(n){
+  if(n>=4) return `<div class="route"><span class="o">성수동1가</span><span class="ar">→</span><span class="wp">예약 2건 경유</span><span class="ar">→</span><span class="d">인천공항</span></div>`;
+  return `<div class="route">성수동1가 → {N}건 예약 → 인천공항</div>`;
+}
+function cardHTML(n){
+  return `<div class="call rec">
+    <div class="lft"><span class="dy">오늘</span><b class="tm">11:20</b><span class="urg">⏰ 임박</span></div>
+    <div class="rgt">
+      <div class="tline"><span class="tchip bundle">🔗 묶음예약</span></div>
+      <div class="price y"><span class="pre">3시간 40분 으로</span><b>73,500원</b><em>↗1.9배</em></div>
+      ${routeHTML(n)}
+      <div class="cond">현장결제</div>
+      <div class="detail">부가수익 7,500원 포함 · <span class="src">카시트 2개</span> · <span class="dg">단골</span></div>
+    </div></div>`;
+}
+document.getElementById('strip').innerHTML=VERS.map(v=>`
+  <div class="col v${v.n}">
+    <div class="cap"><span class="num">${v.tag}</span><div class="nm">${v.nm}</div><div class="dl">${v.dl}</div></div>
+    <div class="scr ${feats(v.n)}"><div class="list">${cardHTML(v.n)}</div></div>
+  </div>`).join('');
+
+const wrap=document.body; // .big lives on wrapper
+function setBig(b){ document.querySelectorAll('.ctrl [data-fs]').forEach(x=>x.classList.toggle('on',x.dataset.fs===(b?'1':'0'))); document.querySelector('.app').classList.toggle('big',b); }
+document.querySelector('.app').classList.add('wrap');
+document.querySelectorAll('.ctrl [data-fs]').forEach(b=>b.addEventListener('click',()=>setBig(b.dataset.fs==='1')));
+// default 크게
+document.querySelector('.app').classList.add('big');
+</script>
+</body>
+</html>
