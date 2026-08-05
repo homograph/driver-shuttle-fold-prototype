@@ -284,21 +284,22 @@ function fadeSwap(applyState){
   },130);
 }
 // 새로고침: 중앙 로딩 스피너 + 리스트 크로스페이드(딤아웃 → 로딩 → 재렌더 → 페이드인)
-function doRefresh(){
+function doRefresh(applyState, toastMsg){
   if(state.refreshing) return;
   state.refreshing=true;
+  if(applyState){ applyState(); document.getElementById('chrome').innerHTML=chrome(); }  // 세그/필터 선택은 즉시 반영(반응성)
   const list=document.getElementById('list'), spin=document.getElementById('spin');
   list.style.opacity='.12';         // 리스트 딤아웃(스피너 부각)
   spin.classList.add('on');         // 중앙 스피너
   clearTimeout(doRefresh._t);
   doRefresh._t=setTimeout(()=>{
-    render();                       // 새 데이터 로드 시뮬 → 현재 뷰 재렌더(최상단)
+    render();                       // 새 데이터 로드 시뮬 → 재렌더(최상단·헤더 펼침)
     spin.classList.remove('on');
     const l=document.getElementById('list');
     l.style.opacity='0';
     requestAnimationFrame(()=>{ l.style.opacity='1'; });   // 페이드인
     state.refreshing=false;
-    toast('새로고침 완료');
+    toast(toastMsg||'새로고침 완료');
   }, 850);
 }
 
@@ -314,9 +315,9 @@ document.getElementById('scroll').addEventListener('scroll',updateFabs);
 
 document.getElementById('scr').addEventListener('click',e=>{
   const tb=e.target.closest('[data-tab]'); if(tb){ if(tb.dataset.tab!==state.tab) fadeSwap(()=>{state.tab=tb.dataset.tab;}); else doRefresh(); return; }
-  const sg=e.target.closest('[data-seg]'); if(sg){ if(sg.dataset.seg!==state.seg) fadeSwap(()=>{state.seg=sg.dataset.seg; if(state.seg==='include')state.banner=false;}); return; }
-  const pd=e.target.closest('[data-pd]'); if(pd){ if(pd.dataset.pd!==state.period) fadeSwap(()=>{state.period=pd.dataset.pd;}); return; }
-  if(e.target.closest('[data-banner]')){ fadeSwap(()=>{state.seg='include'; state.banner=false;}); toast('셔틀 포함으로 전환'); return; }
+  const sg=e.target.closest('[data-seg]'); if(sg){ if(sg.dataset.seg!==state.seg) doRefresh(()=>{state.seg=sg.dataset.seg; if(state.seg==='include')state.banner=false;}); return; }
+  const pd=e.target.closest('[data-pd]'); if(pd){ if(pd.dataset.pd!==state.period) doRefresh(()=>{state.period=pd.dataset.pd;}); return; }
+  if(e.target.closest('[data-banner]')){ doRefresh(()=>{state.seg='include'; state.banner=false;}, '셔틀 포함으로 전환'); return; }
   if(e.target.closest('[data-sort]')){ toast('정렬 (프로토타입)'); return; }
   if(e.target.closest('[data-call]')){ toast('콜 상세로 이동 (프로토타입)'); return; }
 });
