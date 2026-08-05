@@ -60,7 +60,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 /* 스크롤 시 sticky 헤더 축소: 헬퍼 숨김 + 세그먼트(및 탭) 컴팩트 — 리스트 세로공간 확보 */
 .tabs,.tabs button,.seg,.seg button{transition:padding .18s ease,font-size .18s ease}
 .scr.scrolled .helper{display:none}
-.scr.scrolled .seg,.scr.scrolled .period{padding-top:.26em;padding-bottom:.26em}   /* 컴팩트: 상하 대칭 */
+.scr.scrolled .seg,.scr.scrolled .period{padding-top:.26em;padding-bottom:.5em}   /* 컴팩트: 위=탭여백+.26, 아래=.5 로 시각적 균형(스크롤 시 리스트 상단패딩이 사라지는 보정) */
 .scr.scrolled .seg button{font-size:1em;padding:.4em 1.2em;border-radius:.45em}
 .scr.scrolled .tabs{padding-top:.3em;padding-bottom:.3em}
 .scr.scrolled .tabs button{font-size:1.18em;padding:.4em .3em}
