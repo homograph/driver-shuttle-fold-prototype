@@ -44,12 +44,12 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .appbar .sort{color:var(--sub);padding:.3em .5em;cursor:pointer;font-size:1.05em}
 
 /* primary tabs (Figma: 20sp · r8 · 활성 #19254D + 파란보더 #32A2FA 1.5) */
-.tabs{display:flex;gap:.6em;padding:.35em .72em .55em;flex:none}
+.tabs{display:flex;gap:.6em;padding:.45em .72em .45em;flex:none}
 .tabs button{flex:1;font-family:var(--kr);font-weight:800;font-size:1.43em;color:#f5f6f7;background:transparent;border:1.5px solid #293f71;border-radius:.5em;padding:.55em .3em;cursor:pointer}
 .tabs button.on{color:#fff;background:#19254d;border-color:#32a2fa}
 
 /* segment 셔틀 포함/제외 (Figma: 16sp · content hug 좌측정렬 · 활성 동일) */
-.seg{display:flex;gap:.55em;padding:.2em .72em .35em;flex:none}
+.seg{display:flex;gap:.55em;padding:.4em .72em .4em;flex:none}
 .seg button{font-family:var(--kr);font-size:1.14em;font-weight:700;color:#f5f6f7;background:transparent;border:1.5px solid #293f71;border-radius:.5em;padding:.6em 1.55em;cursor:pointer}
 .seg button.on{color:#fff;background:#19254d;border-color:#32a2fa}
 
@@ -60,13 +60,13 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 /* 스크롤 시 sticky 헤더 축소: 헬퍼 숨김 + 세그먼트(및 탭) 컴팩트 — 리스트 세로공간 확보 */
 .tabs,.tabs button,.seg,.seg button{transition:padding .18s ease,font-size .18s ease}
 .scr.scrolled .helper{display:none}
-.scr.scrolled .seg{padding-top:.05em;padding-bottom:.3em}
+.scr.scrolled .seg,.scr.scrolled .period{padding-top:.26em;padding-bottom:.26em}   /* 컴팩트: 상하 대칭 */
 .scr.scrolled .seg button{font-size:1em;padding:.4em 1.2em;border-radius:.45em}
-.scr.scrolled .tabs{padding-top:.2em;padding-bottom:.4em}
+.scr.scrolled .tabs{padding-top:.3em;padding-bottom:.3em}
 .scr.scrolled .tabs button{font-size:1.18em;padding:.4em .3em}
 
 /* period filter (내 예약) */
-.period{display:flex;gap:.5em;padding:.2em .72em .4em;flex:none;overflow-x:auto}
+.period{display:flex;gap:.5em;padding:.4em .72em .4em;flex:none;overflow-x:auto}
 .period button{font-family:var(--kr);font-size:1.14em;font-weight:400;white-space:nowrap;color:#f5f6f7;background:transparent;border:1.5px solid #293f71;border-radius:.5em;padding:.62em 1.4em;cursor:pointer;display:flex;gap:.35em;align-items:center;transition:padding .18s ease,font-size .18s ease}
 .period button.on{color:#fff;font-weight:700;background:#19254d;border-color:#32a2fa}
 .period .cal{background:#31487d;border-color:transparent;font-weight:700;color:#f9f9f9}   /* 달력 = 별도 색(캘린더 진입) */
