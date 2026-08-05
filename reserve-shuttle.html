@@ -97,6 +97,10 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .rc .detail .dg{color:#ffcf87;font-weight:700}
 .rc .route{font-size:.92em;color:var(--txt);word-break:keep-all;overflow-wrap:break-word}
 .rc .route .ar{color:var(--sub)}
+/* 내 예약 탭 = 태스크별 위계 반전: 날짜/시간 18sp 앵커 · 가격 20sp (수락가능은 가격 24sp 히어로) */
+.scr.tab-my .rc .date .d1{font-size:1.29em}
+.scr.tab-my .rc .date .d2{font-size:1.29em}
+.scr.tab-my .rc .pricerow .price{font-size:1.43em}
 
 .endmsg{text-align:center;color:var(--sub2);font-size:.8em;padding:.8em}
 
@@ -242,6 +246,7 @@ function listHTML(){
 
 function render(){
   document.getElementById('scr').classList.toggle('big',state.big);
+  document.getElementById('scr').classList.toggle('tab-my',state.tab==='my');
   document.getElementById('chrome').innerHTML=chrome();
   document.getElementById('list').innerHTML=listHTML();
   document.getElementById('scroll').scrollTop=0;
