@@ -100,8 +100,8 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 /* 내 예약 탭 = 태스크별 위계 반전: 날짜/시간 18sp 앵커 · 가격 20sp (수락가능은 가격 24sp 히어로) */
 .scr.tab-my .rc .date{width:8.6em}   /* 일자 레일 확대(Figma 150 vs 120) — 아침 11:20 한 줄 */
 .scr.tab-my .rc .date .d1{font-size:1.29em}
-.scr.tab-my .rc .date .d2{font-size:1.29em}
-.scr.tab-my .rc .pricerow .price{font-size:1.43em}
+.scr.tab-my .rc .date .d2{font-size:1.29em;color:var(--txt)}   /* 내예약: 시간=앵커 → 흰색 */
+.scr.tab-my .rc .pricerow .price{font-size:1.43em;color:var(--sub)}   /* 내예약: 가격=참고 → 서브색(혼동 해소) */
 
 .endmsg{text-align:center;color:var(--sub2);font-size:.8em;padding:.8em}
 
