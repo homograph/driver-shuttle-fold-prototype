@@ -118,6 +118,11 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 /* floating buttons */
 .fab{position:absolute;left:50%;transform:translateX(-50%);bottom:1.1em;background:#f4f6ff;color:#14203f;font-weight:800;font-size:.9em;border:none;border-radius:999px;padding:.7em 1.4em;box-shadow:0 6px 20px rgba(0,0,0,.4);cursor:pointer;display:none;align-items:center;gap:.4em;z-index:5}
 .fab.show{display:inline-flex}
+/* 새로고침 중앙 로딩 스피너 */
+.spin{position:absolute;inset:0;display:none;align-items:center;justify-content:center;z-index:7;pointer-events:none}
+.spin.on{display:flex}
+.spin .ring{width:2.4em;height:2.4em;border-radius:50%;border:.26em solid rgba(255,255,255,.16);border-top-color:#5b93ff;animation:spin .75s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
 .toast{position:absolute;left:50%;bottom:4.2em;transform:translateX(-50%) translateY(1em);opacity:0;transition:.2s;pointer-events:none;background:#0b1830;border:1px solid var(--line);color:var(--txt);font-size:.82em;padding:.55em .9em;border-radius:999px;white-space:nowrap;z-index:6}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -150,6 +155,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
       <div class="scroll" id="scroll"><div class="list" id="list"></div></div>
       <button class="fab" id="fabTop">↑ 맨 위로</button>
       <button class="fab" id="fabRefresh">↻ 새로고침</button>
+      <div class="spin" id="spin"><div class="ring"></div></div>
       <div class="toast" id="toast"></div>
     </div></div>
   </div>
@@ -212,7 +218,7 @@ function cardHTML(c){
 }
 
 /* ---------- 상태 ---------- */
-const state={tab:'accept', seg:'include', big:false, period:'전체', banner:false};
+const state={tab:'accept', seg:'include', big:false, period:'전체', banner:false, refreshing:false};
 
 function chrome(){
   const sort = state.tab==='accept' ? `<span class="sort" data-sort>↕</span>` : `<span class="sort" data-sort>↕</span>`;
@@ -277,6 +283,24 @@ function fadeSwap(applyState){
     requestAnimationFrame(()=>{ l.style.opacity='1'; });
   },130);
 }
+// 새로고침: 중앙 로딩 스피너 + 리스트 크로스페이드(딤아웃 → 로딩 → 재렌더 → 페이드인)
+function doRefresh(){
+  if(state.refreshing) return;
+  state.refreshing=true;
+  const list=document.getElementById('list'), spin=document.getElementById('spin');
+  list.style.opacity='.12';         // 리스트 딤아웃(스피너 부각)
+  spin.classList.add('on');         // 중앙 스피너
+  clearTimeout(doRefresh._t);
+  doRefresh._t=setTimeout(()=>{
+    render();                       // 새 데이터 로드 시뮬 → 현재 뷰 재렌더(최상단)
+    spin.classList.remove('on');
+    const l=document.getElementById('list');
+    l.style.opacity='0';
+    requestAnimationFrame(()=>{ l.style.opacity='1'; });   // 페이드인
+    state.refreshing=false;
+    toast('새로고침 완료');
+  }, 850);
+}
 
 function updateFabs(){
   const sc=document.getElementById('scroll');
@@ -289,7 +313,7 @@ function updateFabs(){
 document.getElementById('scroll').addEventListener('scroll',updateFabs);
 
 document.getElementById('scr').addEventListener('click',e=>{
-  const tb=e.target.closest('[data-tab]'); if(tb){ if(tb.dataset.tab!==state.tab) fadeSwap(()=>{state.tab=tb.dataset.tab;}); return; }
+  const tb=e.target.closest('[data-tab]'); if(tb){ if(tb.dataset.tab!==state.tab) fadeSwap(()=>{state.tab=tb.dataset.tab;}); else doRefresh(); return; }
   const sg=e.target.closest('[data-seg]'); if(sg){ if(sg.dataset.seg!==state.seg) fadeSwap(()=>{state.seg=sg.dataset.seg; if(state.seg==='include')state.banner=false;}); return; }
   const pd=e.target.closest('[data-pd]'); if(pd){ if(pd.dataset.pd!==state.period) fadeSwap(()=>{state.period=pd.dataset.pd;}); return; }
   if(e.target.closest('[data-banner]')){ fadeSwap(()=>{state.seg='include'; state.banner=false;}); toast('셔틀 포함으로 전환'); return; }
@@ -298,7 +322,7 @@ document.getElementById('scr').addEventListener('click',e=>{
 });
 
 document.getElementById('fabTop').addEventListener('click',()=>{ document.getElementById('scroll').scrollTo({top:0,behavior:'smooth'}); });
-document.getElementById('fabRefresh').addEventListener('click',()=>{ toast('새로고침 완료'); });
+document.getElementById('fabRefresh').addEventListener('click',doRefresh);
 
 document.getElementById('simShuttle').addEventListener('click',()=>{
   if(state.tab!=='accept'){ state.tab='accept'; }

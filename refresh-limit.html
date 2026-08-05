@@ -54,8 +54,13 @@ h1{font-size:18px;margin:0 0 3px;letter-spacing:-.02em}
 
 .scroll{flex:1;overflow-y:auto;padding:.15em 0 3em;scrollbar-width:none}
 .scroll::-webkit-scrollbar{display:none}
-.list{padding:.5em .6em;display:flex;flex-direction:column;gap:.5em}
-.list.dim{opacity:.55;transition:opacity .2s}
+.list{padding:.5em .6em;display:flex;flex-direction:column;gap:.5em;transition:opacity .2s ease}
+.list.dim{opacity:.55}
+.scr.loading .list{opacity:.3}
+.spin{position:absolute;inset:0;display:none;align-items:center;justify-content:center;pointer-events:none;z-index:8}
+.scr.loading .spin{display:flex}
+.spin .ring{width:2em;height:2em;border-radius:50%;border:.22em solid var(--line);border-top-color:var(--btnln);animation:rl-spin .7s linear infinite}
+@keyframes rl-spin{to{transform:rotate(360deg)}}
 .empty{padding:3.5em 1.4em;text-align:center;color:var(--sub);font-size:.92em;line-height:1.7}
 .empty .big{font-size:1.6em;display:block;margin-bottom:.4em}
 
@@ -106,12 +111,13 @@ h1{font-size:18px;margin:0 0 3px;letter-spacing:-.02em}
       <div class="sb">12:30</div>
       <div id="chrome"></div>
       <div class="scroll" id="scroll"><div class="list" id="list"></div></div>
+      <div class="spin" id="spin"><span class="ring"></span></div>
       <div class="toast" id="toast"></div>
     </div></div>
   </div>
 
   <div class="note">
-    <b>동작:</b> ①<b>새로고침</b>(↻)·<b>수락가능 콜 탭 재탭</b>·<b>정렬</b>(↕)이 모두 새로고침 트리거 — 10초에 10회 초과 시 제한. (빠르게 눌러 직접 유발하거나 <code>⚡ 어뷰징 시뮬</code>로 한 번에) ②제한 중엔 이 경로들이 <b>갱신 안 됨</b> + 안내(배너/토스트). ③<b>콜 카드 탭(상세·수락)은 제한과 무관하게 정상</b>. ④제한 중 <b>직전 목록 유지</b>, <code>↩ 화면 재진입</code> 시엔 보여줄 목록이 없어 <b>안내만</b>. ⑤해제돼도 <b>자동 갱신 안 함 — 직접 눌러야</b>(1회로 셈, 카운트 0부터).<br>
+    <b>동작:</b> ①<b>새로고침</b>(↻)·<b>탭 전환/재탭</b>(수락가능↔내예약)·<b>정렬</b>(↕)이 모두 새로고침 트리거 — 10초에 10회 초과 시 제한. (빠르게 눌러 직접 유발하거나 <code>⚡ 어뷰징 시뮬</code>로 한 번에) 정상 새로고침 시 <b>로딩 스피너 + 리스트 크로스페이드</b>. ②제한 중엔 이 경로들이 <b>갱신 안 됨</b> + 안내(배너/토스트). ③<b>콜 카드 탭(상세·수락)은 제한과 무관하게 정상</b>. ④제한 중 <b>직전 목록 유지</b>, <code>↩ 화면 재진입</code> 시엔 보여줄 목록이 없어 <b>안내만</b>. ⑤해제돼도 <b>자동 갱신 안 함 — 직접 눌러야</b>(1회로 셈, 카운트 0부터).<br>
     ※ 완화(정상속도 5분마다 한 단계↓, 25분 무이슈 초기화)는 실제 타이밍이 길어 데모에선 생략 — <code>↺ 리셋</code>으로 확인. 사다리 시간은 실제값(10s/30s/1m/3m/5m).
   </div>
 </div>
@@ -183,34 +189,46 @@ function escalate(){
   render();
   if(state.variant==='toast') toast(limitMsg());
 }
-function attemptRefresh(source){
-  if(limited()){ // 차단: 갱신 안 함, 어뷰징으로 세지 않음
-    if(state.variant==='toast') toast(limitMsg());
-    else { const b=el('cd'); if(b){b.style.transition='none';b.style.color='#fff';setTimeout(()=>{b.style.transition='color .4s';b.style.color='';},60);} }
+function flashBanner(){ const b=el('cd'); if(b){b.style.transition='none';b.style.color='#fff';setTimeout(()=>{b.style.transition='color .4s';b.style.color='';},60);} }
+function refreshAnim(source){                             // 로딩 스피너 + 리스트 크로스페이드
+  const sc=el('scr'); sc.classList.add('loading'); render();   // 탭 전환 즉시 반영 + 스피너/딤
+  clearTimeout(sc._rt); sc._rt=setTimeout(()=>{
+    state.seed++; sc.classList.remove('loading'); render();     // 새 데이터로 교체
+    const l=el('list'); l.style.opacity='0'; requestAnimationFrame(()=>requestAnimationFrame(()=>{ l.style.opacity=''; }));  // 페이드 인
+    el('scroll').scrollTop=0;
+    toast('목록을 새로고침했어요'+(source?' ('+source+')':''),true);
+  }, 480);
+}
+function doRefresh(source, apply){
+  if(limited()){                                          // 차단: 갱신 안 함, 어뷰징으로 안 셈
+    if(apply) apply();                                    // 탭/정렬 네비게이션은 진행
+    if(state.tab==='accept') state.emptied=true;          // 벗어났다 재진입 성격 → 안내만
+    render();
+    if(state.variant==='toast') toast(limitMsg()); else flashBanner();
     return;
   }
   const t=nowMs(); state.taps.push(t); state.taps=state.taps.filter(x=>x>t-WINDOW);
-  if(state.taps.length>THRESH){ escalate(); return; }
-  // 정상 새로고침
-  state.seed++; state.emptied=false; render(); el('scroll').scrollTop=0;
-  toast('목록을 새로고침했어요'+(source?' ('+source+')':''),true);
+  if(state.taps.length>THRESH){ if(apply) apply(); escalate(); return; }
+  if(apply) apply();
+  state.emptied=false;
+  refreshAnim(source);
 }
 
 el('scr').addEventListener('click',e=>{
   const tb=e.target.closest('[data-tab]'); if(tb){ const to=tb.dataset.tab;
-    if(to==='accept' && state.tab==='accept'){ attemptRefresh('수락가능 콜 탭'); return; } // 재탭 = 새로고침
-    state.tab=to; state.emptied=false; render(); return; }
-  if(e.target.closest('[data-refresh]')){ attemptRefresh('새로고침 버튼'); return; }
-  if(e.target.closest('[data-sort]')){ attemptRefresh('정렬 변경'); return; }
+    const src=(to==='accept')?(state.tab==='accept'?'수락가능 콜 재탭':'수락가능 콜 탭'):'내 예약 탭';
+    doRefresh(src, ()=>{ state.tab=to; });  // 탭 전환도 새로고침 트리거(카운트+스피너)
+    return; }
+  if(e.target.closest('[data-refresh]')){ doRefresh('새로고침 버튼'); return; }
+  if(e.target.closest('[data-sort]')){ doRefresh('정렬 변경'); return; }
   if(e.target.closest('[data-call]')){ toast('콜 상세로 이동 · 수락 가능 (제한과 무관)',true); return; }
 });
 
 el('sim').addEventListener('click',()=>{ if(state.tab!=='accept')state.tab='accept'; escalate(); });
 el('reset').addEventListener('click',()=>{ state.level=0; state.limitUntil=0; state.taps=[]; state.emptied=false; render(); toast('초기화됨',true); });
-el('reenter').addEventListener('click',()=>{ // 화면 나갔다 재진입: 재진입도 자동갱신 트리거지만 제한 중이면 목록 없음
-  if(state.tab!=='accept'){ state.tab='accept'; }
-  if(limited()){ state.emptied=true; render(); if(state.variant==='toast') toast(limitMsg()); }
-  else attemptRefresh('화면 재진입');
+el('reenter').addEventListener('click',()=>{ // 화면 나갔다 재진입: 자동갱신 트리거지만 제한 중이면 목록 없음
+  if(limited()){ state.tab='accept'; state.emptied=true; render(); if(state.variant==='toast') toast(limitMsg()); }
+  else doRefresh('화면 재진입', ()=>{ state.tab='accept'; });
 });
 document.querySelectorAll('.ctrl [data-v]').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('.ctrl [data-v]').forEach(x=>x.classList.remove('on')); b.classList.add('on');
