@@ -66,10 +66,11 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .scr.scrolled .tabs button{font-size:1.18em;padding:.4em .3em}
 
 /* period filter (내 예약) */
-.period{display:flex;gap:.4em;padding:.2em .6em .4em;flex:none;overflow-x:auto}
-.period button{font-family:var(--kr);font-size:.86em;font-weight:600;white-space:nowrap;color:var(--sub);background:transparent;border:1px solid var(--edge);border-radius:.55em;padding:.55em .85em;cursor:pointer;display:flex;gap:.3em;align-items:center}
-.period button.on{color:#fff;background:var(--card2);border-color:var(--btnln)}
-.period .cal{background:var(--card2);border-color:var(--edge)}
+.period{display:flex;gap:.5em;padding:.2em .72em .4em;flex:none;overflow-x:auto}
+.period button{font-family:var(--kr);font-size:1.14em;font-weight:400;white-space:nowrap;color:#f5f6f7;background:transparent;border:1.5px solid #293f71;border-radius:.5em;padding:.62em 1.4em;cursor:pointer;display:flex;gap:.35em;align-items:center;transition:padding .18s ease,font-size .18s ease}
+.period button.on{color:#fff;font-weight:700;background:#19254d;border-color:#32a2fa}
+.period .cal{background:#31487d;border-color:transparent;font-weight:700;color:#f9f9f9}   /* 달력 = 별도 색(캘린더 진입) */
+.scr.scrolled .period button{font-size:1em;padding:.42em 1.4em}   /* 스크롤 시 컴팩트(16→14sp·pad 12→8) */
 
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.15em 0 4em}
 .list{padding:.5em .6em;display:flex;flex-direction:column;gap:.5em}
