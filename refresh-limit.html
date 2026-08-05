@@ -117,7 +117,7 @@ h1{font-size:18px;margin:0 0 3px;letter-spacing:-.02em}
   </div>
 
   <div class="note">
-    <b>동작:</b> ①<b>새로고침</b>(↻)·<b>탭 전환/재탭</b>(수락가능↔내예약)·<b>정렬</b>(↕)이 모두 새로고침 트리거 — 10초에 10회 초과 시 제한. (빠르게 눌러 직접 유발하거나 <code>⚡ 어뷰징 시뮬</code>로 한 번에) 정상 새로고침 시 <b>로딩 스피너 + 리스트 크로스페이드</b>. ②제한 중엔 이 경로들이 <b>갱신 안 됨</b> + 안내(배너/토스트). ③<b>콜 카드 탭(상세·수락)은 제한과 무관하게 정상</b>. ④제한 중 <b>직전 목록 유지</b>, <code>↩ 화면 재진입</code> 시엔 보여줄 목록이 없어 <b>안내만</b>. ⑤해제돼도 <b>자동 갱신 안 함 — 직접 눌러야</b>(1회로 셈, 카운트 0부터).<br>
+    <b>동작:</b> ①<b>새로고침</b>(↻)·<b>탭 전환/재탭</b>(수락가능↔내예약)·<b>정렬</b>(↕)이 모두 새로고침 트리거 — 10초에 10회 초과 시 제한. (빠르게 눌러 직접 유발하거나 <code>⚡ 어뷰징 시뮬</code>로 한 번에) 정상 새로고침 시 <b>로딩 스피너 + 리스트 크로스페이드</b>. ②제한 중엔 이 경로들이 <b>갱신 안 됨</b> + 안내(배너/토스트). ③<b>콜 카드 탭(상세·수락)은 제한과 무관하게 정상</b>. ④제한 중 <b>직전에 불러온 목록은 그대로 유지</b>(재진입해도 유지) — 이미 뜬 콜은 <b>탭해서 수락 가능</b>. (PO 확인 AC-2-08: 새로고침만 제한, 수락 제한 아님. "빈 목록" 표시는 오구현이라 제거) ⑤해제돼도 <b>자동 갱신 안 함 — 직접 눌러야</b>(1회로 셈, 카운트 0부터).<br>
     ※ 완화(정상속도 5분마다 한 단계↓, 25분 무이슈 초기화)는 실제 타이밍이 길어 데모에선 생략 — <code>↺ 리셋</code>으로 확인. 사다리 시간은 실제값(10s/30s/1m/3m/5m).
   </div>
 </div>
@@ -166,13 +166,12 @@ function bar(){
 }
 function listHTML(){
   if(state.tab==='my') return `<div class="empty"><span class="big">🗂️</span>내 예약 목록 (프로토타입)</div>`;
-  if(state.emptied && limited()) return `<div class="empty"><span class="big">⏳</span>새로고침이 잠시 제한되어<br>보여줄 목록이 없습니다.<br><span style="color:var(--sub2);font-size:.9em">${fmt(remain())} 후 다시 가능</span></div>`;
-  return mkCalls(state.seed).map(card).join('');
+  return mkCalls(state.seed).map(card).join('');   // 제한 중에도 직전에 불러온 목록 그대로 유지 (PO 확인: 수락 정상)
 }
 function render(){
   el('chrome').innerHTML=chrome();
   const list=el('list'); list.innerHTML=listHTML();
-  list.classList.toggle('dim', limited() && !state.emptied && state.tab==='accept' && state.variant==='banner');
+  list.classList.remove('dim');   // 제한 중에도 목록은 그대로(딤 없음) — 수락 가능해야 하므로
   readout();
 }
 function readout(){
@@ -201,8 +200,7 @@ function refreshAnim(source){                             // 로딩 스피너 + 
 }
 function doRefresh(source, apply){
   if(limited()){                                          // 차단: 갱신 안 함, 어뷰징으로 안 셈
-    if(apply) apply();                                    // 탭/정렬 네비게이션은 진행
-    if(state.tab==='accept') state.emptied=true;          // 벗어났다 재진입 성격 → 안내만
+    if(apply) apply();                                    // 탭/정렬 네비게이션은 진행 (직전 목록은 그대로 유지)
     render();
     if(state.variant==='toast') toast(limitMsg()); else flashBanner();
     return;
@@ -227,7 +225,7 @@ el('scr').addEventListener('click',e=>{
 el('sim').addEventListener('click',()=>{ if(state.tab!=='accept')state.tab='accept'; escalate(); });
 el('reset').addEventListener('click',()=>{ state.level=0; state.limitUntil=0; state.taps=[]; state.emptied=false; render(); toast('초기화됨',true); });
 el('reenter').addEventListener('click',()=>{ // 화면 나갔다 재진입: 자동갱신 트리거지만 제한 중이면 목록 없음
-  if(limited()){ state.tab='accept'; state.emptied=true; render(); if(state.variant==='toast') toast(limitMsg()); }
+  if(limited()){ state.tab='accept'; render(); toast('재진입해도 직전 목록 그대로 · 수락 가능',true); }
   else doRefresh('화면 재진입', ()=>{ state.tab='accept'; });
 });
 document.querySelectorAll('.ctrl [data-v]').forEach(b=>b.addEventListener('click',()=>{
