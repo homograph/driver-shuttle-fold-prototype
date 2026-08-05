@@ -45,18 +45,18 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 
 /* primary tabs (Figma: 20sp · r8 · 활성 #19254D + 파란보더 #32A2FA 1.5) */
 .tabs{display:flex;gap:.6em;padding:.45em .72em .45em;flex:none}
-.tabs button{flex:1;font-family:var(--kr);font-weight:800;font-size:1.43em;color:#f5f6f7;background:transparent;border:1.5px solid #293f71;border-radius:.5em;padding:.55em .3em;cursor:pointer}
-.tabs button.on{color:#fff;background:#19254d;border-color:#32a2fa}
+.tabs button{flex:1;font-family:var(--kr);font-weight:400;font-size:1.43em;color:#f5f6f7;background:transparent;border:1.5px solid #293f71;border-radius:.5em;padding:.55em .3em;cursor:pointer}   /* Figma: 비선택=레귤러 w400 */
+.tabs button.on{color:#fff;font-weight:700;background:#19254d;border-color:#32a2fa}   /* Figma: 선택=볼드 w700 */
 
 /* segment 셔틀 포함/제외 (Figma: 16sp · content hug 좌측정렬 · 활성 동일) */
 .seg{display:flex;gap:.55em;padding:.4em .72em .4em;flex:none}
-.seg button{font-family:var(--kr);font-size:1.14em;font-weight:700;color:#f5f6f7;background:transparent;border:1.5px solid #293f71;border-radius:.5em;padding:.6em 1.55em;cursor:pointer}
-.seg button.on{color:#fff;background:#19254d;border-color:#32a2fa}
+.seg button{font-family:var(--kr);font-size:1.14em;font-weight:400;color:#f5f6f7;background:transparent;border:1.5px solid #293f71;border-radius:.5em;padding:.6em 1.55em;cursor:pointer}   /* Figma: 비선택=레귤러 w400 */
+.seg button.on{color:#fff;font-weight:700;background:#19254d;border-color:#32a2fa}   /* Figma: 선택=볼드 w700 */
 
 /* helper / banner (Figma: 둘 다 플레인 텍스트 15sp #EFEFF1 · 박스 없음) */
 .helper,.banner{padding:.5em 1.05em .6em;color:#e8ebf1;font-size:1.07em;flex:none}
 .banner{display:flex;align-items:center;gap:.15em;background:none;border:none;border-radius:0;cursor:pointer}
-.banner b{color:#5b93ff;font-weight:700}
+.banner b{color:#32a2fa;font-weight:700}   /* Figma: "셔틀" 볼드 블루 #32A2FA */
 /* 스크롤 시 sticky 헤더 축소: 헬퍼 숨김 + 세그먼트(및 탭) 컴팩트 — 리스트 세로공간 확보 */
 .tabs,.tabs button,.seg,.seg button{transition:padding .18s ease,font-size .18s ease}
 .scr.scrolled .helper{display:none}

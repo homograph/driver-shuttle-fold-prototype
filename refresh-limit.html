@@ -52,8 +52,12 @@ h1{font-size:18px;margin:0 0 3px;letter-spacing:-.02em}
 .okbar{margin:.1em .6em .35em;padding:.65em .85em;border:1px solid var(--btnln);background:#16265a;border-radius:.7em;flex:none;display:flex;gap:.5em;align-items:center;cursor:pointer;font-size:.86em;color:#eaf1ff}
 .okbar b{color:var(--btnln)}
 
-.scroll{flex:1;overflow-y:auto;padding:.15em 0 3em;scrollbar-width:none}
+.scroll{flex:1;overflow-y:auto;padding:.15em 0 3em;scrollbar-width:none;touch-action:pan-y}
 .scroll::-webkit-scrollbar{display:none}
+.pull{height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;gap:.5em;color:var(--sub);font-size:.8em}
+.pull.anim{transition:height .2s ease}
+.pull .ring{width:1.3em;height:1.3em;border-radius:50%;border:.16em solid var(--line);border-top-color:var(--btnln)}
+.pull.load .ring{animation:rl-spin .7s linear infinite}
 .list{padding:.5em .6em;display:flex;flex-direction:column;gap:.5em;transition:opacity .2s ease}
 .list.dim{opacity:.55}
 .scr.loading .list{opacity:.3}
@@ -110,14 +114,14 @@ h1{font-size:18px;margin:0 0 3px;letter-spacing:-.02em}
     <div class="phone"><div class="scr" id="scr">
       <div class="sb">12:30</div>
       <div id="chrome"></div>
-      <div class="scroll" id="scroll"><div class="list" id="list"></div></div>
+      <div class="scroll" id="scroll"><div class="pull" id="pull"><span class="ring"></span><span class="pl" id="pulllbl">당겨서 새로고침</span></div><div class="list" id="list"></div></div>
       <div class="spin" id="spin"><span class="ring"></span></div>
       <div class="toast" id="toast"></div>
     </div></div>
   </div>
 
   <div class="note">
-    <b>동작:</b> ①<b>새로고침</b>(↻)·<b>수락가능 콜 탭/재탭</b>·<b>정렬</b>(↕)이 새로고침 트리거 — 10초 10회 초과 시 제한. (빠르게 눌러 직접 유발하거나 <code>⚡ 어뷰징 시뮬</code>로 한 번에) 정상 새로고침 시 <b>로딩 스피너 + 크로스페이드</b>. <b>제한·카운트는 '수락가능 콜'에만 적용</b> — <b>내 예약은 자유 새로고침</b>(PRD AC-2-07 차단 경로에 내 예약 없음). ②제한 중엔 이 경로들이 <b>갱신 안 됨</b> + 안내(배너/토스트). ③<b>콜 카드 탭(상세·수락)은 제한과 무관하게 정상</b>. ④제한 중 <b>직전에 불러온 목록은 그대로 유지</b>(재진입해도 유지) — 이미 뜬 콜은 <b>탭해서 수락 가능</b>. (PO 확인 AC-2-08: 새로고침만 제한, 수락 제한 아님. "빈 목록" 표시는 오구현이라 제거) ⑤해제돼도 <b>자동 갱신 안 함 — 직접 눌러야</b>(1회로 셈, 카운트 0부터).<br>
+    <b>동작:</b> ①<b>당겨서 새로고침</b>(목록 위에서 아래로 당김)·<b>수락가능 콜 탭/재탭</b>·<b>정렬</b>(↕)이 새로고침 트리거 — 10초 10회 초과 시 제한. (실제 디자인엔 상단 ↻ 버튼 없음 — 수동 새로고침은 당겨서·탭·재진입) (빠르게 눌러 직접 유발하거나 <code>⚡ 어뷰징 시뮬</code>로 한 번에) 정상 새로고침 시 <b>로딩 스피너 + 크로스페이드</b>. <b>제한·카운트는 '수락가능 콜'에만 적용</b> — <b>내 예약은 자유 새로고침</b>(PRD AC-2-07 차단 경로에 내 예약 없음). ②제한 중엔 이 경로들이 <b>갱신 안 됨</b> + 안내(배너/토스트). ③<b>콜 카드 탭(상세·수락)은 제한과 무관하게 정상</b>. ④제한 중 <b>직전에 불러온 목록은 그대로 유지</b>(재진입해도 유지) — 이미 뜬 콜은 <b>탭해서 수락 가능</b>. (PO 확인 AC-2-08: 새로고침만 제한, 수락 제한 아님. "빈 목록" 표시는 오구현이라 제거) ⑤해제돼도 <b>자동 갱신 안 함</b> — <b>자기소멸 토스트</b>("다시 새로고침할 수 있어요", 2초·액션 없음)로만 알리고, 드라이버가 <b>직접 당겨야</b> 갱신(1회로 셈, 카운트 0부터). <b>지속 배너 없음</b>.<br>
     ※ 완화(정상속도 5분마다 한 단계↓, 25분 무이슈 초기화)는 실제 타이밍이 길어 데모에선 생략 — <code>↺ 리셋</code>으로 확인. 사다리 시간은 실제값(10s/30s/1m/3m/5m).
   </div>
 </div>
@@ -150,7 +154,6 @@ function chrome(){
   const blocked=limited();
   return `<div class="appbar"><span class="bk">←</span><span class="ttl">예약콜 목록</span>
       <span class="act ${blocked?'blocked':''}" data-sort>↕</span>
-      <span class="act ${blocked?'blocked':''}" data-refresh>↻</span>
     </div>
     <div class="tabs">
       <button data-tab="accept" class="${state.tab==='accept'?'on':''}">수락가능 콜</button>
@@ -162,8 +165,7 @@ function bar(){
   if(state.tab!=='accept') return '';   // 제한은 수락가능 콜 전용 → 내 예약엔 배너 없음
   if(state.variant!=='banner') return '';
   if(limited()) return `<div class="limitbar"><span class="ic">🚫</span><span class="msg">의심되는 반복 새로고침으로 잠시 제한됩니다<br><span class="cd" id="cd">${fmt(remain())}</span> 후 다시 가능</span></div>`;
-  if(state.level>0) return `<div class="okbar" data-refresh>✅ 다시 새로고침 가능 — <b>눌러서 갱신</b></div>`;
-  return '';
+  return '';   // 해제 순간은 지속 배너 없음 — 자기소멸 토스트로만 알림(아래 setInterval)
 }
 function listHTML(){
   if(state.tab==='my') return mkCalls(state.seed+3).slice(0,8).map(card).join('');   // 내 예약(8) 실제 목록 표시
@@ -219,7 +221,6 @@ el('scr').addEventListener('click',e=>{
     const src=(to==='accept')?(state.tab==='accept'?'수락가능 콜 재탭':'수락가능 콜 탭'):'내 예약 탭';
     doRefresh(src, ()=>{ state.tab=to; });  // 탭 전환도 새로고침 트리거(카운트+스피너)
     return; }
-  if(e.target.closest('[data-refresh]')){ doRefresh('새로고침 버튼'); return; }
   if(e.target.closest('[data-sort]')){ doRefresh('정렬 변경'); return; }
   if(e.target.closest('[data-call]')){ toast('콜 상세로 이동 · 수락 가능 (제한과 무관)',true); return; }
 });
@@ -229,6 +230,18 @@ el('reset').addEventListener('click',()=>{ state.level=0; state.limitUntil=0; st
 el('reenter').addEventListener('click',()=>{ // 화면 나갔다 재진입: 자동갱신 트리거지만 제한 중이면 목록 없음
   doRefresh('화면 재진입', ()=>{ state.tab='accept'; });   // 재진입=수락가능 콜 진입 → 제한 중이면 직전 목록 유지
 });
+// 당겨서 새로고침(pull-to-refresh) — ↻ 버튼이 없는 실제 디자인의 수동 새로고침 경로
+(function(){
+  const sc=el('scroll'), pull=el('pull'); let y0=null, d=0; const DAMP=.5, TRIG=52, MAX=76;
+  sc.addEventListener('pointerdown',e=>{ if(sc.scrollTop<=0 && !sc.parentNode.classList.contains('loading')){ y0=e.clientY; d=0; pull.classList.remove('anim'); } });
+  sc.addEventListener('pointermove',e=>{ if(y0==null) return; d=e.clientY-y0;
+    if(d>0){ e.preventDefault(); const h=Math.min(d*DAMP,MAX); pull.style.height=h+'px'; el('pulllbl').textContent=h>=TRIG?'놓으면 새로고침':'당겨서 새로고침'; }
+    else { pull.style.height='0'; } });
+  function end(){ if(y0==null) return; const fire=d*DAMP>=TRIG; y0=null;
+    pull.classList.add('anim'); pull.style.height=''; el('pulllbl').textContent='당겨서 새로고침';
+    if(fire) doRefresh('당겨서 새로고침'); d=0; }
+  sc.addEventListener('pointerup',end); sc.addEventListener('pointercancel',end); sc.addEventListener('pointerleave',end);
+})();
 document.querySelectorAll('.ctrl [data-v]').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('.ctrl [data-v]').forEach(x=>x.classList.remove('on')); b.classList.add('on');
   state.variant=b.dataset.v; render();
@@ -238,7 +251,7 @@ setInterval(()=>{ // 카운트다운 틱 + 해제 감지
   if(state.level>0){ const wasLimited=state.scrLimited; const nowLim=limited();
     const cd=el('cd'); if(cd) cd.textContent=fmt(remain());
     readout();
-    if(wasLimited && !nowLim){ state.emptied=false; render(); if(state.variant==='toast') toast('다시 새로고침 가능 — 직접 눌러 갱신하세요',true); }
+    if(wasLimited && !nowLim){ state.emptied=false; render(); toast('다시 새로고침할 수 있어요',true); }  // 배너·토스트 모두 회복은 자기소멸 토스트(액션 없음)
     state.scrLimited=nowLim;
   }
 },500);
