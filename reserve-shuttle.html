@@ -140,7 +140,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
   </div>
 
   <div class="note">
-    <b>인터랙션:</b> <b>셔틀 포함↔제외</b> 세그먼트 전환(포함=셔틀+일반 함께, 제외=일반만) · <b>🔔 새 셔틀 도착 시뮬</b> → 제외 중이면 헬퍼 자리에 <b>안내 텍스트</b>(탭 시 포함 전환) · 스크롤 시 <b>맨 위로</b> · <b>내 예약</b> 탭은 달력/기간 필터 + <b>새로고침</b>. <b>탭·세그먼트·헬퍼·배너·콜카드 모두 Figma 시안3 실측값 반영</b>(탭 20sp·세그 16sp·활성 #19254D+#32A2FA, 배너=플레인 텍스트, 시간색 서브 개선).
+    <b>인터랙션:</b> <b>셔틀 포함↔제외</b> 세그먼트 전환(포함=셔틀+일반 함께, 제외=일반만) · <b>🔔 새 셔틀 도착 시뮬</b> → 제외 중이면 헬퍼 자리에 <b>안내 텍스트</b>(탭 시 포함 전환) · 스크롤 시 <b>맨 위로</b> · <b>내 예약</b> 탭은 달력/기간 필터 + <b>새로고침</b>. <b>탭·세그먼트·헬퍼·배너·콜카드 모두 Figma 시안3 실측값 반영</b>(탭 20sp·세그 16sp·활성 #19254D+#32A2FA, 배너=플레인 텍스트). <b>카드 v2 순서: 경로 상단 → 타입칩 → 가격 → 부가수익 하단</b>(경로 줄바꿈 보완).
   </div>
 </div>
 
@@ -148,15 +148,15 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 const won=n=>n.toLocaleString('ko-KR')+'원';
 /* ---------- 데이터 (더미) ---------- */
 const froms=['성동구 성수동1가','용산구 한강로3가','동대문구 답십리1동','성동구 금호동','성동구 옥수동','용산구 동자동'];
-const tos=['인천국제 공항','김포공항'];
+const tos=['인천국제공항','김포공항'];
 // 일반/시간대절 (수락가능, 비셔틀)
 const GEN=[
-  {date:'오늘',time:'아침 11:20',route:'성동구 성수동1가 → 인천국제 공항',type:'charter',product:'2시간 대절',badges:['dangol'],price:25000,surge:'↗1.9배',rec:true},
+  {date:'오늘',time:'아침 11:20',route:'성동구 성수동1가 → 인천국제공항',type:'charter',product:'2시간 대절',badges:['dangol'],price:25000,surge:'↗1.9배',rec:true},
   {date:'오늘',time:'낮 12:40',route:'용산구 한강로3가 → 김포공항',type:'normal',badges:['imm','seat'],price:31000,surge:null,cash:true},
   {date:'내일',time:'아침 08:20',route:'동대문구 답십리1동 → 성동구 성수동1가',type:'normal',badges:['dangol'],price:22400,surge:'↘0.9배'},
   {date:'10월 16일 (수)',time:'아침 11:20',route:'용산구 동자동 → 경유지 2곳 → 동대문구 답십리1동',type:'charter',product:'3시간 대절',badges:['seat'],price:74000,surge:'↗1.5배'},
   {date:'10월 19일 (목)',time:'낮 13:10',route:'동대문구 답십리1동 → 성동구 성수동1가',type:'normal',badges:[],price:19800,surge:null,cash:true},
-  {date:'10월 21일 (화)',time:'저녁 18:30',route:'성동구 옥수동 → 인천국제 공항',type:'charter',product:'2시간 대절',badges:['dangol','rec'],price:81400,surge:'↗1.9배'},
+  {date:'10월 21일 (화)',time:'저녁 18:30',route:'성동구 옥수동 → 인천국제공항',type:'charter',product:'2시간 대절',badges:['dangol','rec'],price:81400,surge:'↗1.9배'},
 ];
 // 셔틀 (셔틀 포함 시 그룹)
 let SH_COUNT=50;
@@ -166,8 +166,8 @@ const SH=Array.from({length:8},(_,i)=>({
 }));
 // 내 예약 (변경됨)
 const MY=[
-  {date:'오늘',time:'아침 11:20',route:'성동구 성수동1가 → 인천국제 공항',type:'normal',badges:['imm','seat'],price:25000,surge:null,changed:true,day:'today'},
-  {date:'오늘',time:'낮 12:20',route:'성동구 성수동1가 → 인천국제 공항',type:'normal',badges:['dangol','imm','rec'],price:25000,surge:null,changed:true,day:'today'},
+  {date:'오늘',time:'아침 11:20',route:'성동구 성수동1가 → 인천국제공항',type:'normal',badges:['imm','seat'],price:25000,surge:null,changed:true,day:'today'},
+  {date:'오늘',time:'낮 12:20',route:'성동구 성수동1가 → 인천국제공항',type:'normal',badges:['dangol','imm','rec'],price:25000,surge:null,changed:true,day:'today'},
   {date:'10월 16일 (수)',time:'아침 11:20',route:'용산구 동자동 → 경유지 2곳 → 동대문구 답십리1동',type:'charter',product:'3시간 대절',badges:['seat'],price:25000,surge:'↘0.9배',changed:true,day:'tmr'},
   {date:'10월 19일 (목)',time:'아침 11:20',route:'동대문구 답십리1동 → 성동구 성수동1가',type:'charter',product:'2시간 대절',badges:['dangol'],price:81400,surge:null,changed:true,day:'tmr'},
 ];
@@ -188,11 +188,11 @@ function cardHTML(c){
     </div>
     <div class="dv"></div>
     <div class="body">
+      <div class="route">${routeHTML(c.route)}</div>
       <div class="chiprow"><span class="chip t-${c.type}">${TLABEL[c.type]}</span>${cash}</div>
       ${prefix}
       <div class="pricerow"><b class="price">${won(c.price)}</b>${surge}</div>
       ${detailHTML(c)}
-      <div class="route">${routeHTML(c.route)}</div>
     </div></div>`;
 }
 
