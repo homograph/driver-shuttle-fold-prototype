@@ -165,7 +165,7 @@ function bar(){
   return '';
 }
 function listHTML(){
-  if(state.tab==='my') return `<div class="empty"><span class="big">🗂️</span>내 예약 목록 (프로토타입)</div>`;
+  if(state.tab==='my') return mkCalls(state.seed+3).slice(0,8).map(card).join('');   // 내 예약(8) 실제 목록 표시
   return mkCalls(state.seed).map(card).join('');   // 제한 중에도 직전에 불러온 목록 그대로 유지 (PO 확인: 수락 정상)
 }
 function render(){
