@@ -124,7 +124,21 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .spin .ring{width:2.4em;height:2.4em;border-radius:50%;border:.26em solid rgba(255,255,255,.16);border-top-color:#5b93ff;animation:spin .75s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-.toast{position:absolute;left:50%;bottom:4.2em;transform:translateX(-50%) translateY(1em);opacity:0;transition:.2s;pointer-events:none;background:#0b1830;border:1px solid var(--line);color:var(--txt);font-size:.82em;padding:.55em .9em;border-radius:999px;white-space:nowrap;z-index:6}
+/* 정렬 바텀시트 */
+.sheetdim{position:absolute;inset:0;background:rgba(6,10,20,.55);opacity:0;pointer-events:none;transition:opacity .2s;z-index:8}
+.sheetdim.on{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#14203f;border-top:1px solid var(--line);border-radius:1.1em 1.1em 0 0;transform:translateY(112%);transition:transform .24s ease;z-index:9;padding:.1em 0 1.1em}
+.sheet.on{transform:translateY(0)}
+.sheet .sheethd{display:flex;align-items:center;justify-content:space-between;font-size:1.15em;font-weight:800;padding:.95em 1.1em .55em}
+.sheet .sheethd .x{color:var(--sub);cursor:pointer;font-weight:400;font-size:.88em;padding:.1em .3em}
+.sheet .opt{display:flex;align-items:flex-start;gap:.6em;padding:.9em 1.1em;cursor:pointer;border-top:1px solid #24345c}
+.sheet .opt .optx{flex:1}
+.sheet .opt .optx b{font-size:1.05em;font-weight:700}
+.sheet .opt .optx span{display:block;margin-top:.3em;font-size:.86em;color:var(--sub);line-height:1.45}
+.sheet .opt .chk{color:#32a2fa;font-weight:800;font-size:1.15em;visibility:hidden}
+.sheet .opt.sel{background:#1b2c52}
+.sheet .opt.sel .chk{visibility:visible}
+.toast{position:absolute;left:50%;bottom:4.2em;transform:translateX(-50%) translateY(1em);opacity:0;transition:.2s;pointer-events:none;background:#0b1830;border:1px solid var(--line);color:var(--txt);font-size:.82em;padding:.55em .9em;border-radius:999px;white-space:nowrap;z-index:10}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
 .note{margin-top:12px;color:var(--sub);font-size:12px;border:1px dashed var(--line);border-radius:10px;padding:11px 13px;line-height:1.65}
@@ -156,6 +170,13 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
       <button class="fab" id="fabTop">↑ 맨 위로</button>
       <button class="fab" id="fabRefresh">↻ 새로고침</button>
       <div class="spin" id="spin"><div class="ring"></div></div>
+      <div class="sheetdim" id="sheetdim" data-sheetclose></div>
+      <div class="sheet" id="sheet">
+        <div class="sheethd">정렬 옵션 선택<span class="x" data-sheetclose>✕</span></div>
+        <div class="opt" data-sopt="추천순"><div class="optx"><b>추천순</b><span>운행상태, 거리 등 현 상황에 맞게 최적화하여 정렬합니다.</span></div><span class="chk">✓</span></div>
+        <div class="opt" data-sopt="시간임박순"><div class="optx"><b>시간임박순</b></div><span class="chk">✓</span></div>
+        <div class="opt" data-sopt="배수높은순"><div class="optx"><b>배수높은순</b></div><span class="chk">✓</span></div>
+      </div>
       <div class="toast" id="toast"></div>
     </div></div>
   </div>
@@ -218,10 +239,10 @@ function cardHTML(c){
 }
 
 /* ---------- 상태 ---------- */
-const state={tab:'accept', seg:'include', big:false, period:'전체', banner:false, refreshing:false};
+const state={tab:'accept', seg:'include', big:false, period:'전체', banner:false, refreshing:false, sort:'추천순'};
 
 function chrome(){
-  const sort = state.tab==='accept' ? `<span class="sort" data-sort>↕</span>` : `<span class="sort" data-sort>↕</span>`;
+  const sort = `<span class="sort" data-sort>↕ ${state.sort}</span>`;
   let sub='';
   if(state.tab==='accept'){
     const line=(state.seg==='exclude'&&state.banner)
@@ -246,19 +267,20 @@ function chrome(){
     </div>${sub}`;
 }
 
+// 정렬 키: 시간임박(날짜+시각 오름차순) / 배수(높은순)
+function timeKey(c){ let day=50; const d=c.date||''; if(d==='오늘')day=0; else if(d==='내일')day=1; else{ const m=d.match(/(\d+)월\s*(\d+)일/); if(m)day=100+(+m[1])*31+(+m[2]); } const t=(c.time||'').match(/(\d{1,2}):(\d{2})/); return day*10000+(t?(+t[1])*60+(+t[2]):0); }
+function multKey(c){ const m=(c.surge||'').match(/([\d.]+)배/); return m?parseFloat(m[1]):1; }
+function sortArr(a){ const b=a.slice(); if(state.sort==='시간임박순') b.sort((x,y)=>timeKey(x)-timeKey(y)); else if(state.sort==='배수높은순') b.sort((x,y)=>multKey(y)-multKey(x)); return b; }
 function listHTML(){
   if(state.tab==='my'){
     let arr=MY.slice();
     if(state.period==='오늘') arr=arr.filter(c=>c.day==='today');
     else if(state.period==='내일') arr=arr.filter(c=>c.day==='tmr');
-    return arr.map(cardHTML).join('') + `<div class="endmsg">— 내 예약 ${arr.length}건 —</div>`;
+    return sortArr(arr).map(cardHTML).join('') + `<div class="endmsg">— 내 예약 ${arr.length}건 —</div>`;
   }
-  // accept — 세그먼트: 포함=셔틀+일반 함께, 제외=일반만 (Figma 시안3)
-  let html='';
-  if(state.seg==='include'){ html += SH.map(cardHTML).join('') + GEN.map(cardHTML).join(''); }
-  else { html += GEN.map(cardHTML).join(''); }
-  html += `<div class="endmsg">— 목록 끝 —</div>`;
-  return html;
+  // accept — 세그먼트: 포함=셔틀+일반 함께, 제외=일반만 (Figma 시안3). 정렬은 리스트 전체에 적용.
+  const arr = state.seg==='include' ? [...SH,...GEN] : GEN.slice();
+  return sortArr(arr).map(cardHTML).join('') + `<div class="endmsg">— 목록 끝 —</div>`;
 }
 
 function render(){
@@ -270,6 +292,8 @@ function render(){
   updateFabs();
 }
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),1500); }
+function openSheet(){ document.querySelectorAll('#sheet .opt').forEach(o=>o.classList.toggle('sel',o.dataset.sopt===state.sort)); document.getElementById('sheet').classList.add('on'); document.getElementById('sheetdim').classList.add('on'); }
+function closeSheet(){ document.getElementById('sheet').classList.remove('on'); document.getElementById('sheetdim').classList.remove('on'); }
 // 필터/탭 전환 = 데이터셋 전환 → 리스트 크로스페이드(아웃→스왑+최상단 리셋+헤더 펼침→인)
 function fadeSwap(applyState){
   const list=document.getElementById('list');
@@ -318,7 +342,9 @@ document.getElementById('scr').addEventListener('click',e=>{
   const sg=e.target.closest('[data-seg]'); if(sg){ if(sg.dataset.seg!==state.seg) doRefresh(()=>{state.seg=sg.dataset.seg; if(state.seg==='include')state.banner=false;}); return; }
   const pd=e.target.closest('[data-pd]'); if(pd){ if(pd.dataset.pd!==state.period) doRefresh(()=>{state.period=pd.dataset.pd;}); return; }
   if(e.target.closest('[data-banner]')){ doRefresh(()=>{state.seg='include'; state.banner=false;}, '셔틀 포함으로 전환'); return; }
-  if(e.target.closest('[data-sort]')){ toast('정렬 (프로토타입)'); return; }
+  if(e.target.closest('[data-sort]')){ openSheet(); return; }
+  if(e.target.closest('[data-sheetclose]')){ closeSheet(); return; }
+  const so=e.target.closest('[data-sopt]'); if(so){ closeSheet(); if(so.dataset.sopt!==state.sort) doRefresh(()=>{state.sort=so.dataset.sopt;}, '정렬: '+so.dataset.sopt); return; }
   if(e.target.closest('[data-call]')){ toast('콜 상세로 이동 (프로토타입)'); return; }
 });
 
