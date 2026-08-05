@@ -57,6 +57,13 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .helper,.banner{padding:.5em 1.05em .6em;color:#e8ebf1;font-size:1.07em;flex:none}
 .banner{display:flex;align-items:center;gap:.15em;background:none;border:none;border-radius:0;cursor:pointer}
 .banner b{color:#5b93ff;font-weight:700}
+/* 스크롤 시 sticky 헤더 축소: 헬퍼 숨김 + 세그먼트(및 탭) 컴팩트 — 리스트 세로공간 확보 */
+.tabs,.tabs button,.seg,.seg button{transition:padding .18s ease,font-size .18s ease}
+.scr.scrolled .helper{display:none}
+.scr.scrolled .seg{padding-top:.05em;padding-bottom:.3em}
+.scr.scrolled .seg button{font-size:1em;padding:.4em 1.2em;border-radius:.45em}
+.scr.scrolled .tabs{padding-top:.2em;padding-bottom:.4em}
+.scr.scrolled .tabs button{font-size:1.18em;padding:.4em .3em}
 
 /* period filter (내 예약) */
 .period{display:flex;gap:.4em;padding:.2em .6em .4em;flex:none;overflow-x:auto}
@@ -258,6 +265,7 @@ function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.
 function updateFabs(){
   const sc=document.getElementById('scroll');
   const scrolled=sc.scrollTop>180;
+  document.getElementById('scr').classList.toggle('scrolled', sc.scrollTop>8);  // 스크롤 시 sticky 헤더 축소
   const top=document.getElementById('fabTop'), rf=document.getElementById('fabRefresh');
   if(state.tab==='my'){ rf.classList.add('show'); top.classList.remove('show'); }
   else { rf.classList.remove('show'); top.classList.toggle('show',scrolled); }
