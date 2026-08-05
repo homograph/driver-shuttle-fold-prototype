@@ -72,7 +72,8 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .period .cal{background:#31487d;border-color:transparent;font-weight:700;color:#f9f9f9}   /* 달력 = 별도 색(캘린더 진입) */
 .scr.scrolled .period button{font-size:1em;padding:.42em 1.4em}   /* 스크롤 시 컴팩트(16→14sp·pad 12→8) */
 
-.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.15em 0 4em}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.15em 0 4em;scrollbar-width:none}
+.scroll::-webkit-scrollbar{width:0;height:0;display:none}   /* 프리뷰 브라우저 기본 스크롤바 숨김(디자인엔 없음, 실제 앱은 오버레이) */
 .list{padding:.5em .6em;display:flex;flex-direction:column;gap:.5em}
 
 
