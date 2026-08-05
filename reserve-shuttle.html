@@ -314,7 +314,7 @@ function updateFabs(){
 document.getElementById('scroll').addEventListener('scroll',updateFabs);
 
 document.getElementById('scr').addEventListener('click',e=>{
-  const tb=e.target.closest('[data-tab]'); if(tb){ if(tb.dataset.tab!==state.tab) fadeSwap(()=>{state.tab=tb.dataset.tab;}); else doRefresh(); return; }
+  const tb=e.target.closest('[data-tab]'); if(tb){ doRefresh(tb.dataset.tab!==state.tab ? (()=>{state.tab=tb.dataset.tab;}) : null); return; }
   const sg=e.target.closest('[data-seg]'); if(sg){ if(sg.dataset.seg!==state.seg) doRefresh(()=>{state.seg=sg.dataset.seg; if(state.seg==='include')state.banner=false;}); return; }
   const pd=e.target.closest('[data-pd]'); if(pd){ if(pd.dataset.pd!==state.period) doRefresh(()=>{state.period=pd.dataset.pd;}); return; }
   if(e.target.closest('[data-banner]')){ doRefresh(()=>{state.seg='include'; state.banner=false;}, '셔틀 포함으로 전환'); return; }
