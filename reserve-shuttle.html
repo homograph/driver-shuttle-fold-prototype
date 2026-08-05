@@ -173,9 +173,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
       <div class="sheetdim" id="sheetdim" data-sheetclose></div>
       <div class="sheet" id="sheet">
         <div class="sheethd">정렬 옵션 선택<span class="x" data-sheetclose>✕</span></div>
-        <div class="opt" data-sopt="추천순"><div class="optx"><b>추천순</b><span>운행상태, 거리 등 현 상황에 맞게 최적화하여 정렬합니다.</span></div><span class="chk">✓</span></div>
-        <div class="opt" data-sopt="시간임박순"><div class="optx"><b>시간임박순</b></div><span class="chk">✓</span></div>
-        <div class="opt" data-sopt="배수높은순"><div class="optx"><b>배수높은순</b></div><span class="chk">✓</span></div>
+        <div class="opts" id="sheetopts"></div>
       </div>
       <div class="toast" id="toast"></div>
     </div></div>
@@ -242,7 +240,7 @@ function cardHTML(c){
 const state={tab:'accept', seg:'include', big:false, period:'전체', banner:false, refreshing:false, sort:'추천순'};
 
 function chrome(){
-  const sort = `<span class="sort" data-sort>↕ ${state.sort}</span>`;
+  const sort = `<span class="sort" data-sort>↕ ${effSort()}</span>`;
   let sub='';
   if(state.tab==='accept'){
     const line=(state.seg==='exclude'&&state.banner)
@@ -270,7 +268,10 @@ function chrome(){
 // 정렬 키: 시간임박(날짜+시각 오름차순) / 배수(높은순)
 function timeKey(c){ let day=50; const d=c.date||''; if(d==='오늘')day=0; else if(d==='내일')day=1; else{ const m=d.match(/(\d+)월\s*(\d+)일/); if(m)day=100+(+m[1])*31+(+m[2]); } const t=(c.time||'').match(/(\d{1,2}):(\d{2})/); return day*10000+(t?(+t[1])*60+(+t[2]):0); }
 function multKey(c){ const m=(c.surge||'').match(/([\d.]+)배/); return m?parseFloat(m[1]):1; }
-function sortArr(a){ const b=a.slice(); if(state.sort==='시간임박순') b.sort((x,y)=>timeKey(x)-timeKey(y)); else if(state.sort==='배수높은순') b.sort((x,y)=>multKey(y)-multKey(x)); return b; }
+const SORT_DESC={'추천순':'운행상태, 거리 등 현 상황에 맞게 최적화하여 정렬합니다.'};
+const SORT_OPTS={accept:['추천순','시간임박순','배수높은순'], my:['시간순']};   // 내 예약은 시간순만
+function effSort(){ return state.tab==='my' ? '시간순' : state.sort; }           // 내 예약 정렬은 항상 시간순
+function sortArr(a){ const s=effSort(); const b=a.slice(); if(s==='시간임박순'||s==='시간순') b.sort((x,y)=>timeKey(x)-timeKey(y)); else if(s==='배수높은순') b.sort((x,y)=>multKey(y)-multKey(x)); return b; }
 function listHTML(){
   if(state.tab==='my'){
     let arr=MY.slice();
@@ -292,7 +293,13 @@ function render(){
   updateFabs();
 }
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),1500); }
-function openSheet(){ document.querySelectorAll('#sheet .opt').forEach(o=>o.classList.toggle('sel',o.dataset.sopt===state.sort)); document.getElementById('sheet').classList.add('on'); document.getElementById('sheetdim').classList.add('on'); }
+function openSheet(){
+  const cur=effSort();
+  document.getElementById('sheetopts').innerHTML = (SORT_OPTS[state.tab]||SORT_OPTS.accept).map(o=>
+    `<div class="opt${o===cur?' sel':''}" data-sopt="${o}"><div class="optx"><b>${o}</b>${SORT_DESC[o]?`<span>${SORT_DESC[o]}</span>`:''}</div><span class="chk">✓</span></div>`
+  ).join('');
+  document.getElementById('sheet').classList.add('on'); document.getElementById('sheetdim').classList.add('on');
+}
 function closeSheet(){ document.getElementById('sheet').classList.remove('on'); document.getElementById('sheetdim').classList.remove('on'); }
 // 필터/탭 전환 = 데이터셋 전환 → 리스트 크로스페이드(아웃→스왑+최상단 리셋+헤더 펼침→인)
 function fadeSwap(applyState){
@@ -344,7 +351,7 @@ document.getElementById('scr').addEventListener('click',e=>{
   if(e.target.closest('[data-banner]')){ doRefresh(()=>{state.seg='include'; state.banner=false;}, '셔틀 포함으로 전환'); return; }
   if(e.target.closest('[data-sort]')){ openSheet(); return; }
   if(e.target.closest('[data-sheetclose]')){ closeSheet(); return; }
-  const so=e.target.closest('[data-sopt]'); if(so){ closeSheet(); if(so.dataset.sopt!==state.sort) doRefresh(()=>{state.sort=so.dataset.sopt;}, '정렬: '+so.dataset.sopt); return; }
+  const so=e.target.closest('[data-sopt]'); if(so){ closeSheet(); const opt=so.dataset.sopt; if(state.tab==='accept' && opt!==state.sort) doRefresh(()=>{state.sort=opt;}, '정렬: '+opt); return; }
   if(e.target.closest('[data-call]')){ toast('콜 상세로 이동 (프로토타입)'); return; }
 });
 
