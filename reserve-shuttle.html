@@ -74,7 +74,8 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.15em 0 4em;scrollbar-width:none}
 .scroll::-webkit-scrollbar{width:0;height:0;display:none}   /* 프리뷰 브라우저 기본 스크롤바 숨김(디자인엔 없음, 실제 앱은 오버레이) */
-.list{padding:.5em .6em;display:flex;flex-direction:column;gap:.5em}
+.list{padding:.5em .6em;display:flex;flex-direction:column;gap:.5em;transition:opacity .13s ease}
+.tabs button:active,.seg button:active,.period button:active{opacity:.6}   /* 탭 즉시 눌림 피드백(페이드 중 반응성) */
 
 
 /* 콜카드 — Figma 시안3 디자인 반영 (개선: 시간 흰색→서브) */
@@ -263,6 +264,19 @@ function render(){
   updateFabs();
 }
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),1500); }
+// 필터/탭 전환 = 데이터셋 전환 → 리스트 크로스페이드(아웃→스왑+최상단 리셋+헤더 펼침→인)
+function fadeSwap(applyState){
+  const list=document.getElementById('list');
+  list.style.opacity='0';
+  clearTimeout(fadeSwap._t);
+  fadeSwap._t=setTimeout(()=>{
+    applyState();
+    render();                       // chrome+list 스왑 + scrollTop=0 + 헤더 펼침
+    const l=document.getElementById('list');
+    l.style.opacity='0';
+    requestAnimationFrame(()=>{ l.style.opacity='1'; });
+  },130);
+}
 
 function updateFabs(){
   const sc=document.getElementById('scroll');
@@ -275,10 +289,10 @@ function updateFabs(){
 document.getElementById('scroll').addEventListener('scroll',updateFabs);
 
 document.getElementById('scr').addEventListener('click',e=>{
-  const tb=e.target.closest('[data-tab]'); if(tb){ state.tab=tb.dataset.tab; render(); return; }
-  const sg=e.target.closest('[data-seg]'); if(sg){ state.seg=sg.dataset.seg; if(state.seg==='include')state.banner=false; render(); return; }
-  const pd=e.target.closest('[data-pd]'); if(pd){ state.period=pd.dataset.pd; render(); return; }
-  if(e.target.closest('[data-banner]')){ state.seg='include'; state.banner=false; render(); toast('셔틀 포함으로 전환'); return; }
+  const tb=e.target.closest('[data-tab]'); if(tb){ if(tb.dataset.tab!==state.tab) fadeSwap(()=>{state.tab=tb.dataset.tab;}); return; }
+  const sg=e.target.closest('[data-seg]'); if(sg){ if(sg.dataset.seg!==state.seg) fadeSwap(()=>{state.seg=sg.dataset.seg; if(state.seg==='include')state.banner=false;}); return; }
+  const pd=e.target.closest('[data-pd]'); if(pd){ if(pd.dataset.pd!==state.period) fadeSwap(()=>{state.period=pd.dataset.pd;}); return; }
+  if(e.target.closest('[data-banner]')){ fadeSwap(()=>{state.seg='include'; state.banner=false;}); toast('셔틀 포함으로 전환'); return; }
   if(e.target.closest('[data-sort]')){ toast('정렬 (프로토타입)'); return; }
   if(e.target.closest('[data-call]')){ toast('콜 상세로 이동 (프로토타입)'); return; }
 });
