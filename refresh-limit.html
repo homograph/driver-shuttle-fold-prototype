@@ -81,10 +81,19 @@ h1{font-size:18px;margin:0 0 3px;letter-spacing:-.02em}
 .rc .price b{font-size:1.4em;font-weight:800}
 .rc .price .su{font-size:.78em;font-weight:700;color:#eeff00}
 
-.toast{position:absolute;left:50%;bottom:1.4em;transform:translateX(-50%) translateY(1.2em);opacity:0;transition:.22s;pointer-events:none;max-width:88%;
+.toast{position:absolute;left:50%;bottom:4.9em;transform:translateX(-50%) translateY(1.2em);opacity:0;transition:.22s;pointer-events:none;max-width:88%;
   background:#2a1a16;border:1px solid var(--warnln);color:#ffd8ce;font-size:.84em;padding:.7em 1em;border-radius:.7em;text-align:center;line-height:1.4;z-index:9}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.info{background:#0b1830;border-color:var(--line);color:var(--txt)}
+
+/* 하단 플로팅 새로고침 버튼 (수락가능 콜 전용) */
+.fab{position:absolute;left:50%;bottom:1.5em;transform:translateX(-50%);z-index:8;display:inline-flex;align-items:center;gap:.42em;
+  background:var(--actblue);color:#fff;font-family:var(--kr);font-weight:800;font-size:.92em;padding:.72em 1.45em;border:none;border-radius:999px;
+  box-shadow:0 6px 20px rgba(0,0,0,.45);cursor:pointer}
+.fab .fi{font-weight:400;font-size:1.08em;line-height:1}
+.fab:active{transform:translateX(-50%) scale(.96)}
+.fab.dim{opacity:.42}
+.fab.hide{display:none}
 
 .note{margin-top:12px;color:var(--sub);font-size:12px;border:1px dashed var(--line);border-radius:10px;padding:11px 13px;line-height:1.7}
 .note b{color:var(--txt)}
@@ -95,7 +104,7 @@ h1{font-size:18px;margin:0 0 3px;letter-spacing:-.02em}
 <div class="app">
   <p class="back"><a href="index.html">← 방식 목록</a></p>
   <h1>🛒 콜리스트 리프레시 제한 — 배너 vs 토스트 <span style="font-family:var(--mono);font-size:11px;color:var(--btnln)">TADA-9282</span></h1>
-  <p class="lead">기계적 반복 새로고침(어뷰징)을 <b>10초 10회 초과</b> 시 감지 → <b>10초→30초→1분→3분→5분</b> 사다리로 제한. 막는 경로(당겨서 새로고침·수락가능콜 탭·정렬·재진입)와 안 막는 것(콜 상세 진입·수락)을 인터랙티브로. <b>결정: 제한 중은 '항시 배너'로 확정</b> — 이유를 능동적으로 안 찾아도 보여야 하므로. (토스트는 검토 후 미채택, 아래 토글로 비교) 해제 순간만 <b>자기소멸 토스트</b>.</p>
+  <p class="lead">기계적 반복 새로고침(어뷰징)을 <b>10초 10회 초과</b> 시 감지 → <b>10초→30초→1분→3분→5분</b> 사다리로 제한. 막는 경로(하단 플로팅 새로고침 버튼·당겨서 새로고침·수락가능콜 탭·정렬·재진입)와 안 막는 것(콜 상세 진입·수락)을 인터랙티브로. <b>결정: 제한 중은 '항시 배너'로 확정</b> — 이유를 능동적으로 안 찾아도 보여야 하므로. (토스트는 검토 후 미채택, 아래 토글로 비교) 해제 순간만 <b>자기소멸 토스트</b>.</p>
 
   <div class="ctrl">
     <span class="lbl">제한 중 안내</span>
@@ -114,12 +123,13 @@ h1{font-size:18px;margin:0 0 3px;letter-spacing:-.02em}
       <div id="chrome"></div>
       <div class="scroll" id="scroll"><div class="pull" id="pull"><span class="ring"></span><span class="pl" id="pulllbl">당겨서 새로고침</span></div><div class="list" id="list"></div></div>
       <div class="spin" id="spin"><span class="ring"></span></div>
+      <button class="fab hide" id="fab" data-refresh><span class="fi">↻</span>새로고침</button>
       <div class="toast" id="toast"></div>
     </div></div>
   </div>
 
   <div class="note">
-    <b>동작:</b> ①<b>당겨서 새로고침</b>(목록 위에서 아래로 당김)·<b>수락가능 콜 탭/재탭</b>·<b>정렬</b>(↕)이 새로고침 트리거 — 10초 10회 초과 시 제한. (실제 디자인엔 상단 ↻ 버튼 없음 — 수동 새로고침은 당겨서·탭·재진입) (빠르게 눌러 직접 유발하거나 <code>⚡ 어뷰징 시뮬</code>로 한 번에) 정상 새로고침 시 <b>로딩 스피너 + 크로스페이드</b>. <b>제한·카운트는 '수락가능 콜'에만 적용</b> — <b>내 예약은 자유 새로고침</b>(PRD AC-2-07 차단 경로에 내 예약 없음). ②제한 중엔 이 경로들이 <b>갱신 안 됨</b> + <b>항시 배너로 안내(확정)</b> — ↻가 없어 드라이버가 이유를 능동적으로 안 찾아도 보여야 하므로 토스트 대신 지속 배너. ③<b>콜 카드 탭(상세·수락)은 제한과 무관하게 정상</b>. ④제한 중 <b>직전에 불러온 목록은 그대로 유지</b>(재진입해도 유지) — 이미 뜬 콜은 <b>탭해서 수락 가능</b>. (PO 확인 AC-2-08: 새로고침만 제한, 수락 제한 아님. "빈 목록" 표시는 오구현이라 제거) ⑤해제돼도 <b>자동 갱신 안 함</b> — <b>자기소멸 토스트</b>("다시 새로고침할 수 있어요", 2초·액션 없음)로만 알리고, 드라이버가 <b>직접 당겨야</b> 갱신(1회로 셈, 카운트 0부터). <b>지속 배너 없음</b>.<br>
+    <b>동작:</b> ①<b>하단 플로팅 새로고침 버튼</b>(수락가능 콜 전용)·<b>당겨서 새로고침</b>·<b>수락가능 콜 탭/재탭</b>·<b>정렬</b>(↕)이 새로고침 트리거 — 10초 10회 초과 시 제한. (상단 앱바 ↻는 없음 — 수동 새로고침은 하단 플로팅 버튼/당겨서/탭·재진입) (빠르게 눌러 직접 유발하거나 <code>⚡ 어뷰징 시뮬</code>로 한 번에) 정상 새로고침 시 <b>로딩 스피너 + 크로스페이드</b>. <b>제한·카운트는 '수락가능 콜'에만 적용</b> — <b>내 예약은 자유 새로고침</b>(PRD AC-2-07 차단 경로에 내 예약 없음). ②제한 중엔 이 경로들이 <b>갱신 안 됨</b> + <b>항시 배너로 안내(확정)</b> — ↻가 없어 드라이버가 이유를 능동적으로 안 찾아도 보여야 하므로 토스트 대신 지속 배너. ③<b>콜 카드 탭(상세·수락)은 제한과 무관하게 정상</b>. ④제한 중 <b>직전에 불러온 목록은 그대로 유지</b>(재진입해도 유지) — 이미 뜬 콜은 <b>탭해서 수락 가능</b>. (PO 확인 AC-2-08: 새로고침만 제한, 수락 제한 아님. "빈 목록" 표시는 오구현이라 제거) ⑤해제돼도 <b>자동 갱신 안 함</b> — <b>자기소멸 토스트</b>("다시 새로고침할 수 있어요", 2초·액션 없음)로만 알리고, 드라이버가 <b>직접 당겨야</b> 갱신(1회로 셈, 카운트 0부터). <b>지속 배너 없음</b>.<br>
     ※ 완화(정상속도 5분마다 한 단계↓, 25분 무이슈 초기화)는 실제 타이밍이 길어 데모에선 생략 — <code>↺ 리셋</code>으로 확인. 사다리 시간은 실제값(10s/30s/1m/3m/5m).
   </div>
 </div>
@@ -173,6 +183,8 @@ function render(){
   el('chrome').innerHTML=chrome();
   const list=el('list'); list.innerHTML=listHTML();
   list.classList.remove('dim');   // 제한 중에도 목록은 그대로(딤 없음) — 수락 가능해야 하므로
+  const fab=el('fab');            // 하단 플로팅 새로고침: 수락가능 콜에서만, 제한 중엔 딤(눌러도 배너 안내)
+  if(fab){ fab.classList.toggle('hide', state.tab!=='accept'); fab.classList.toggle('dim', limited()); }
   readout();
 }
 function readout(){
@@ -219,6 +231,7 @@ el('scr').addEventListener('click',e=>{
     const src=(to==='accept')?(state.tab==='accept'?'수락가능 콜 재탭':'수락가능 콜 탭'):'내 예약 탭';
     doRefresh(src, ()=>{ state.tab=to; });  // 탭 전환도 새로고침 트리거(카운트+스피너)
     return; }
+  if(e.target.closest('[data-refresh]')){ doRefresh('새로고침 버튼'); return; }
   if(e.target.closest('[data-sort]')){ doRefresh('정렬 변경'); return; }
   if(e.target.closest('[data-call]')){ toast('콜 상세로 이동 · 수락 가능 (제한과 무관)',true); return; }
 });
