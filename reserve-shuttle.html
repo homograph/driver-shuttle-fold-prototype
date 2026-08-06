@@ -48,20 +48,22 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .tabs button{flex:1;font-family:var(--kr);font-weight:400;font-size:1.43em;color:#f5f6f7;background:transparent;border:1.5px solid #293f71;border-radius:.5em;padding:.55em .3em;cursor:pointer}   /* Figma: 비선택=레귤러 w400 */
 .tabs button.on{color:#fff;font-weight:700;background:#19254d;border-color:#32a2fa}   /* Figma: 선택=볼드 w700 */
 
-/* segment 셔틀 포함/제외 (Figma: 16sp · content hug 좌측정렬 · 활성 동일) */
-.seg{display:flex;gap:.55em;padding:.4em .72em .4em;flex:none}
-.seg button{font-family:var(--kr);font-size:1.14em;font-weight:400;color:#f5f6f7;background:transparent;border:1.5px solid #293f71;border-radius:.5em;padding:.6em 1.55em;cursor:pointer}   /* Figma: 비선택=레귤러 w400 */
-.seg button.on{color:#fff;font-weight:700;background:#19254d;border-color:#32a2fa}   /* Figma: 선택=볼드 w700 */
-
-/* helper / banner (Figma: 둘 다 플레인 텍스트 15sp #EFEFF1 · 박스 없음) */
-.helper,.banner{padding:.5em 1.05em .6em;color:#e8ebf1;font-size:1.07em;flex:none}
-.banner{display:flex;align-items:center;gap:.15em;background:none;border:none;border-radius:0;cursor:pointer}
-.banner b{color:#32a2fa;font-weight:700}   /* Figma: "셔틀" 볼드 블루 #32A2FA */
-/* 스크롤 시 sticky 헤더 축소: 헬퍼 숨김 + 세그먼트(및 탭) 컴팩트 — 리스트 세로공간 확보 */
-.tabs,.tabs button,.seg,.seg button{transition:padding .18s ease,font-size .18s ease}
-.scr.scrolled .helper{display:none}
-.scr.scrolled .seg,.scr.scrolled .period{padding-top:.26em;padding-bottom:.5em}   /* 컴팩트: 위=탭여백+.26, 아래=.5 로 시각적 균형(스크롤 시 리스트 상단패딩이 사라지는 보정) */
-.scr.scrolled .seg button{font-size:1em;padding:.4em 1.2em;border-radius:.45em}
+/* 셔틀 토글 (Figma 최종: 세그먼트→단일 토글행. ON=셔틀 포함·OFF=셔틀 제외·도착=보기 CTA. 행 전체가 탭 타깃 — 시니어 조준 부담↓) */
+.shtoggle{display:flex;align-items:center;gap:.5em;margin:.4em .72em .4em;padding:.72em .8em;border:1.5px solid #293f71;border-radius:.5em;background:transparent;cursor:pointer;flex:none}
+.shtoggle.on{border-color:#32a2fa;background:#1e2d59}
+.shtoggle.arrive{background:#1e2d59}
+.shtoggle .shic{font-size:1.14em;line-height:1}
+.shtoggle .shlb{flex:1;font-size:1.14em;color:#f9f9f9}
+.shtoggle .shgo{font-size:1.05em;font-weight:700;color:#32a2fa;margin-right:.15em}   /* 보기 = 액센트 CTA(#32A2FA) → "누르는 것"으로 읽히게 */
+.shsw{width:2.6em;height:1.5em;border-radius:999px;position:relative;flex:none;background:#9da0ae;transition:background .15s}
+.shsw.on{background:#32a2fa}
+.shsw::after{content:"";position:absolute;top:.16em;left:.16em;width:1.18em;height:1.18em;border-radius:50%;background:#e2f2fe;transition:left .15s,right .15s}
+.shsw.on::after{left:auto;right:.16em}
+/* 스크롤 시 sticky 헤더 축소: 토글·탭 컴팩트 — 리스트 세로공간 확보 */
+.tabs,.tabs button,.shtoggle,.shtoggle .shlb,.period,.period button{transition:padding .18s ease,font-size .18s ease,margin .18s ease}
+.scr.scrolled .shtoggle{margin-top:.18em;margin-bottom:.32em;padding-top:.5em;padding-bottom:.5em}
+.scr.scrolled .shtoggle .shlb{font-size:1em}
+.scr.scrolled .period{padding-top:.26em;padding-bottom:.5em}
 .scr.scrolled .tabs{padding-top:.3em;padding-bottom:.3em}
 .scr.scrolled .tabs button{font-size:1.18em;padding:.4em .3em}
 
@@ -75,7 +77,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.15em 0 4em;scrollbar-width:none}
 .scroll::-webkit-scrollbar{width:0;height:0;display:none}   /* 프리뷰 브라우저 기본 스크롤바 숨김(디자인엔 없음, 실제 앱은 오버레이) */
 .list{padding:.5em .6em;display:flex;flex-direction:column;gap:.5em;transition:opacity .13s ease}
-.tabs button:active,.seg button:active,.period button:active{opacity:.6}   /* 탭 즉시 눌림 피드백(페이드 중 반응성) */
+.tabs button:active,.shtoggle:active,.period button:active{opacity:.6}   /* 탭·토글 즉시 눌림 피드백(페이드 중 반응성) */
 
 
 /* 콜카드 — Figma 시안3 디자인 반영 (개선: 시간 흰색→서브) */
@@ -151,7 +153,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
   <p class="back"><a href="index.html">← 방식 목록</a></p>
   <div class="head">
     <h1>🚐 예약콜 목록 — 셔틀 처리(세그먼트 필터) <span style="font-family:var(--mono);font-size:11px;color:var(--btnln)">TADA-9317 · 시안3</span></h1>
-    <p>기존 「예약콜 목록」에 <b>셔틀 포함 / 셔틀 제외</b> 세그먼트를 얹어 셔틀 노출을 제어. 포함=셔틀+일반 함께, 제외=일반만. 제외 중 새 셔틀이 오면 헬퍼 자리에 <b>안내 텍스트</b>. <b>탭·세그먼트·배너·콜카드 모두 Figma 시안3 실측값 반영</b>(figma-check 스킬로 대조).</p>
+    <p>기존 「예약콜 목록」에 <b>셔틀 포함/제외 단일 토글</b>(행 전체 탭)로 셔틀 노출을 제어. 포함=셔틀+일반 함께, 제외=일반만. 제외 중 새 셔틀이 오면 같은 토글이 <b>「새 셔틀 콜이 들어왔어요! · 보기」</b> 재활성 CTA(#32A2FA)로 전환. <b>박스 탭·토글·콜카드 모두 Figma 최종안 실측 반영</b>(figma-check 스킬로 대조).</p>
   </div>
 
   <div class="ctrl">
@@ -180,7 +182,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
   </div>
 
   <div class="note">
-    <b>인터랙션:</b> <b>셔틀 포함↔제외</b> 세그먼트 전환(포함=셔틀+일반 함께, 제외=일반만) · <b>🔔 새 셔틀 도착 시뮬</b> → 제외 중이면 헬퍼 자리에 <b>안내 텍스트</b>(탭 시 포함 전환) · 스크롤 시 <b>맨 위로</b> · <b>내 예약</b> 탭은 달력/기간 필터 + <b>새로고침</b>. <b>탭·세그먼트·헬퍼·배너·콜카드 모두 Figma 시안3 실측값 반영</b>(탭 20sp·세그 16sp·활성 #19254D+#32A2FA, 배너=플레인 텍스트). <b>카드 v2 순서: 경로 상단 → 타입칩 → 가격 → 부가수익 하단</b>(경로 줄바꿈 보완).
+    <b>인터랙션:</b> <b>셔틀 포함↔제외 토글</b>(행 전체 탭, 포함=셔틀+일반 함께·제외=일반만) · <b>🔔 새 셔틀 도착 시뮬</b> → 제외 중이면 토글이 <b>「새 셔틀 콜이 들어왔어요! · 보기」</b> 재활성 CTA로 전환(탭=포함) · 스크롤 시 <b>맨 위로</b> · <b>내 예약</b> 탭은 달력/기간 필터 + <b>새로고침</b>. <b>박스 탭·단일 토글·콜카드 모두 Figma 최종안 실측 반영</b>(탭 20sp 선택 w700/비선택 w400·활성 #19254D+#32A2FA, 토글 스위치·보기 CTA #32A2FA, 행 전체 탭=시니어 조준 부담↓). <b>카드 v2 순서: 경로 상단 → 타입칩 → 가격 → 부가수익 하단</b>.
   </div>
 </div>
 
@@ -251,13 +253,11 @@ function chrome(){
   const sort = `<span class="sort" data-sort>↕ ${effSort()}</span>`;
   let sub='';
   if(state.tab==='accept'){
-    const line=(state.seg==='exclude'&&state.banner)
-      ? `<div class="banner" data-banner>⬆️ 방금 새 <b>셔틀</b> 예약이 들어왔어요</div>`
-      : `<div class="helper">${state.seg==='include'?'셔틀과 일반 예약이 함께 표시됩니다':'셔틀을 제외한 예약이 표시됩니다'}</div>`;
-    sub=`<div class="seg">
-      <button data-seg="include" class="${state.seg==='include'?'on':''}">셔틀 포함</button>
-      <button data-seg="exclude" class="${state.seg==='exclude'?'on':''}">셔틀 제외</button>
-    </div>${line}`;
+    const on=state.seg==='include', arrive=(state.seg==='exclude'&&state.banner);
+    const lb = on ? '셔틀 포함' : (arrive ? '새 셔틀 콜이 들어왔어요!' : '셔틀 제외');   // ON/OFF는 라벨+스위치만, 도착만 보기 CTA
+    sub=`<div class="shtoggle ${on?'on':'off'}${arrive?' arrive':''}" data-shtoggle>
+      <span class="shic">🚐</span><span class="shlb">${lb}</span>${arrive?'<span class="shgo">보기</span>':''}<span class="shsw ${on?'on':'off'}"></span>
+    </div>`;
   } else {
     sub=`<div class="period">
       <button class="cal">📅 달력</button>
@@ -354,9 +354,8 @@ document.getElementById('scroll').addEventListener('scroll',updateFabs);
 
 document.getElementById('scr').addEventListener('click',e=>{
   const tb=e.target.closest('[data-tab]'); if(tb){ doRefresh(tb.dataset.tab!==state.tab ? (()=>{state.tab=tb.dataset.tab;}) : null); return; }
-  const sg=e.target.closest('[data-seg]'); if(sg){ if(sg.dataset.seg!==state.seg) doRefresh(()=>{state.seg=sg.dataset.seg; if(state.seg==='include')state.banner=false;}); return; }
+  if(e.target.closest('[data-shtoggle]')){ const willInclude=state.seg!=='include'; doRefresh(()=>{ state.seg=willInclude?'include':'exclude'; if(willInclude)state.banner=false; }, willInclude?'셔틀 포함으로 전환':'셔틀 제외'); return; }   // 행 전체 탭 = 토글
   const pd=e.target.closest('[data-pd]'); if(pd){ if(pd.dataset.pd!==state.period) doRefresh(()=>{state.period=pd.dataset.pd;}); return; }
-  if(e.target.closest('[data-banner]')){ doRefresh(()=>{state.seg='include'; state.banner=false;}, '셔틀 포함으로 전환'); return; }
   if(e.target.closest('[data-sort]')){ openSheet(); return; }
   if(e.target.closest('[data-sheetclose]')){ closeSheet(); return; }
   const so=e.target.closest('[data-sopt]'); if(so){ closeSheet(); const opt=so.dataset.sopt; if(state.tab==='accept' && opt!==state.sort) doRefresh(()=>{state.sort=opt;}, '정렬: '+opt); return; }
