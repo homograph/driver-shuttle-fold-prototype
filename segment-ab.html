@@ -158,7 +158,8 @@ h1{font-size:clamp(20px,4vw,27px);margin:12px 0 6px;letter-spacing:-.02em}
       <li><b style="color:var(--txt)">헬퍼 상시노출 제거</b><span class="pill">칩이 곧 설명</span> — 세그먼트가 모호해서 헬퍼가 필요했던 것. 칩은 상태가 자명해 설명 줄이 불필요.</li>
       <li><b style="color:var(--txt)">정렬은 앱바 유지</b><span class="pill">가로 여유</span> — 필터와 한 줄에 몰지 않음. 큰 sp에서 가로 경합↓. ('1행 통합'은 세로 이득 없고 가로 손해라 폐기)</li>
       <li><b style="color:var(--txt)">스크롤 시 필터행 접힘 → 복귀</b><span class="pill win">스캔 중 카드 최대</span> — 진짜 이득. 세팅 후 훑을 땐 컨트롤이 사라져 카드 노출 극대화, 위로 스크롤하면 다시 나옴. 큰 sp일수록 효과 배가.</li>
-      <li><b style="color:var(--txt)">셔틀 재활성 넛지(R2)</b><span class="pill win">놓친 수익 회수</span> — 셔틀을 끄면 얇은 바 <code style="color:var(--sub)">🚐 셔틀 제외 중 · 켜기</code> 상주(스크롤 접힘과 무관하게 유지). 새 셔틀이 오면 <code style="color:#e6effc">🚐 새 셔틀 콜 N건 도착 · 다시 보기</code>로 강조 전환, <b>바 전체 탭 = 재활성</b>. "🔔 시뮬" 버튼으로 확인.</li>
+      <li><b style="color:var(--txt)">셔틀 컨트롤 = 상태별 단일 요소</b><span class="pill">중복 제거</span> — ON이면 필터칩 <code style="color:var(--sub)">🚐 셔틀 ✓</code> 하나, OFF면 넛지 바 하나. <b>둘이 동시에 뜨지 않음</b>(같은 '켜기' 동작 2개 방지).</li>
+      <li><b style="color:var(--txt)">셔틀 재활성 넛지(R2)</b><span class="pill win">놓친 수익 회수</span> — 셔틀 OFF면 얇은 바 <code style="color:var(--sub)">🚐 셔틀 제외 중 · 켜기</code> 상주(스크롤 접힘과 무관). 새 셔틀이 오면 <code style="color:#e6effc">🚐 새 셔틀 콜 N건 도착 · 다시 보기</code>로 강조, <b>바 전체 탭 = 재활성</b>. "🔔 시뮬"로 확인.</li>
     </ul>
   </div>
 </div>
@@ -210,13 +211,14 @@ const B={tab:'accept',shuttle:true,sort:'추천순',newShuttle:0};
 function effSortB(){return B.tab==='my'?'시간순':B.sort;}
 function renderB(){
   const el=document.getElementById('scrB');
-  let bar;
-  if(B.tab==='accept'){
-    bar=`<div class="chips"><span class="chip2 ${B.shuttle?'on':''}" data-btoggle>🚐 셔틀${B.shuttle?' ✓':''}</span></div>`;
-  } else {
-    bar=`<span class="cal">📅</span><div class="chips"><span class="chip2 on">전체</span><span class="chip2">오늘 2</span><span class="chip2">내일 1</span></div>`;
+  // 셔틀 컨트롤 = 상태별 단일 요소(중복 제거): ON → 필터칩 / OFF → 넛지 바(아래). 둘이 동시에 뜨지 않음.
+  let filterbarHTML='';
+  if(B.tab==='accept' && B.shuttle){
+    filterbarHTML=`<div class="filterbar" id="filterB"><div class="chips"><span class="chip2 on" data-btoggle>🚐 셔틀 ✓</span></div></div>`;
+  } else if(B.tab==='my'){
+    filterbarHTML=`<div class="filterbar" id="filterB"><span class="cal">📅</span><div class="chips"><span class="chip2 on">전체</span><span class="chip2">오늘 2</span><span class="chip2">내일 1</span></div></div>`;
   }
-  // R2 재활성 넛지 바: 수락가능콜 + 셔틀 OFF일 때만. 새 셔틀 도착(newShuttle>0)이면 강조.
+  // R2 재활성 넛지 바: 수락가능콜 + 셔틀 OFF일 때만(이때 칩은 없음). 새 셔틀 도착(newShuttle>0)이면 강조.
   const reOn=B.tab==='accept' && !B.shuttle;
   const reHTML = B.newShuttle>0
     ? `🚐 새 셔틀 콜 <span class="n">${B.newShuttle}건</span> 도착 <span class="go">다시 보기 →</span>`
@@ -225,7 +227,7 @@ function renderB(){
   el.insertAdjacentHTML('afterbegin',`<div class="statusbar">12:30</div>
   <div class="appbar"><span class="bk">←</span><span class="ttl">예약콜 목록</span><span class="sort" data-bsort>↕ ${effSortB()}</span></div>
   <div class="tabs"><button data-btab="accept" class="${B.tab==='accept'?'on':''}">수락가능 콜</button><button data-btab="my" class="${B.tab==='my'?'on':''}">내 예약(8)</button></div>
-  <div class="filterbar" id="filterB">${bar}</div>
+  ${filterbarHTML}
   <div class="rebar ${reOn?'show':''} ${B.newShuttle>0?'alert':''}" data-reenable>${reHTML}</div>
   <div class="scroll" id="scrollB">${listH(B.tab==='accept'?B.shuttle:true)}</div>`);
   bindScrollB();
@@ -235,6 +237,7 @@ function bindScrollB(){
   const sc=document.getElementById('scrollB'); const fb=document.getElementById('filterB'); if(!sc)return;
   lastB=0;
   sc.addEventListener('scroll',()=>{
+    if(!fb) return;                                              // OFF 상태엔 필터행 없음(넛지 바만) → 접을 것 없음
     const st=sc.scrollTop;
     if(st>lastB && st>24) fb.classList.add('collapsed');        // 아래로 스크롤 → 필터행 접힘
     else if(st<lastB-4 || st<8) fb.classList.remove('collapsed'); // 위로 스크롤 → 복귀
