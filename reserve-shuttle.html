@@ -44,12 +44,12 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .appbar .sort{color:var(--sub);padding:.3em .5em;cursor:pointer;font-size:1.05em}
 
 /* primary tabs (Figma: 20sp · r8 · 활성 #19254D + 파란보더 #32A2FA 1.5) */
-.tabs{display:flex;gap:.6em;padding:.45em .72em .45em;flex:none}
-.tabs button{flex:1;font-family:var(--kr);font-weight:400;font-size:1.43em;color:#f5f6f7;background:transparent;border:1.5px solid #293f71;border-radius:4px;padding:.55em .3em;cursor:pointer}   /* Figma: 비선택=레귤러 w400, radius r4(고정 4px) */
+.tabs{display:flex;gap:8px;padding:10px 10px 0;flex:none}   /* Figma dashboard_box pad[10] · 탭간 gap8 (고정 dp) */
+.tabs button{flex:1;font-family:var(--kr);font-weight:400;font-size:1.43em;color:#f5f6f7;background:transparent;border:1.5px solid #293f71;border-radius:4px;padding:12px 24px;cursor:pointer}   /* Figma: 비선택 w400, r4, pad[12,24,12,24] */
 .tabs button.on{color:#fff;font-weight:700;background:#19254d;border-color:#32a2fa}   /* Figma: 선택=볼드 w700 */
 
 /* 셔틀 토글 (Figma 최종: 세그먼트→단일 토글행. ON=셔틀 포함·OFF=셔틀 제외·도착=보기 CTA. 행 전체가 탭 타깃 — 시니어 조준 부담↓) */
-.shtoggle{display:flex;align-items:center;gap:.5em;margin:.4em .72em .4em;padding:.72em .8em;border:1.5px solid #293f71;border-radius:4px;background:transparent;cursor:pointer;flex:none}   /* Figma radius r4(고정 4px) */
+.shtoggle{display:flex;align-items:center;gap:.5em;margin:8px 10px 10px;padding:12px 20px 12px 12px;border:1.5px solid #293f71;border-radius:4px;background:transparent;cursor:pointer;flex:none}   /* Figma pad[12,20,12,12] · 상단 gap8 · 컨테이너 좌우10·하10 (고정 dp) */
 .shtoggle.on{border-color:#32a2fa;background:#1e2d59}
 .shtoggle.arrive{background:#1e2d59}
 .shtoggle .shic{font-size:1.14em;line-height:1}
@@ -61,37 +61,37 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .shsw.on::after{left:auto;right:.16em}
 /* 스크롤 시 sticky 헤더 축소: 토글·탭 컴팩트 — 리스트 세로공간 확보 */
 .tabs,.tabs button,.shtoggle,.shtoggle .shlb,.period,.period button{transition:padding .18s ease,font-size .18s ease,margin .18s ease}
-.scr.scrolled .shtoggle{margin-top:.18em;margin-bottom:.32em;padding-top:.5em;padding-bottom:.5em}
+.scr.scrolled .shtoggle{margin-top:5px;margin-bottom:8px;padding-top:8px;padding-bottom:8px}
 .scr.scrolled .shtoggle .shlb{font-size:1em}
-.scr.scrolled .period{padding-top:.26em;padding-bottom:.5em}
-.scr.scrolled .tabs{padding-top:.3em;padding-bottom:.3em}
-.scr.scrolled .tabs button{font-size:1.18em;padding:.4em .3em}
+.scr.scrolled .period{padding-top:5px;padding-bottom:8px}
+.scr.scrolled .tabs{padding-top:6px}
+.scr.scrolled .tabs button{font-size:1.18em;padding:8px 24px}
 
 /* period filter (내 예약) */
-.period{display:flex;gap:.5em;padding:.4em .72em .4em;flex:none;overflow-x:auto}
-.period button{font-family:var(--kr);font-size:1.14em;font-weight:400;white-space:nowrap;color:#f5f6f7;background:transparent;border:1.5px solid #293f71;border-radius:4px;padding:.62em 1.4em;cursor:pointer;display:flex;gap:.35em;align-items:center;transition:padding .18s ease,font-size .18s ease}   /* Figma radius r4(고정 4px) */
+.period{display:flex;gap:8px;padding:10px;flex:none;overflow-x:auto}   /* Figma 컨테이너 pad[10] · gap8 */
+.period button{font-family:var(--kr);font-size:1.14em;font-weight:400;white-space:nowrap;color:#f5f6f7;background:transparent;border:1.5px solid #293f71;border-radius:4px;padding:12px 16px;cursor:pointer;display:flex;gap:.35em;align-items:center;transition:padding .18s ease,font-size .18s ease}   /* Figma r4 · pad 12 */
 .period button.on{color:#fff;font-weight:700;background:#19254d;border-color:#32a2fa}
 .period .cal{background:#31487d;border-color:transparent;font-weight:700;color:#f9f9f9}   /* 달력 = 별도 색(캘린더 진입) */
 .scr.scrolled .period button{font-size:1em;padding:.42em 1.4em}   /* 스크롤 시 컴팩트(16→14sp·pad 12→8) */
 
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.15em 0 4em;scrollbar-width:none}
 .scroll::-webkit-scrollbar{width:0;height:0;display:none}   /* 프리뷰 브라우저 기본 스크롤바 숨김(디자인엔 없음, 실제 앱은 오버레이) */
-.list{padding:.5em .6em;display:flex;flex-direction:column;gap:.5em;transition:opacity .13s ease}
+.list{padding:0 10px 10px;display:flex;flex-direction:column;gap:10px;transition:opacity .13s ease}   /* Figma Container pad[0,10,10,10] · 카드간 gap10 */
 .tabs button:active,.shtoggle:active,.period button:active{opacity:.6}   /* 탭·토글 즉시 눌림 피드백(페이드 중 반응성) */
 
 
 /* 콜카드 — Figma 시안3 디자인 반영 (개선: 시간 흰색→서브) */
 .rc{background:var(--card);border-radius:.75em;display:flex;cursor:pointer;border:1px solid transparent}
 .rc:active{border-color:var(--btnln)}
-.rc .date{width:6.6em;flex:none;padding:1.25em .6em 1.25em 1.15em;display:flex;flex-direction:column;gap:.28em}
+.rc .date{width:8em;flex:none;padding:20px 15px 20px 20px;display:flex;flex-direction:column;gap:5px}   /* Figma 일자 pad[20,15,20,20] · gap5 */
 .rc .date .drow{display:flex;align-items:baseline;gap:.35em;flex-wrap:wrap}
 .rc .date .d1{font-size:1.05em;font-weight:800;color:var(--txt)}
 .rc .date .imm{font-size:.72em;font-weight:800;color:#fe6f59}
 .rc .date .d2{font-size:.9em;color:var(--sub)}            /* 시간: #fff→서브 (개선 포인트) */
 .rc .date .d3{font-size:.82em;color:var(--sub)}   /* 2시간 대절 = Tier2 속성 */
 .rc .date .chg{font-size:.8em;color:var(--sub2);margin-top:.05em}
-.rc .dv{width:1px;background:var(--line);margin:1.25em 0}
-.rc .body{flex:1;min-width:0;padding:1.25em 1.15em 1.25em 1em;display:flex;flex-direction:column;gap:.55em}
+.rc .dv{width:1px;background:var(--line);margin:20px 0}   /* Figma 카드 상하 pad 20 정렬 */
+.rc .body{flex:1;min-width:0;padding:20px 20px 20px 15px;display:flex;flex-direction:column;gap:8px}   /* Figma 경로가격 pad[20,20,20,15] · gap8 */
 .rc .chiprow{display:flex;flex-wrap:wrap;gap:.4em;align-items:center}
 .rc .chip{font-size:.72em;font-weight:700;border-radius:999px;padding:.2em .7em;white-space:nowrap}
 .rc .chip.t-shuttle{background:rgba(255,148,0,.22);color:#ffc700}
