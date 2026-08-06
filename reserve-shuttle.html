@@ -363,7 +363,7 @@ document.getElementById('scr').addEventListener('click',e=>{
 });
 
 document.getElementById('fabTop').addEventListener('click',()=>{ document.getElementById('scroll').scrollTo({top:0,behavior:'smooth'}); });
-document.getElementById('fabRefresh').addEventListener('click',doRefresh);
+document.getElementById('fabRefresh').addEventListener('click',()=>doRefresh(null,'새로고침 완료'));   // 이벤트를 applyState로 넘기지 않게 래핑(스피너+재렌더)
 
 document.getElementById('simShuttle').addEventListener('click',()=>{
   if(state.tab!=='accept'){ state.tab='accept'; }
