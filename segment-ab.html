@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>상단 세그먼트 구조 — 현재안 A vs 개선안 B · TADA-9317</title>
+<style>
+:root{
+  --page:#0c1430; --screen:#101a3d; --card:#1e2d59; --line:#293f71; --edge:#26365f;
+  --txt:#f9f9f9; --sub:#c0c2cc; --sub2:#73788b; --active:#19254d; --accent:#32a2fa;
+  --kr:"Apple SD Gothic Neo","Pretendard",-apple-system,BlinkMacSystemFont,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line-height:1.5}
+.wrap{max-width:960px;margin:0 auto;padding:34px 20px 80px}
+a.back{color:var(--accent);text-decoration:none;font-size:13px}
+h1{font-size:clamp(20px,4vw,27px);margin:12px 0 6px;letter-spacing:-.02em}
+.lead{color:var(--sub);font-size:14px;margin:0 0 8px}
+.note{color:var(--sub2);font-size:12.5px;margin:0 0 24px}
+.cols{display:flex;gap:22px;flex-wrap:wrap;justify-content:center}
+.col{flex:1;min-width:320px;max-width:430px}
+.tag{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-family:var(--mono);letter-spacing:.04em;margin-bottom:10px}
+.tag .dot{width:9px;height:9px;border-radius:50%}
+.tag.a .dot{background:#8a97b5} .tag.b .dot{background:var(--accent)}
+.tag b{font-family:var(--kr);font-size:14px;letter-spacing:0}
+.tiers{font-size:11.5px;color:var(--sub2);margin:2px 0 10px;font-family:var(--mono)}
+
+/* phone */
+.scr{background:var(--screen);border:1px solid var(--line);border-radius:19px;overflow:hidden;display:flex;flex-direction:column;height:560px;font-size:14px;position:relative}
+.statusbar{height:22px;display:flex;align-items:center;justify-content:flex-end;padding:0 14px;font-size:11px;color:#fff}
+.appbar{display:flex;align-items:center;gap:.4em;padding:.5em .3em .5em .5em;flex:none}
+.appbar .bk{color:#fff;font-size:1.15em;padding:0 .2em}
+.appbar .ttl{font-size:1.29em;font-weight:700;flex:1}
+.appbar .sort{color:var(--sub);font-size:1.05em;padding:.3em .5em;cursor:pointer;white-space:nowrap}
+.tabs{display:flex;gap:.55em;padding:.55em .7em}
+.tabs button{flex:1;font-family:var(--kr);font-weight:400;font-size:1.28em;color:#f5f6f7;background:transparent;border:1.5px solid var(--line);border-radius:.55em;padding:.62em .3em;cursor:pointer}
+.tabs button.on{color:#fff;font-weight:700;background:var(--active);border-color:var(--accent)}
+
+/* A: segment + helper */
+.seg{display:flex;gap:.55em;padding:.1em .7em .5em}
+.seg button{font-family:var(--kr);font-size:1.05em;font-weight:400;color:#f5f6f7;background:transparent;border:1.5px solid var(--line);border-radius:.55em;padding:.6em 1.3em;cursor:pointer}
+.seg button.on{color:#fff;font-weight:700;background:var(--active);border-color:var(--accent)}
+.helper{padding:.2em 1.1em .55em;color:var(--sub);font-size:1.02em}
+.period{display:flex;gap:.5em;padding:.1em .7em .5em;overflow-x:auto;scrollbar-width:none}
+.period::-webkit-scrollbar{display:none}
+.period button{font-family:var(--kr);font-size:1.02em;font-weight:400;white-space:nowrap;color:#f5f6f7;background:transparent;border:1.5px solid var(--line);border-radius:.55em;padding:.55em 1.1em;cursor:pointer;display:flex;gap:.3em;align-items:center}
+.period button.on{color:#fff;font-weight:700;background:var(--active);border-color:var(--accent)}
+
+/* B: unified control row */
+.ctrlrow{display:flex;align-items:center;gap:.5em;padding:.15em .7em .6em}
+.ctrlrow .grow{flex:1;display:flex;gap:.5em;align-items:center;min-width:0;overflow-x:auto;scrollbar-width:none}
+.ctrlrow .grow::-webkit-scrollbar{display:none}
+.toggle{display:inline-flex;align-items:center;gap:.5em;font-size:1.02em;font-weight:700;color:#fff;background:var(--active);border:1.5px solid var(--accent);border-radius:.55em;padding:.5em .8em;cursor:pointer;white-space:nowrap;transition:.15s}
+.toggle.off{background:transparent;border-color:var(--line);color:var(--sub);font-weight:400}
+.toggle .sw{width:1.9em;height:1.05em;border-radius:999px;background:var(--accent);position:relative;transition:.15s;flex:none}
+.toggle.off .sw{background:#38466b}
+.toggle .sw::after{content:"";position:absolute;top:.13em;left:.13em;width:.79em;height:.79em;border-radius:50%;background:#fff;transition:.15s}
+.toggle.off .sw::after{left:auto;right:.13em}
+.fchip{font-family:var(--kr);font-size:1.02em;font-weight:400;white-space:nowrap;color:#f5f6f7;background:transparent;border:1.5px solid var(--line);border-radius:.55em;padding:.5em 1em;cursor:pointer}
+.fchip.on{color:#fff;font-weight:700;background:var(--active);border-color:var(--accent)}
+.sortbtn{display:inline-flex;align-items:center;gap:.25em;font-size:1.0em;color:var(--sub);background:transparent;border:1.5px solid var(--line);border-radius:.55em;padding:.5em .7em;cursor:pointer;white-space:nowrap;flex:none}
+.calbtn{font-size:1.05em;color:var(--sub);background:transparent;border:1.5px solid var(--line);border-radius:.55em;padding:.42em .6em;cursor:pointer;flex:none}
+
+/* list */
+.scroll{flex:1;overflow-y:auto;padding:.2em 0 1em;scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+.list{padding:.35em .6em;display:flex;flex-direction:column;gap:.55em}
+.rc{background:var(--card);border-radius:.75em;display:flex;padding:0;overflow:hidden}
+.rc .date{width:6.4em;flex:none;padding:1.1em .5em 1.1em 1em;display:flex;flex-direction:column;gap:.2em}
+.rc .date .d1{font-size:1.02em;font-weight:700}
+.rc .date .d2{font-size:.86em;color:var(--sub)}
+.rc .dv{width:1px;background:var(--line);margin:1.1em 0}
+.rc .body{flex:1;min-width:0;padding:1.1em 1em 1.1em .9em;display:flex;flex-direction:column;gap:.4em}
+.rc .route{font-size:.94em}
+.rc .chip{align-self:flex-start;font-size:.72em;font-weight:700;border-radius:999px;padding:.2em .7em}
+.rc .chip.shuttle{background:rgba(255,148,0,.22);color:#ffc700}
+.rc .chip.normal{background:#39456099;color:#cdd9f2}
+.rc .chip.charter{background:#2f3f66;color:#bcd6ff}
+.rc .price{font-size:1.32em;font-weight:700}
+.endmsg{text-align:center;color:var(--sub2);font-size:.8em;padding:1em}
+
+/* sheet (B sort) */
+.sheetdim{position:absolute;inset:0;background:rgba(6,10,20,.55);opacity:0;pointer-events:none;transition:.2s;z-index:8}
+.sheetdim.on{opacity:1;pointer-events:auto}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#14203f;border-top:1px solid var(--line);border-radius:1.1em 1.1em 0 0;transform:translateY(112%);transition:transform .24s ease;z-index:9;padding:.1em 0 1em}
+.sheet.on{transform:translateY(0)}
+.sheet .hd{display:flex;justify-content:space-between;font-size:1.1em;font-weight:700;padding:.9em 1.1em .5em}
+.sheet .hd .x{color:var(--sub);font-weight:400;cursor:pointer}
+.sheet .opt{display:flex;justify-content:space-between;align-items:center;padding:.85em 1.1em;cursor:pointer;border-top:1px solid #24345c}
+.sheet .opt b{font-weight:700;font-size:1.02em}
+.sheet .opt .ck{color:var(--accent);visibility:hidden}
+.sheet .opt.sel{background:#1b2c52} .sheet .opt.sel .ck{visibility:visible}
+
+.legend{margin-top:20px;background:#0e1836;border:1px solid var(--line);border-radius:12px;padding:16px 18px;font-size:13px;color:var(--sub)}
+.legend h3{margin:0 0 8px;font-size:14px;color:var(--txt)}
+.legend ul{margin:6px 0 0;padding-left:18px}
+.legend li{margin:4px 0}
+.pill{display:inline-block;font-size:11px;font-family:var(--mono);padding:2px 8px;border-radius:999px;background:#1b2c52;color:#bcd6ff;margin-left:4px}
+.win{color:#7ee0a0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← 방식 목록</a>
+  <h1>상단 세그먼트 구조 — 현재안 A vs 개선안 B</h1>
+  <p class="lead">10년차 관점 개선 방향 2가지를 적용: <b style="color:var(--txt)">① 필터+정렬 1행 통합</b> · <b style="color:var(--txt)">② 셔틀 세그먼트 → 토글화</b>. 탭·토글·정렬을 눌러 비교하세요.</p>
+  <p class="note">둘 다 같은 더미 리스트를 공유. 셔틀 카드는 셔틀 포함/토글 ON일 때만 노출. 개선안은 헬퍼 상시노출 제거로 <b class="win">첫 화면 카드 +1장</b>·컨트롤 <b class="win">4단→3단</b>.</p>
+
+  <div class="cols">
+    <!-- A -->
+    <div class="col">
+      <div class="tag a"><span class="dot"></span><b>A · 현재안</b></div>
+      <div class="tiers">앱바 · 탭 · <b>셔틀 세그먼트</b> · 헬퍼  → 4단</div>
+      <div class="scr" id="scrA"></div>
+    </div>
+    <!-- B -->
+    <div class="col">
+      <div class="tag b"><span class="dot"></span><b>B · 개선안</b></div>
+      <div class="tiers">앱바 · 탭 · <b>[셔틀 토글 …… ↕정렬] 1행</b>  → 3단</div>
+      <div class="scr" id="scrB">
+        <div class="sheetdim" id="dimB" data-close></div>
+        <div class="sheet" id="sheetB">
+          <div class="hd">정렬 옵션 선택<span class="x" data-close>✕</span></div>
+          <div class="opt" data-opt="추천순"><b>추천순</b><span class="ck">✓</span></div>
+          <div class="opt" data-opt="시간임박순"><b>시간임박순</b><span class="ck">✓</span></div>
+          <div class="opt" data-opt="배수높은순"><b>배수높은순</b><span class="ck">✓</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <h3>무엇이 달라졌나</h3>
+    <ul>
+      <li><b style="color:var(--txt)">셔틀 포함/제외 세그먼트 → 단일 토글</b><span class="pill">2-state 정직</span> — 양자택일 세그먼트는 과설계. 토글 ON=셔틀+일반, OFF=일반만. '일반'이 3번째로 붙어도 필터로 확장 가능.</li>
+      <li><b style="color:var(--txt)">필터 + 정렬을 탭 아래 한 행에 통합</b><span class="pill">조작 모델 통일</span> — 앱바 우측에 흩어진 정렬을 필터 옆으로. "리스트 제어"가 한 묶음으로 읽힘.</li>
+      <li><b style="color:var(--txt)">헬퍼 상시노출 제거</b><span class="pill">세로 예산 +1행</span> — 토글 상태가 곧 설명이라 "함께 표시됩니다" 줄 불필요(최초 진입 툴팁으로 대체 가능).</li>
+      <li><b style="color:var(--txt)">내 예약도 동일 구조</b> — 기간칩 + 정렬을 같은 1행 은유로. 달력은 좌측 아이콘으로 분리(진입 vs 필터 구분).</li>
+      <li><b style="color:var(--txt)">위계 형태 분리</b> — 1차 탭(큰 세그) vs 2차 필터(작은 pill/토글)로 형태를 달리해 탭↔필터 혼동 감소.</li>
+    </ul>
+  </div>
+</div>
+
+<script>
+const CARDS=[
+  {date:'오늘',time:'아침 11:20',route:'성수동1가 → 인천공항',type:'shuttle',price:23000},
+  {date:'오늘',time:'낮 12:40',route:'한강로3가 → 김포공항',type:'normal',price:31000},
+  {date:'오늘',time:'낮 13:10',route:'옥수동 → 인천공항',type:'shuttle',price:25000},
+  {date:'내일',time:'아침 08:20',route:'답십리1동 → 성수동1가',type:'charter',price:22400},
+  {date:'내일',time:'저녁 18:30',route:'성수동 → 인천공항',type:'shuttle',price:24000},
+  {date:'10/16',time:'아침 11:20',route:'동자동 → 답십리1동',type:'charter',price:74000},
+];
+const TL={shuttle:'셔틀예약',normal:'일반예약',charter:'시간대절'};
+const won=n=>n.toLocaleString('ko-KR')+'원';
+function cardH(c){return `<div class="rc"><div class="date"><span class="d1">${c.date}</span><span class="d2">${c.time}</span></div><div class="dv"></div><div class="body"><div class="route">${c.route.replace('→','<span style="color:var(--sub)">→</span>')}</div><span class="chip ${c.type}">${TL[c.type]}</span><span class="price">${won(c.price)}</span></div></div>`;}
+function listH(showShuttle){const arr=CARDS.filter(c=>c.type!=='shuttle'||showShuttle);return `<div class="list">${arr.map(cardH).join('')}<div class="endmsg">— 목록 끝 · ${arr.length}건 —</div></div>`;}
+
+/* ---- A (현재안) ---- */
+const A={tab:'accept',seg:'include'};
+function renderA(){
+  const el=document.getElementById('scrA');
+  let sub;
+  if(A.tab==='accept'){
+    sub=`<div class="seg"><button data-aseg="include" class="${A.seg==='include'?'on':''}">셔틀 포함</button><button data-aseg="exclude" class="${A.seg==='exclude'?'on':''}">셔틀 제외</button></div>
+    <div class="helper">${A.seg==='include'?'셔틀과 일반 예약이 함께 표시됩니다':'셔틀을 제외한 예약이 표시됩니다'}</div>`;
+  } else {
+    sub=`<div class="period"><button class="on">전체</button><button>오늘 2</button><button>내일 1</button></div>`;
+  }
+  el.innerHTML=`<div class="statusbar">12:30</div>
+  <div class="appbar"><span class="bk">←</span><span class="ttl">예약콜 목록</span><span class="sort">↕ 추천순</span></div>
+  <div class="tabs"><button data-atab="accept" class="${A.tab==='accept'?'on':''}">수락가능 콜</button><button data-atab="my" class="${A.tab==='my'?'on':''}">내 예약(8)</button></div>
+  ${sub}
+  <div class="scroll">${listH(A.tab==='accept'?A.seg==='include':true)}</div>`;
+}
+document.getElementById('scrA').addEventListener('click',e=>{
+  const t=e.target.closest('[data-atab]'); if(t){A.tab=t.dataset.atab;renderA();return;}
+  const s=e.target.closest('[data-aseg]'); if(s){A.seg=s.dataset.aseg;renderA();return;}
+});
+
+/* ---- B (개선안) ---- */
+const B={tab:'accept',shuttle:true,sort:'추천순'};
+function effSortB(){return B.tab==='my'?'시간순':B.sort;}
+function renderB(){
+  const el=document.getElementById('scrB');
+  let row;
+  if(B.tab==='accept'){
+    row=`<div class="ctrlrow"><div class="grow">
+      <span class="toggle ${B.shuttle?'':'off'}" data-btoggle>셔틀 콜 ${B.shuttle?'포함':'제외'}<span class="sw"></span></span>
+    </div><span class="sortbtn" data-bsort>↕ ${effSortB()}</span></div>`;
+  } else {
+    row=`<div class="ctrlrow"><span class="calbtn">📅</span><div class="grow">
+      <span class="fchip on">전체</span><span class="fchip">오늘 2</span><span class="fchip">내일 1</span>
+    </div><span class="sortbtn" data-bsort>↕ ${effSortB()}</span></div>`;
+  }
+  el.querySelectorAll('.statusbar,.appbar,.tabs,.ctrlrow,.scroll').forEach(n=>n.remove());
+  el.insertAdjacentHTML('afterbegin',`<div class="statusbar">12:30</div>
+  <div class="appbar"><span class="bk">←</span><span class="ttl">예약콜 목록</span></div>
+  <div class="tabs"><button data-btab="accept" class="${B.tab==='accept'?'on':''}">수락가능 콜</button><button data-btab="my" class="${B.tab==='my'?'on':''}">내 예약(8)</button></div>
+  ${row}
+  <div class="scroll">${listH(B.tab==='accept'?B.shuttle:true)}</div>`);
+}
+document.getElementById('scrB').addEventListener('click',e=>{
+  const t=e.target.closest('[data-btab]'); if(t){B.tab=t.dataset.btab;renderB();return;}
+  if(e.target.closest('[data-btoggle]')){B.shuttle=!B.shuttle;renderB();return;}
+  if(e.target.closest('[data-bsort]')){ if(B.tab!=='accept')return; openSheetB();return;}
+  if(e.target.closest('[data-close]')){closeSheetB();return;}
+  const o=e.target.closest('[data-opt]'); if(o){B.sort=o.dataset.opt;closeSheetB();renderB();return;}
+});
+function openSheetB(){document.querySelectorAll('#sheetB .opt').forEach(o=>o.classList.toggle('sel',o.dataset.opt===B.sort));document.getElementById('sheetB').classList.add('on');document.getElementById('dimB').classList.add('on');}
+function closeSheetB(){document.getElementById('sheetB').classList.remove('on');document.getElementById('dimB').classList.remove('on');}
+
+renderA(); renderB();
+</script>
+</body>
+</html>
