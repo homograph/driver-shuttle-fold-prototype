@@ -66,6 +66,13 @@ h1{font-size:clamp(20px,4vw,27px);margin:12px 0 6px;letter-spacing:-.02em}
 .filterbar .chips::-webkit-scrollbar{display:none}
 .chip2{font-family:var(--kr);font-size:1.0em;font-weight:400;white-space:nowrap;color:#f5f6f7;background:transparent;border:1.5px solid var(--line);border-radius:.55em;padding:.48em .95em;cursor:pointer;display:inline-flex;align-items:center;gap:.3em}
 .chip2.on{color:#fff;font-weight:700;background:var(--active);border-color:var(--accent)}
+/* R2: 셔틀 재활성 넛지 바 (OFF일 때 상주 · 스크롤 접힘과 무관하게 유지) */
+.rebar{display:none;align-items:center;gap:.4em;margin:0 .7em .5em;padding:.5em .85em;border-radius:.5em;font-size:.92em;cursor:pointer;flex:none;
+  border:1.5px solid var(--line);color:var(--sub);background:#13203f;transition:.15s}
+.rebar.show{display:flex}
+.rebar.alert{border-color:var(--accent);background:#15294d;color:#e6effc}
+.rebar .n{color:var(--accent);font-weight:700}
+.rebar .go{margin-left:auto;color:var(--accent);font-weight:700;white-space:nowrap}
 .revealhint{position:absolute;left:50%;transform:translateX(-50%);top:0;background:#1b2c52;color:#bcd6ff;font-size:.72em;padding:.15em .7em;border-radius:0 0 .6em .6em;opacity:0;transition:.2s;pointer-events:none;z-index:6}
 .filterbar.collapsed ~ .revealhint{opacity:0}
 
@@ -130,7 +137,8 @@ h1{font-size:clamp(20px,4vw,27px);margin:12px 0 6px;letter-spacing:-.02em}
     <!-- B -->
     <div class="col">
       <div class="tag b"><span class="dot"></span><b>B · 개선안 (C2)</b></div>
-      <div class="tiers">앱바[정렬] · 탭 · <b>셔틀 필터칩</b> → 3단<br>(스크롤 시 필터행 접힘 → <b style="color:#7ee0a0">2단</b>)</div>
+      <div class="tiers">앱바[정렬] · 탭 · <b>셔틀 필터칩</b> → 3단<br>(스크롤 시 필터행 접힘 → <b style="color:#7ee0a0">2단</b>) · 셔틀 OFF 시 <b style="color:var(--accent)">재활성 넛지</b></div>
+      <button id="simB" style="font-family:var(--kr);font-size:12px;color:var(--accent);background:transparent;border:1px solid var(--line);border-radius:999px;padding:5px 12px;margin:0 0 8px;cursor:pointer">🔔 새 셔틀 도착 시뮬 (셔틀 OFF일 때)</button>
       <div class="scr" id="scrB">
         <div class="sheetdim" id="dimB" data-close></div>
         <div class="sheet" id="sheetB">
@@ -150,6 +158,7 @@ h1{font-size:clamp(20px,4vw,27px);margin:12px 0 6px;letter-spacing:-.02em}
       <li><b style="color:var(--txt)">헬퍼 상시노출 제거</b><span class="pill">칩이 곧 설명</span> — 세그먼트가 모호해서 헬퍼가 필요했던 것. 칩은 상태가 자명해 설명 줄이 불필요.</li>
       <li><b style="color:var(--txt)">정렬은 앱바 유지</b><span class="pill">가로 여유</span> — 필터와 한 줄에 몰지 않음. 큰 sp에서 가로 경합↓. ('1행 통합'은 세로 이득 없고 가로 손해라 폐기)</li>
       <li><b style="color:var(--txt)">스크롤 시 필터행 접힘 → 복귀</b><span class="pill win">스캔 중 카드 최대</span> — 진짜 이득. 세팅 후 훑을 땐 컨트롤이 사라져 카드 노출 극대화, 위로 스크롤하면 다시 나옴. 큰 sp일수록 효과 배가.</li>
+      <li><b style="color:var(--txt)">셔틀 재활성 넛지(R2)</b><span class="pill win">놓친 수익 회수</span> — 셔틀을 끄면 얇은 바 <code style="color:var(--sub)">🚐 셔틀 제외 중 · 켜기</code> 상주(스크롤 접힘과 무관하게 유지). 새 셔틀이 오면 <code style="color:#e6effc">🚐 새 셔틀 콜 N건 도착 · 다시 보기</code>로 강조 전환, <b>바 전체 탭 = 재활성</b>. "🔔 시뮬" 버튼으로 확인.</li>
     </ul>
   </div>
 </div>
@@ -197,7 +206,7 @@ document.getElementById('scrA').addEventListener('click',e=>{
 });
 
 /* ---- B (개선안 C2) ---- */
-const B={tab:'accept',shuttle:true,sort:'추천순'};
+const B={tab:'accept',shuttle:true,sort:'추천순',newShuttle:0};
 function effSortB(){return B.tab==='my'?'시간순':B.sort;}
 function renderB(){
   const el=document.getElementById('scrB');
@@ -207,11 +216,17 @@ function renderB(){
   } else {
     bar=`<span class="cal">📅</span><div class="chips"><span class="chip2 on">전체</span><span class="chip2">오늘 2</span><span class="chip2">내일 1</span></div>`;
   }
-  el.querySelectorAll('.statusbar,.appbar,.tabs,.filterbar,.scroll').forEach(n=>n.remove());
+  // R2 재활성 넛지 바: 수락가능콜 + 셔틀 OFF일 때만. 새 셔틀 도착(newShuttle>0)이면 강조.
+  const reOn=B.tab==='accept' && !B.shuttle;
+  const reHTML = B.newShuttle>0
+    ? `🚐 새 셔틀 콜 <span class="n">${B.newShuttle}건</span> 도착 <span class="go">다시 보기 →</span>`
+    : `🚐 셔틀 제외 중 <span class="go">켜기 →</span>`;
+  el.querySelectorAll('.statusbar,.appbar,.tabs,.filterbar,.rebar,.scroll').forEach(n=>n.remove());
   el.insertAdjacentHTML('afterbegin',`<div class="statusbar">12:30</div>
   <div class="appbar"><span class="bk">←</span><span class="ttl">예약콜 목록</span><span class="sort" data-bsort>↕ ${effSortB()}</span></div>
   <div class="tabs"><button data-btab="accept" class="${B.tab==='accept'?'on':''}">수락가능 콜</button><button data-btab="my" class="${B.tab==='my'?'on':''}">내 예약(8)</button></div>
   <div class="filterbar" id="filterB">${bar}</div>
+  <div class="rebar ${reOn?'show':''} ${B.newShuttle>0?'alert':''}" data-reenable>${reHTML}</div>
   <div class="scroll" id="scrollB">${listH(B.tab==='accept'?B.shuttle:true)}</div>`);
   bindScrollB();
 }
@@ -228,7 +243,8 @@ function bindScrollB(){
 }
 document.getElementById('scrB').addEventListener('click',e=>{
   const t=e.target.closest('[data-btab]'); if(t){B.tab=t.dataset.btab;renderB();return;}
-  if(e.target.closest('[data-btoggle]')){B.shuttle=!B.shuttle;renderB();return;}
+  if(e.target.closest('[data-btoggle]')){B.shuttle=!B.shuttle; if(B.shuttle)B.newShuttle=0; renderB();return;}
+  if(e.target.closest('[data-reenable]')){B.shuttle=true;B.newShuttle=0;renderB();return;}   // 넛지 바 탭 = 재활성
   if(e.target.closest('[data-bsort]')){ if(B.tab!=='accept')return; openSheetB();return;}
   if(e.target.closest('[data-close]')){closeSheetB();return;}
   const o=e.target.closest('[data-opt]'); if(o){B.sort=o.dataset.opt;closeSheetB();renderB();return;}
@@ -242,6 +258,12 @@ document.querySelector('.spbar .seg2').addEventListener('click',e=>{
   document.querySelectorAll('.spbar .seg2 button').forEach(x=>x.classList.remove('on')); b.classList.add('on');
   const big=b.dataset.sp==='20';
   document.querySelectorAll('.scr').forEach(s=>s.classList.toggle('big',big));
+});
+
+// 새 셔틀 도착 시뮬 — 셔틀 OFF·수락가능콜일 때만 넛지에 건수 누적
+document.getElementById('simB').addEventListener('click',()=>{
+  if(B.tab==='accept' && !B.shuttle){ B.newShuttle+=3; renderB(); }
+  else { alert('셔틀을 끈(수락가능 콜) 상태에서 눌러야 재활성 넛지가 뜹니다.\n먼저 B에서 🚐 셔틀 칩을 눌러 OFF 하세요.'); }
 });
 
 renderA(); renderB();
