@@ -45,11 +45,11 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 
 /* primary tabs (Figma: 20sp · r8 · 활성 #19254D + 파란보더 #32A2FA 1.5) */
 .tabs{display:flex;gap:.6em;padding:.45em .72em .45em;flex:none}
-.tabs button{flex:1;font-family:var(--kr);font-weight:400;font-size:1.43em;color:#f5f6f7;background:transparent;border:1.5px solid #293f71;border-radius:.5em;padding:.55em .3em;cursor:pointer}   /* Figma: 비선택=레귤러 w400 */
+.tabs button{flex:1;font-family:var(--kr);font-weight:400;font-size:1.43em;color:#f5f6f7;background:transparent;border:1.5px solid #293f71;border-radius:4px;padding:.55em .3em;cursor:pointer}   /* Figma: 비선택=레귤러 w400, radius r4(고정 4px) */
 .tabs button.on{color:#fff;font-weight:700;background:#19254d;border-color:#32a2fa}   /* Figma: 선택=볼드 w700 */
 
 /* 셔틀 토글 (Figma 최종: 세그먼트→단일 토글행. ON=셔틀 포함·OFF=셔틀 제외·도착=보기 CTA. 행 전체가 탭 타깃 — 시니어 조준 부담↓) */
-.shtoggle{display:flex;align-items:center;gap:.5em;margin:.4em .72em .4em;padding:.72em .8em;border:1.5px solid #293f71;border-radius:.5em;background:transparent;cursor:pointer;flex:none}
+.shtoggle{display:flex;align-items:center;gap:.5em;margin:.4em .72em .4em;padding:.72em .8em;border:1.5px solid #293f71;border-radius:4px;background:transparent;cursor:pointer;flex:none}   /* Figma radius r4(고정 4px) */
 .shtoggle.on{border-color:#32a2fa;background:#1e2d59}
 .shtoggle.arrive{background:#1e2d59}
 .shtoggle .shic{font-size:1.14em;line-height:1}
@@ -69,7 +69,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 
 /* period filter (내 예약) */
 .period{display:flex;gap:.5em;padding:.4em .72em .4em;flex:none;overflow-x:auto}
-.period button{font-family:var(--kr);font-size:1.14em;font-weight:400;white-space:nowrap;color:#f5f6f7;background:transparent;border:1.5px solid #293f71;border-radius:.5em;padding:.62em 1.4em;cursor:pointer;display:flex;gap:.35em;align-items:center;transition:padding .18s ease,font-size .18s ease}
+.period button{font-family:var(--kr);font-size:1.14em;font-weight:400;white-space:nowrap;color:#f5f6f7;background:transparent;border:1.5px solid #293f71;border-radius:4px;padding:.62em 1.4em;cursor:pointer;display:flex;gap:.35em;align-items:center;transition:padding .18s ease,font-size .18s ease}   /* Figma radius r4(고정 4px) */
 .period button.on{color:#fff;font-weight:700;background:#19254d;border-color:#32a2fa}
 .period .cal{background:#31487d;border-color:transparent;font-weight:700;color:#f9f9f9}   /* 달력 = 별도 색(캘린더 진입) */
 .scr.scrolled .period button{font-size:1em;padding:.42em 1.4em}   /* 스크롤 시 컴팩트(16→14sp·pad 12→8) */
@@ -254,7 +254,7 @@ function chrome(){
   let sub='';
   if(state.tab==='accept'){
     const on=state.seg==='include', arrive=(state.seg==='exclude'&&state.banner);
-    const lb = on ? '셔틀 포함' : (arrive ? '새 셔틀 콜이 들어왔어요!' : '셔틀 제외');   // ON/OFF는 라벨+스위치만, 도착만 보기 CTA
+    const lb = on ? '셔틀 포함됨' : (arrive ? '새 셔틀 콜이 들어왔어요!' : '셔틀 제외됨');   // Figma: 상태 readout(포함됨/제외됨), 도착만 보기 CTA
     sub=`<div class="shtoggle ${on?'on':'off'}${arrive?' arrive':''}" data-shtoggle>
       <span class="shic">🚐</span><span class="shlb">${lb}</span>${arrive?'<span class="shgo">보기</span>':''}<span class="shsw ${on?'on':'off'}"></span>
     </div>`;
@@ -354,7 +354,7 @@ document.getElementById('scroll').addEventListener('scroll',updateFabs);
 
 document.getElementById('scr').addEventListener('click',e=>{
   const tb=e.target.closest('[data-tab]'); if(tb){ doRefresh(tb.dataset.tab!==state.tab ? (()=>{state.tab=tb.dataset.tab;}) : null); return; }
-  if(e.target.closest('[data-shtoggle]')){ const willInclude=state.seg!=='include'; doRefresh(()=>{ state.seg=willInclude?'include':'exclude'; if(willInclude)state.banner=false; }, willInclude?'셔틀 포함으로 전환':'셔틀 제외'); return; }   // 행 전체 탭 = 토글
+  if(e.target.closest('[data-shtoggle]')){ const willInclude=state.seg!=='include'; doRefresh(()=>{ state.seg=willInclude?'include':'exclude'; if(willInclude)state.banner=false; }, willInclude?'셔틀 포함됨':'셔틀 제외됨'); return; }   // 행 전체 탭 = 토글
   const pd=e.target.closest('[data-pd]'); if(pd){ if(pd.dataset.pd!==state.period) doRefresh(()=>{state.period=pd.dataset.pd;}); return; }
   if(e.target.closest('[data-sort]')){ openSheet(); return; }
   if(e.target.closest('[data-sheetclose]')){ closeSheet(); return; }
