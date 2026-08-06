@@ -192,9 +192,9 @@ const tos=['인천국제공항','김포공항'];
 // 일반/시간대절 (수락가능, 비셔틀)
 const GEN=[
   {date:'오늘',time:'아침 11:20',route:'성동구 성수동1가 → 인천국제공항',type:'charter',product:'2시간 대절',badges:['dangol'],price:25000,surge:'↗1.9배',rec:true},
-  {date:'오늘',time:'낮 12:40',route:'용산구 한강로3가 → 김포공항',type:'normal',badges:['imm','seat'],price:31000,surge:null,cash:true},
-  {date:'내일',time:'아침 08:20',route:'동대문구 답십리1동 → 성동구 성수동1가',type:'normal',badges:['dangol'],price:22400,surge:'↘0.9배'},
-  {date:'10월 16일 (수)',time:'아침 11:20',route:'용산구 동자동 → 경유지 2곳 → 동대문구 답십리1동',type:'charter',product:'3시간 대절',badges:['seat'],price:74000,surge:'↗1.5배'},
+  {date:'오늘',time:'낮 12:40',route:'용산구 한강로3가 → 김포공항',type:'normal',badges:['dangol','imm','seat'],price:31000,surge:null,cash:true},
+  {date:'내일',time:'아침 08:20',route:'동대문구 답십리1동 → 성동구 성수동1가',type:'normal',badges:['seat'],price:22400,surge:'↘0.9배'},
+  {date:'10월 16일 (수)',time:'아침 11:20',route:'용산구 동자동 → 경유지 2곳 → 동대문구 답십리1동',type:'charter',product:'3시간 대절',badges:['seat2'],price:74000,surge:'↗1.5배'},
   {date:'10월 19일 (목)',time:'낮 13:10',route:'동대문구 답십리1동 → 성동구 성수동1가',type:'normal',badges:[],price:19800,surge:null,cash:true},
   {date:'10월 21일 (화)',time:'저녁 18:30',route:'성동구 옥수동 → 인천국제공항',type:'charter',product:'2시간 대절',badges:['dangol','rec'],price:81400,surge:'↗1.9배'},
 ];
@@ -214,8 +214,15 @@ const MY=[
 
 const TLABEL={shuttle:'셔틀예약',normal:'일반예약',charter:'시간대절',bundle:'묶음예약'};
 function routeHTML(r){ return r.replace(/→/g,'<span class="ar">→</span>'); }
-function expEarn(c){ if(c.type==='shuttle') return 0; const b=c.badges||[]; return (b.includes('seat')?3000:0)+(b.includes('dangol')?1500:0); }
-function detailHTML(c){ const e=expEarn(c); if(!e) return ''; const dg=(c.badges||[]).includes('dangol')?'<span class="dg">단골</span> ':''; return `<div class="detail">${dg}부가수익 ${won(e)} 포함</div>`; }
+// 부가수익 로직 (TADA-8462 PRD): 카시트 개수×5,000×60%=개당 3,000 · 단골(마드) 3,000×50%=1,500. 셔틀은 부가서비스 없음→0
+function seatCount(c){ const b=c.badges||[]; return b.includes('seat2')?2:(b.includes('seat')?1:0); }
+function expEarn(c){ if(c.type==='shuttle') return 0; return seatCount(c)*3000 + ((c.badges||[]).includes('dangol')?1500:0); }
+function detailHTML(c){
+  const e=expEarn(c); if(!e) return '';   // 부가수익 0(단골·카시트 없음)이면 줄 미표시
+  const dg=(c.badges||[]).includes('dangol')?'<span class="dg">단골</span> ':'';   // 단골=흰색 강조
+  const sc=seatCount(c), seat=sc===2?' · 카시트 2개':sc===1?' · 카시트':'';           // 카시트 접미사
+  return `<div class="detail">${dg}부가수익 ${won(e)} 포함${seat}</div>`;
+}
 function cardHTML(c){
   const imm=(c.badges||[]).includes('imm');
   const surge=c.surge?`<span class="surge ${c.surge.startsWith('↗')?'up':'down'}">${c.surge}</span>`:'';
