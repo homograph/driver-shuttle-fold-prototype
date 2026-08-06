@@ -182,7 +182,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
   </div>
 
   <div class="note">
-    <b>인터랙션:</b> <b>셔틀 포함↔제외 토글</b>(행 전체 탭, 포함=셔틀+일반 함께·제외=일반만) · <b>🔔 새 셔틀 도착 시뮬</b> → 제외 중이면 토글이 <b>「새 셔틀 콜이 들어왔어요! · 보기」</b> 재활성 CTA로 전환(탭=포함) · 스크롤 시 <b>맨 위로</b> · <b>내 예약</b> 탭은 달력/기간 필터 + <b>새로고침</b>. <b>박스 탭·단일 토글·콜카드 모두 Figma 최종안 실측 반영</b>(탭 20sp 선택 w700/비선택 w400·활성 #19254D+#32A2FA, 토글 스위치·보기 CTA #32A2FA, 행 전체 탭=시니어 조준 부담↓). <b>카드 v2 순서: 경로 상단 → 타입칩 → 가격 → 부가수익 하단</b>.
+    <b>인터랙션:</b> <b>셔틀 포함↔제외 토글</b>(행 전체 탭, 포함=셔틀+일반 함께·제외=일반만) · <b>🔔 새 셔틀 도착 시뮬</b> → 제외 중이면 토글이 <b>「새 셔틀 콜이 들어왔어요! · 보기」</b> 재활성 CTA로 전환(탭=포함) · <b>수락가능 콜</b> 탭은 하단 <b>새로고침</b> FAB(항시) · <b>내 예약</b> 탭은 달력/기간 필터 + 스크롤 시 <b>맨 위로</b> FAB. <b>박스 탭·단일 토글·콜카드 모두 Figma 최종안 실측 반영</b>(탭 20sp 선택 w700/비선택 w400·활성 #19254D+#32A2FA, 토글 스위치·보기 CTA #32A2FA, 행 전체 탭=시니어 조준 부담↓). <b>카드 v2 순서: 경로 상단 → 타입칩 → 가격 → 부가수익 하단</b>.
   </div>
 </div>
 
@@ -347,8 +347,8 @@ function updateFabs(){
   const scrolled=sc.scrollTop>180;
   document.getElementById('scr').classList.toggle('scrolled', sc.scrollTop>8);  // 스크롤 시 sticky 헤더 축소
   const top=document.getElementById('fabTop'), rf=document.getElementById('fabRefresh');
-  if(state.tab==='my'){ rf.classList.add('show'); top.classList.remove('show'); }
-  else { rf.classList.remove('show'); top.classList.toggle('show',scrolled); }
+  if(state.tab==='accept'){ rf.classList.add('show'); top.classList.remove('show'); }   // Figma: 수락가능콜 = 새로고침(항시)
+  else { rf.classList.remove('show'); top.classList.toggle('show',scrolled); }           // Figma: 내 예약 = 맨 위로(스크롤 시)
 }
 document.getElementById('scroll').addEventListener('scroll',updateFabs);
 

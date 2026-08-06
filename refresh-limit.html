@@ -86,11 +86,10 @@ h1{font-size:18px;margin:0 0 3px;letter-spacing:-.02em}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.info{background:#0b1830;border-color:var(--line);color:var(--txt)}
 
-/* 하단 플로팅 새로고침 버튼 (수락가능 콜 전용) */
-.fab{position:absolute;left:50%;bottom:1.5em;transform:translateX(-50%);z-index:8;display:inline-flex;align-items:center;gap:.42em;
-  background:var(--actblue);color:#fff;font-family:var(--kr);font-weight:800;font-size:.92em;padding:.72em 1.45em;border:none;border-radius:999px;
+/* 하단 플로팅 새로고침 버튼 (수락가능 콜 전용) — Figma 13176:40628 참고: 흰 pill·네이비 텍스트·아이콘 없음 */
+.fab{position:absolute;left:50%;bottom:1.5em;transform:translateX(-50%);z-index:8;display:inline-flex;align-items:center;justify-content:center;
+  background:#f9f9f9;color:#19254d;font-family:var(--kr);font-weight:700;font-size:1.29em;padding:.67em 1.78em;border:none;border-radius:999px;
   box-shadow:0 6px 20px rgba(0,0,0,.45);cursor:pointer}
-.fab .fi{font-weight:400;font-size:1.08em;line-height:1}
 .fab:active{transform:translateX(-50%) scale(.96)}
 .fab.dim{opacity:.42}
 .fab.hide{display:none}
@@ -123,7 +122,7 @@ h1{font-size:18px;margin:0 0 3px;letter-spacing:-.02em}
       <div id="chrome"></div>
       <div class="scroll" id="scroll"><div class="pull" id="pull"><span class="ring"></span><span class="pl" id="pulllbl">당겨서 새로고침</span></div><div class="list" id="list"></div></div>
       <div class="spin" id="spin"><span class="ring"></span></div>
-      <button class="fab hide" id="fab" data-refresh><span class="fi">↻</span>새로고침</button>
+      <button class="fab hide" id="fab" data-refresh>새로고침</button>
       <div class="toast" id="toast"></div>
     </div></div>
   </div>
