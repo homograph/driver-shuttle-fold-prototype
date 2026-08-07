@@ -60,9 +60,9 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .shsw::after{content:"";position:absolute;top:.16em;left:.16em;width:1.18em;height:1.18em;border-radius:50%;background:#e2f2fe;transition:left .15s,right .15s}
 .shsw.on::after{left:auto;right:.16em}
 /* TADA-9282 리프레시 제한 배너(수락가능콜·제한 중 항시) */
-.limitbar{margin:0 10px 10px;padding:11px 13px;border-radius:4px;background:#2a2113;border:1px solid #5a4523;color:#ffcf9e;font-size:.92em;line-height:1.45;display:flex;gap:.4em;align-items:flex-start;flex:none}
+.limitbar{margin:0 10px 10px;padding:11px 13px;border-radius:4px;background:rgba(255,148,0,.12);border:1px solid rgba(255,148,0,.4);color:#FFE4B2;font-size:.92em;line-height:1.45;display:flex;gap:.4em;align-items:flex-start;flex:none}   /* DS: honey500(#FF9400) 12%/40% · 본문 honey100(#FFE4B2) */
 .limitbar .li{flex:none}
-.limitbar b{color:#ffb877;white-space:nowrap}
+.limitbar b{color:#FFBA4C;white-space:nowrap}   /* DS: honey300 */
 .fab.limited{opacity:.4;pointer-events:auto}   /* 제한 중 새로고침 FAB 딤(눌러도 차단·안내) */
 /* 스크롤 시 sticky 헤더 축소: 토글·탭 컴팩트 — 리스트 세로공간 확보 */
 .tabs,.tabs button,.shtoggle,.shtoggle .shlb,.period,.period button{transition:padding .18s ease,font-size .18s ease,margin .18s ease}
