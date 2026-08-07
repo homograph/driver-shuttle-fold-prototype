@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>콜카드 칩 위치 — 위 vs 중간 vs 아래 · TADA-9317</title>
+<style>
+:root{--page:#0c1430;--card:#1e2d59;--line:#293f71;--txt:#f9f9f9;--sub:#c0c2cc;--sub2:#73788b;--blue:#32a2fa;
+  --kr:"Apple SD Gothic Neo","Pretendard",-apple-system,sans-serif;--mono:ui-monospace,Menlo,monospace;}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line-height:1.55}
+.wrap{max-width:920px;margin:0 auto;padding:32px 18px 80px}
+a.back{color:var(--blue);text-decoration:none;font-size:13px}
+h1{font-size:clamp(20px,4vw,26px);margin:12px 0 6px}
+.lead{color:var(--sub);font-size:14px;margin:0 0 24px}
+.cols{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+.col{flex:1;min-width:280px;max-width:320px}
+.vh{display:flex;align-items:baseline;gap:8px;margin-bottom:3px}
+.vtag{font-family:var(--mono);font-size:12px;font-weight:700;color:#04122b;background:var(--blue);border-radius:6px;padding:2px 9px}
+.vtag.mid{background:#8a97b5}
+.vname{font-size:15px;font-weight:700}
+.vwhy{font-size:12.5px;color:var(--sub2);margin:2px 0 12px;min-height:2.4em}
+
+.screen{background:#101a3d;border:1px solid var(--line);border-radius:14px;padding:10px}
+.card{background:var(--card);display:flex}
+.card .date{width:96px;flex:none;padding:20px 12px 20px 18px;display:flex;flex-direction:column;gap:5px}
+.card .drow{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}
+.card .d1{font-size:15px;font-weight:800}.card .imm{font-size:11px;font-weight:800;color:#fe6f59}
+.card .d2{font-size:13px;color:var(--sub)}
+.card .dv{width:1px;background:var(--line);margin:20px 0}
+.card .body{flex:1;min-width:0;padding:20px 18px 20px 14px;display:flex;flex-direction:column;gap:8px}
+.card .route{font-size:14px}.card .route .ar{color:var(--sub)}
+.card .chiprow{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.card .chip{font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px;white-space:nowrap}
+.card .chip.type{background:#39456099;color:#cdd9f2}
+.card .chip.rec{background:rgba(60,203,65,.22);color:#8ce89a}
+.card .chip.cash{background:transparent;border:1.5px solid #9a8cff;color:#bcb0ff;padding:1px 8px}
+.card .pricerow{display:flex;align-items:baseline;gap:8px}
+.card .price{font-size:24px;font-weight:800}.card .surge{font-size:12px;font-weight:700;color:#eeff00}
+.card .meta{font-size:13px;color:var(--sub);word-break:keep-all}
+
+.pcon{margin-top:10px;font-size:12px;display:flex;flex-direction:column;gap:3px}
+.pcon .p{color:#7ee0a0}.pcon .c{color:#ff9a8a}
+.legend{margin-top:26px;background:#0e1836;border:1px solid var(--line);border-radius:12px;padding:16px 18px;font-size:13px;color:var(--sub)}
+.legend h3{margin:0 0 8px;font-size:14px;color:var(--txt)}
+.legend b{color:var(--txt)}
+.legend table{width:100%;border-collapse:collapse;margin-top:8px;font-size:12.5px}
+.legend td,.legend th{border:1px solid var(--line);padding:6px 8px;text-align:center}
+.legend th:first-child,.legend td:first-child{text-align:left}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← 방식 목록</a>
+  <h1>콜카드 칩 위치 — 위 vs 중간 vs 아래</h1>
+  <p class="lead">같은 콜(<b style="color:var(--txt)">일반예약 · 추천 · 현장결제 · 카시트</b>)로 칩 3위치 비교. 축: <b style="color:var(--txt)">가격 부각 · 타입이 가격 해석 도움 · 결정정보 먼저</b>.</p>
+
+  <div class="cols">
+
+    <!-- 위 -->
+    <div class="col">
+      <div class="vh"><span class="vtag">위</span><span class="vname">칩 맨 위</span></div>
+      <div class="vwhy">칩 → 경로 → 가격 → 부가수익. <b style="color:#7ee0a0">타입을 제일 먼저</b> 인지.</div>
+      <div class="screen"><div class="card">
+        <div class="date"><div class="drow"><span class="d1">오늘</span><span class="imm">임박</span></div><span class="d2">낮 12:40</span></div>
+        <div class="dv"></div>
+        <div class="body">
+          <div class="chiprow"><span class="chip type">일반예약</span><span class="chip rec">추천</span><span class="chip cash">현장결제</span></div>
+          <div class="route">용산구 한강로3가 <span class="ar">→</span> 김포공항</div>
+          <div class="pricerow"><b class="price">31,000원</b></div>
+          <div class="meta">단골 부가수익 4,500원 포함 · 카시트</div>
+        </div>
+      </div></div>
+      <div class="pcon"><span class="p">✓ 타입 먼저 = 가격 해석에 최상</span><span class="p">✓ 위치 고정(경로 줄바꿈 무관)</span><span class="c">✕ 태그(부차 포함)가 맨 먼저 → 경로·가격 밀림</span></div>
+    </div>
+
+    <!-- 중간 -->
+    <div class="col">
+      <div class="vh"><span class="vtag mid">중간</span><span class="vname">칩 중간 (현 13124)</span></div>
+      <div class="vwhy">경로 → 칩 → 가격 → 부가수익. Figma 메인 화면의 현재 구조.</div>
+      <div class="screen"><div class="card">
+        <div class="date"><div class="drow"><span class="d1">오늘</span><span class="imm">임박</span></div><span class="d2">낮 12:40</span></div>
+        <div class="dv"></div>
+        <div class="body">
+          <div class="route">용산구 한강로3가 <span class="ar">→</span> 김포공항</div>
+          <div class="chiprow"><span class="chip type">일반예약</span><span class="chip rec">추천</span><span class="chip cash">현장결제</span></div>
+          <div class="pricerow"><b class="price">31,000원</b></div>
+          <div class="meta">단골 부가수익 4,500원 포함 · 카시트</div>
+        </div>
+      </div></div>
+      <div class="pcon"><span class="p">✓ 경로 먼저 + 타입이 가격 앞(균형)</span><span class="c">✕ 칩이 경로 줄바꿈에 밀려 위치 흔들림</span><span class="c">✕ 현장결제가 타입과 한 줄에 섞임</span></div>
+    </div>
+
+    <!-- 아래 -->
+    <div class="col">
+      <div class="vh"><span class="vtag">아래</span><span class="vname">칩 맨 아래 (현 프로토)</span></div>
+      <div class="vwhy">경로 → 가격 → 부가수익 → 칩. 결정 블록 정돈 + 태그 그룹화.</div>
+      <div class="screen"><div class="card">
+        <div class="date"><div class="drow"><span class="d1">오늘</span><span class="imm">임박</span></div><span class="d2">낮 12:40</span></div>
+        <div class="dv"></div>
+        <div class="body">
+          <div class="route">용산구 한강로3가 <span class="ar">→</span> 김포공항</div>
+          <div class="pricerow"><b class="price">31,000원</b></div>
+          <div class="meta">단골 부가수익 4,500원 포함 · 카시트</div>
+          <div class="chiprow"><span class="chip type">일반예약</span><span class="chip rec">추천</span><span class="chip cash">현장결제</span></div>
+        </div>
+      </div></div>
+      <div class="pcon"><span class="p">✓ 경로·가격 먼저(가격 부각 최상)</span><span class="p">✓ 태그 하단 그룹(현장결제 섞임 해소)</span><span class="c">✕ 타입이 가격보다 뒤 → 시간대절·묶음 오독 여지</span></div>
+    </div>
+
+  </div>
+
+  <div class="legend">
+    <h3>한눈 비교</h3>
+    <table>
+      <tr><th>기준</th><th>위</th><th>중간</th><th>아래</th></tr>
+      <tr><td>가격 부각(스캔)</td><td>3번째</td><td>3번째</td><td><b style="color:#7ee0a0">2번째 ◎</b></td></tr>
+      <tr><td>타입이 가격 해석 도움</td><td><b style="color:#7ee0a0">◎ 먼저</b></td><td>○</td><td>✕ 뒤</td></tr>
+      <tr><td>결정정보(경로·가격) 먼저</td><td>✕ 태그 먼저</td><td>○</td><td><b style="color:#7ee0a0">◎</b></td></tr>
+      <tr><td>부차 태그(추천·결제) 과대평가</td><td>✕ 큼</td><td>△</td><td><b style="color:#7ee0a0">◎ 하단</b></td></tr>
+    </table>
+    <p style="margin:10px 0 0"><b>정리:</b> <b>위</b>=타입 먼저(가격 해석 최상)지만 부차 태그도 front-load / <b>중간</b>=균형(현 Figma) / <b>아래</b>=가격 부각·태그 그룹화 최상, 타입은 늦게. <b>"타입이 가격 해석에 얼마나 중요한가"</b>(시간대절·묶음 비중)가 결정 포인트.</p>
+  </div>
+</div>
+</body>
+</html>
