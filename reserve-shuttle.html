@@ -49,9 +49,9 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .tabs button.on{color:#fff;font-weight:700;background:#19254d;border-color:#32a2fa}   /* Figma: 선택=볼드 w700 */
 
 /* 셔틀 토글 (Figma 최종: 세그먼트→단일 토글행. ON=셔틀 포함·OFF=셔틀 제외·도착=보기 CTA. 행 전체가 탭 타깃 — 시니어 조준 부담↓) */
-.shtoggle{display:flex;align-items:center;gap:.5em;margin:8px 10px 10px;padding:12px 20px 12px 12px;border:1.5px solid #293f71;border-radius:4px;background:transparent;cursor:pointer;flex:none}   /* Figma pad[12,20,12,12] · 상단 gap8 · 컨테이너 좌우10·하10 (고정 dp) */
-.shtoggle.on{border-color:#32a2fa;background:#1e2d59}
-.shtoggle.arrive{background:#1e2d59}
+.shtoggle{display:flex;align-items:center;gap:.5em;margin:8px 10px 10px;padding:12px;border:1.5px solid #293f71;border-radius:4px;background:transparent;cursor:pointer;flex:none}   /* Figma pad[12] 대칭 · OFF=회색보더+투명 · 상단 gap8·좌우10·하10 */
+.shtoggle.on{background:#1e2d59;border-color:transparent}   /* Figma 수정: ON=fill만, 파란 보더 제거(탭과 위계 구분) */
+/* 도착(arrive)은 OFF 스타일 유지(회색 보더·투명) + 보기 CTA — 별도 fill 없음 */
 .shtoggle .shic{font-size:1.14em;line-height:1}
 .shtoggle .shlb{flex:1;font-size:1.14em;color:#f9f9f9}
 .shtoggle .shgo{font-size:1.05em;font-weight:700;color:#32a2fa;margin-right:.15em}   /* 보기 = 액센트 CTA(#32A2FA) → "누르는 것"으로 읽히게 */
