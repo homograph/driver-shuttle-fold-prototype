@@ -304,7 +304,7 @@ function chrome(){
     const on=state.seg==='include', arrive=(state.seg==='exclude'&&state.banner);
     const lb = on ? '셔틀 포함됨' : (arrive ? '새 셔틀 콜이 들어왔어요!' : '셔틀 제외됨');   // Figma: 상태 readout(포함됨/제외됨), 도착만 보기 CTA
     const limitBar = isLimited()
-      ? `<div class="limitbar"><span class="li">⏳</span><span>짧은 시간에 새로고침이 많아 잠시 제한됩니다 · <b><span id="limitCd">${remainStr()}</span> 후 다시 가능</b></span></div>`
+      ? `<div class="limitbar"><span class="li">⏳</span><span>짧은 간격으로 반복 새로고침하여 잠시 제한됩니다 · <b><span id="limitCd">${remainStr()}</span> 후 다시 가능</b></span></div>`
       : '';
     sub=`<div class="shtoggle ${on?'on':'off'}${arrive?' arrive':''}" data-shtoggle>
       <span class="shic">🚐</span><span class="shlb">${lb}</span>${arrive?'<span class="shgo">보기</span>':''}<span class="shsw ${on?'on':'off'}"></span>
