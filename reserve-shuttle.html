@@ -66,6 +66,10 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .limitbar{margin:0 10px 10px;padding:11px 13px;border-radius:4px;background:rgba(255,148,0,.12);border:1px solid rgba(255,148,0,.4);color:#FFE4B2;font-size:.92em;line-height:1.45;display:flex;gap:.4em;align-items:flex-start;flex:none}   /* DS: honey500(#FF9400) 12%/40% · 본문 honey100(#FFE4B2) */
 .limitbar .li{flex:none}
 .limitbar b{color:#FFBA4C;white-space:nowrap}   /* DS: honey300 */
+@keyframes limitpulse{0%,100%{background:rgba(255,148,0,.12);border-color:rgba(255,148,0,.4)}35%{background:rgba(255,148,0,.28);border-color:rgba(255,148,0,.85)}}
+.limitbar.pulse{animation:limitpulse .6s ease}   /* 차단 탭 시: 상시 배너를 잠깐 강조(중복 토스트 대신) */
+@keyframes fabshake{0%,100%{transform:translateX(-50%)}22%{transform:translateX(calc(-50% - 6px))}66%{transform:translateX(calc(-50% + 6px))}}
+.fab.shake{animation:fabshake .32s ease}
 .fab.limited{opacity:.4;pointer-events:auto}   /* 제한 중 새로고침 FAB 딤(눌러도 차단·안내) */
 /* 스크롤 시 sticky 헤더 축소: 토글·탭 컴팩트 — 리스트 세로공간 확보 */
 .tabs,.tabs button,.shtoggle,.shtoggle .shlb,.period,.period button{transition:padding .18s ease,font-size .18s ease,margin .18s ease}
@@ -193,7 +197,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
   </div>
 
   <div class="note">
-    <b>인터랙션:</b> <b>셔틀 포함↔제외 토글</b>(행 전체 탭, 포함=셔틀+일반 함께·제외=일반만) · <b>🔔 새 셔틀 도착 시뮬</b> → 제외 중이면 토글이 <b>「새 셔틀 콜이 들어왔어요! · 보기」</b> 재활성 CTA로 전환(탭=포함) · <b>수락가능 콜</b> 탭은 하단 <b>새로고침</b> FAB(항시) · <b>내 예약</b> 탭은 달력/기간 필터 + 스크롤 시 <b>맨 위로</b> FAB. <b>박스 탭·단일 토글·콜카드 모두 Figma 최종안 실측 반영</b>(탭 20sp 선택 w700/비선택 w400·활성 #19254D+#32A2FA, 토글 스위치·보기 CTA #32A2FA, 행 전체 탭=시니어 조준 부담↓). <b>카드 v2 순서: 경로 상단 → 타입칩 → 가격 → 부가수익 하단</b>. · <b>TADA-9282 리프레시 제한</b> 통합: 🚫 시뮬(or 10초 내 6회 새로고침)로 발동 → <b>수락가능콜 항시 배너 + 카운트다운</b>(사다리 10초→…→5분), 제한 중 새로고침/재탭/정렬 <b>차단</b>·FAB 딤·직전 목록 유지, 해제 시 <b>자기소멸 토스트</b>. <b>완화</b>: 정상 속도면 자유시간 <b>단계마다↓</b>(데모 20초·실제 5분), 0단계=초기화 — 드라이버 비노출(컨트롤 바 <code>제한 단계 N/5</code> readout·⏩ 버튼으로 확인). 내 예약은 자유(배너 없음). · <b>셔틀 토글 비대칭</b>: 끄기=로컬 필터(즉시·자유), <b>켜기=셔틀 재요청(새로고침)이라 제한 대상·차단</b>(도착 넛지 '보기'도 동일). 켜기 차단 시 <b>스위치 저항 피드백</b>(켜지려다 되돌아옴) + <b>'보기' CTA 딤</b> + 통일 토스트 'N초 후 다시 가능'.
+    <b>인터랙션:</b> <b>셔틀 포함↔제외 토글</b>(행 전체 탭, 포함=셔틀+일반 함께·제외=일반만) · <b>🔔 새 셔틀 도착 시뮬</b> → 제외 중이면 토글이 <b>「새 셔틀 콜이 들어왔어요! · 보기」</b> 재활성 CTA로 전환(탭=포함) · <b>수락가능 콜</b> 탭은 하단 <b>새로고침</b> FAB(항시) · <b>내 예약</b> 탭은 달력/기간 필터 + 스크롤 시 <b>맨 위로</b> FAB. <b>박스 탭·단일 토글·콜카드 모두 Figma 최종안 실측 반영</b>(탭 20sp 선택 w700/비선택 w400·활성 #19254D+#32A2FA, 토글 스위치·보기 CTA #32A2FA, 행 전체 탭=시니어 조준 부담↓). <b>카드 v2 순서: 경로 상단 → 타입칩 → 가격 → 부가수익 하단</b>. · <b>TADA-9282 리프레시 제한</b> 통합: 🚫 시뮬(or 10초 내 6회 새로고침)로 발동 → <b>수락가능콜 항시 배너 + 카운트다운</b>(사다리 10초→…→5분), 제한 중 새로고침/재탭/정렬 <b>차단</b>(중복 토스트 없이 <b>상시 배너 펄스</b>로 시선 유도·FAB은 멀어 <b>흔들림</b>)·FAB 딤·직전 목록 유지, 해제 시 <b>자기소멸 토스트</b>. <b>완화</b>: 정상 속도면 자유시간 <b>단계마다↓</b>(데모 20초·실제 5분), 0단계=초기화 — 드라이버 비노출(컨트롤 바 <code>제한 단계 N/5</code> readout·⏩ 버튼으로 확인). 내 예약은 자유(배너 없음). · <b>셔틀 토글 비대칭</b>: 끄기=로컬 필터(즉시·자유), <b>켜기=셔틀 재요청(새로고침)이라 제한 대상·차단</b>(도착 넛지 '보기'도 동일). 켜기 차단 시 <b>스위치 저항 피드백</b>(켜지려다 되돌아옴) + <b>'보기' CTA 딤</b> + 통일 토스트 'N초 후 다시 가능'.
   </div>
 </div>
 
@@ -318,11 +322,15 @@ function shtoggleResist(){
   sw.classList.remove('resist'); void sw.offsetWidth; sw.classList.add('resist');
   setTimeout(()=>sw&&sw.classList.remove('resist'), 420);
 }
-// 새로고침 시도(FAB·재탭·정렬): 제한 중이면 차단, 아니면 카운트 후 실행
+// 차단 피드백: 상시 배너를 잠깐 강조(중복 토스트 대신). FAB은 멀리 있어 로컬 흔들림도.
+function pulseBanner(){ const b=document.querySelector('.limitbar'); if(!b) return; b.classList.remove('pulse'); void b.offsetWidth; b.classList.add('pulse'); setTimeout(()=>b&&b.classList.remove('pulse'),650); }
+function shakeFab(){ const f=document.getElementById('fabRefresh'); if(!f) return; f.classList.remove('shake'); void f.offsetWidth; f.classList.add('shake'); setTimeout(()=>f&&f.classList.remove('shake'),360); }
+// 새로고침 시도(FAB·재탭·정렬): 제한 중이면 차단(배너 펄스), 아니면 카운트 후 실행. 차단 시 false 반환.
 function attemptRefresh(applyState, toastMsg){
-  if(state.tab==='accept' && isLimited()){ toast(remainStr()+' 후 다시 가능'); return; }   // 원인은 배너가 상시 설명 → 토스트는 시점만(비난 없음)
+  if(state.tab==='accept' && isLimited()){ pulseBanner(); return false; }   // 상시 배너가 이미 'N초 후 다시 가능'을 설명 → 토스트 중복 제거, 배너 강조로 시선 유도
   if(state.tab==='accept') recordRefresh();
   doRefresh(applyState, toastMsg);
+  return true;
 }
 
 function chrome(){
@@ -450,7 +458,7 @@ document.getElementById('scr').addEventListener('click',e=>{
 });
 
 document.getElementById('fabTop').addEventListener('click',()=>{ document.getElementById('scroll').scrollTo({top:0,behavior:'smooth'}); });
-document.getElementById('fabRefresh').addEventListener('click',()=>attemptRefresh(null,'새로고침 완료'));   // 제한 게이트 경유(제한 중이면 차단·안내)
+document.getElementById('fabRefresh').addEventListener('click',()=>{ if(!attemptRefresh(null,'새로고침 완료')) shakeFab(); });   // 차단 시 FAB 흔들림(멀리 있어 배너 펄스 놓칠까 봐) + 배너 펄스
 
 document.getElementById('simLimit').addEventListener('click',()=>{
   if(state.tab!=='accept'){ state.tab='accept'; render(); }
