@@ -125,10 +125,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .rc .route{font-size:.92em;color:var(--txt);word-break:keep-all;overflow-wrap:break-word}
 .rc .route .ar{color:var(--sub)}
 /* 내 예약 탭 = 태스크별 위계 반전: 날짜/시간 18sp 앵커 · 가격 20sp (수락가능은 가격 24sp 히어로) */
-.scr.tab-my .rc .date{width:8.6em}   /* 일자 레일 확대(Figma 150 vs 120) — 아침 11:20 한 줄 */
-.scr.tab-my .rc .date .d1{font-size:1.29em}
-.scr.tab-my .rc .date .d2{font-size:1.29em;color:var(--txt)}   /* 내예약: 시간=앵커 → 흰색 */
-.scr.tab-my .rc .pricerow .price{font-size:1.43em;color:var(--sub)}   /* 내예약: 가격=참고 → 서브색(혼동 해소) */
+/* 카드 통일: 내예약도 수락가능콜과 동일 위계(가격=흰색 히어로·시간=서브·날짜열 동일). 위계 반전 오버라이드 제거 — 탭 넘어가도 같은 카드로 읽히게. 탭 차이는 콘텐츠((변경됨)·정렬 시간순)로만. */
 
 .endmsg{text-align:center;color:var(--sub2);font-size:.8em;padding:.8em}
 
