@@ -59,6 +59,9 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .shsw.on{background:#32a2fa}
 .shsw::after{content:"";position:absolute;top:.16em;left:.16em;width:1.18em;height:1.18em;border-radius:50%;background:#e2f2fe;transition:left .15s,right .15s}
 .shsw.on::after{left:auto;right:.16em}
+.shtoggle .shgo.dim{opacity:.42}   /* 제한 중: 보기 CTA 딤(지금 못 본다는 기대치) */
+@keyframes swresist{0%{left:.16em}42%{left:.72em}100%{left:.16em}}   /* 켜기 차단: 스위치가 켜지려다 되돌아옴 */
+.shsw.resist::after{animation:swresist .36s ease}
 /* TADA-9282 리프레시 제한 배너(수락가능콜·제한 중 항시) */
 .limitbar{margin:0 10px 10px;padding:11px 13px;border-radius:4px;background:rgba(255,148,0,.12);border:1px solid rgba(255,148,0,.4);color:#FFE4B2;font-size:.92em;line-height:1.45;display:flex;gap:.4em;align-items:flex-start;flex:none}   /* DS: honey500(#FF9400) 12%/40% · 본문 honey100(#FFE4B2) */
 .limitbar .li{flex:none}
@@ -190,7 +193,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
   </div>
 
   <div class="note">
-    <b>인터랙션:</b> <b>셔틀 포함↔제외 토글</b>(행 전체 탭, 포함=셔틀+일반 함께·제외=일반만) · <b>🔔 새 셔틀 도착 시뮬</b> → 제외 중이면 토글이 <b>「새 셔틀 콜이 들어왔어요! · 보기」</b> 재활성 CTA로 전환(탭=포함) · <b>수락가능 콜</b> 탭은 하단 <b>새로고침</b> FAB(항시) · <b>내 예약</b> 탭은 달력/기간 필터 + 스크롤 시 <b>맨 위로</b> FAB. <b>박스 탭·단일 토글·콜카드 모두 Figma 최종안 실측 반영</b>(탭 20sp 선택 w700/비선택 w400·활성 #19254D+#32A2FA, 토글 스위치·보기 CTA #32A2FA, 행 전체 탭=시니어 조준 부담↓). <b>카드 v2 순서: 경로 상단 → 타입칩 → 가격 → 부가수익 하단</b>. · <b>TADA-9282 리프레시 제한</b> 통합: 🚫 시뮬(or 10초 내 6회 새로고침)로 발동 → <b>수락가능콜 항시 배너 + 카운트다운</b>(사다리 10초→…→5분), 제한 중 새로고침/재탭/정렬 <b>차단</b>·FAB 딤·직전 목록 유지, 해제 시 <b>자기소멸 토스트</b>. <b>완화</b>: 정상 속도면 자유시간 <b>단계마다↓</b>(데모 20초·실제 5분), 0단계=초기화 — 드라이버 비노출(컨트롤 바 <code>제한 단계 N/5</code> readout·⏩ 버튼으로 확인). 내 예약은 자유(배너 없음). · <b>셔틀 토글 비대칭</b>: 끄기=로컬 필터(즉시·자유), <b>켜기=셔틀 재요청(새로고침)이라 제한 대상·차단</b>(도착 넛지 '보기'도 동일).
+    <b>인터랙션:</b> <b>셔틀 포함↔제외 토글</b>(행 전체 탭, 포함=셔틀+일반 함께·제외=일반만) · <b>🔔 새 셔틀 도착 시뮬</b> → 제외 중이면 토글이 <b>「새 셔틀 콜이 들어왔어요! · 보기」</b> 재활성 CTA로 전환(탭=포함) · <b>수락가능 콜</b> 탭은 하단 <b>새로고침</b> FAB(항시) · <b>내 예약</b> 탭은 달력/기간 필터 + 스크롤 시 <b>맨 위로</b> FAB. <b>박스 탭·단일 토글·콜카드 모두 Figma 최종안 실측 반영</b>(탭 20sp 선택 w700/비선택 w400·활성 #19254D+#32A2FA, 토글 스위치·보기 CTA #32A2FA, 행 전체 탭=시니어 조준 부담↓). <b>카드 v2 순서: 경로 상단 → 타입칩 → 가격 → 부가수익 하단</b>. · <b>TADA-9282 리프레시 제한</b> 통합: 🚫 시뮬(or 10초 내 6회 새로고침)로 발동 → <b>수락가능콜 항시 배너 + 카운트다운</b>(사다리 10초→…→5분), 제한 중 새로고침/재탭/정렬 <b>차단</b>·FAB 딤·직전 목록 유지, 해제 시 <b>자기소멸 토스트</b>. <b>완화</b>: 정상 속도면 자유시간 <b>단계마다↓</b>(데모 20초·실제 5분), 0단계=초기화 — 드라이버 비노출(컨트롤 바 <code>제한 단계 N/5</code> readout·⏩ 버튼으로 확인). 내 예약은 자유(배너 없음). · <b>셔틀 토글 비대칭</b>: 끄기=로컬 필터(즉시·자유), <b>켜기=셔틀 재요청(새로고침)이라 제한 대상·차단</b>(도착 넛지 '보기'도 동일). 켜기 차단 시 <b>스위치 저항 피드백</b>(켜지려다 되돌아옴) + <b>'보기' CTA 딤</b> + 통일 토스트 'N초 후 다시 가능'.
   </div>
 </div>
 
@@ -309,6 +312,12 @@ setInterval(()=>{
   }
   updateDevStatus();
 },1000);
+// 켜기 차단 시 스위치 저항 피드백(켜지려다 되돌아옴 → 먹통 아님을 전달)
+function shtoggleResist(){
+  const sw=document.querySelector('.shtoggle .shsw'); if(!sw) return;
+  sw.classList.remove('resist'); void sw.offsetWidth; sw.classList.add('resist');
+  setTimeout(()=>sw&&sw.classList.remove('resist'), 420);
+}
 // 새로고침 시도(FAB·재탭·정렬): 제한 중이면 차단, 아니면 카운트 후 실행
 function attemptRefresh(applyState, toastMsg){
   if(state.tab==='accept' && isLimited()){ toast(remainStr()+' 후 다시 가능'); return; }   // 원인은 배너가 상시 설명 → 토스트는 시점만(비난 없음)
@@ -326,7 +335,7 @@ function chrome(){
       ? `<div class="limitbar"><span class="li">⏳</span><span>짧은 간격으로 반복 새로고침하여 잠시 제한됩니다 · <b><span id="limitCd">${remainStr()}</span> 후 다시 가능</b></span></div>`
       : '';
     sub=`<div class="shtoggle ${on?'on':'off'}${arrive?' arrive':''}" data-shtoggle>
-      <span class="shic">🚐</span><span class="shlb">${lb}</span>${arrive?'<span class="shgo">보기</span>':''}<span class="shsw ${on?'on':'off'}"></span>
+      <span class="shic">🚐</span><span class="shlb">${lb}</span>${arrive?`<span class="shgo${isLimited()?' dim':''}">보기</span>`:''}<span class="shsw ${on?'on':'off'}"></span>
     </div>${limitBar}`;
   } else {
     sub=`<div class="period">
@@ -430,7 +439,7 @@ document.getElementById('scr').addEventListener('click',e=>{
     return; }
   if(e.target.closest('[data-shtoggle]')){
     const willInclude=state.seg!=='include';
-    if(willInclude){ attemptRefresh(()=>{ state.seg='include'; state.banner=false; }, '셔틀 포함됨'); }   // 켜기=셔틀 콜 다시 불러오기(새로고침)→제한 대상·차단
+    if(willInclude){ if(state.tab==='accept' && isLimited()) shtoggleResist(); attemptRefresh(()=>{ state.seg='include'; state.banner=false; }, '셔틀 포함됨'); }   // 켜기=셔틀 재요청(새로고침)→제한 중이면 스위치 저항+통일 토스트로 차단
     else { state.seg='exclude'; document.getElementById('chrome').innerHTML=chrome(); render(); toast('셔틀 제외됨'); }   // 끄기=이미 받은 목록 숨김(로컬 필터)→자유·즉시(스피너 없음)
     return; }
   const pd=e.target.closest('[data-pd]'); if(pd){ if(pd.dataset.pd!==state.period) doRefresh(()=>{state.period=pd.dataset.pd;}); return; }
