@@ -168,6 +168,8 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
     <span class="sep"></span>
     <button id="simShuttle">🔔 새 셔틀 도착 시뮬</button>
     <button id="simLimit">🚫 리프레시 제한 시뮬</button>
+    <button id="simDecay">⏩ 완화(한 단계↓)</button>
+    <span id="limitDev" style="font-family:var(--mono);font-size:11px;color:var(--sub2);margin-left:4px">제한 단계 0/5 · 정상</span>
   </div>
 
   <div class="stage">
@@ -188,7 +190,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
   </div>
 
   <div class="note">
-    <b>인터랙션:</b> <b>셔틀 포함↔제외 토글</b>(행 전체 탭, 포함=셔틀+일반 함께·제외=일반만) · <b>🔔 새 셔틀 도착 시뮬</b> → 제외 중이면 토글이 <b>「새 셔틀 콜이 들어왔어요! · 보기」</b> 재활성 CTA로 전환(탭=포함) · <b>수락가능 콜</b> 탭은 하단 <b>새로고침</b> FAB(항시) · <b>내 예약</b> 탭은 달력/기간 필터 + 스크롤 시 <b>맨 위로</b> FAB. <b>박스 탭·단일 토글·콜카드 모두 Figma 최종안 실측 반영</b>(탭 20sp 선택 w700/비선택 w400·활성 #19254D+#32A2FA, 토글 스위치·보기 CTA #32A2FA, 행 전체 탭=시니어 조준 부담↓). <b>카드 v2 순서: 경로 상단 → 타입칩 → 가격 → 부가수익 하단</b>. · <b>TADA-9282 리프레시 제한</b> 통합: 🚫 시뮬(or 10초 내 6회 새로고침)로 발동 → <b>수락가능콜 항시 배너 + 카운트다운</b>(사다리 10초→…→5분), 제한 중 새로고침/재탭/정렬 <b>차단</b>·FAB 딤·직전 목록 유지, 해제 시 <b>자기소멸 토스트</b>. 내 예약은 자유(배너 없음). · <b>셔틀 토글 비대칭</b>: 끄기=로컬 필터(즉시·자유), <b>켜기=셔틀 재요청(새로고침)이라 제한 대상·차단</b>(도착 넛지 '보기'도 동일).
+    <b>인터랙션:</b> <b>셔틀 포함↔제외 토글</b>(행 전체 탭, 포함=셔틀+일반 함께·제외=일반만) · <b>🔔 새 셔틀 도착 시뮬</b> → 제외 중이면 토글이 <b>「새 셔틀 콜이 들어왔어요! · 보기」</b> 재활성 CTA로 전환(탭=포함) · <b>수락가능 콜</b> 탭은 하단 <b>새로고침</b> FAB(항시) · <b>내 예약</b> 탭은 달력/기간 필터 + 스크롤 시 <b>맨 위로</b> FAB. <b>박스 탭·단일 토글·콜카드 모두 Figma 최종안 실측 반영</b>(탭 20sp 선택 w700/비선택 w400·활성 #19254D+#32A2FA, 토글 스위치·보기 CTA #32A2FA, 행 전체 탭=시니어 조준 부담↓). <b>카드 v2 순서: 경로 상단 → 타입칩 → 가격 → 부가수익 하단</b>. · <b>TADA-9282 리프레시 제한</b> 통합: 🚫 시뮬(or 10초 내 6회 새로고침)로 발동 → <b>수락가능콜 항시 배너 + 카운트다운</b>(사다리 10초→…→5분), 제한 중 새로고침/재탭/정렬 <b>차단</b>·FAB 딤·직전 목록 유지, 해제 시 <b>자기소멸 토스트</b>. <b>완화</b>: 정상 속도면 자유시간 <b>단계마다↓</b>(데모 20초·실제 5분), 0단계=초기화 — 드라이버 비노출(컨트롤 바 <code>제한 단계 N/5</code> readout·⏩ 버튼으로 확인). 내 예약은 자유(배너 없음). · <b>셔틀 토글 비대칭</b>: 끄기=로컬 필터(즉시·자유), <b>켜기=셔틀 재요청(새로고침)이라 제한 대상·차단</b>(도착 넛지 '보기'도 동일).
   </div>
 </div>
 
@@ -254,11 +256,12 @@ function cardHTML(c){
 
 /* ---------- 상태 ---------- */
 const state={tab:'accept', seg:'include', big:false, period:'전체', banner:false, refreshing:false, sort:'추천순',
-  refreshTimes:[], limitUntil:0, limitStage:0};   // TADA-9282 리프레시 제한
+  refreshTimes:[], limitUntil:0, limitStage:0, decayAnchor:0};   // TADA-9282 리프레시 제한(+완화 클럭)
 
 /* ---------- TADA-9282 리프레시 제한 (수락가능 콜 전용) ---------- */
 const LADDER=[10,30,60,180,300];   // 제한 사다리(초): 10s→30s→1분→3분→5분
 const DEMO_THRESH=5;               // 데모: 10초 내 5회 초과 시 제한(실제 서버값 10회)
+const DECAY_STEP=20000;            // 완화: 자유시간 이만큼마다 한 단계↓ (데모 20초 · 실제 5분=300000). 5단계면 25분 = 완전 초기화
 function isLimited(){ return Date.now() < state.limitUntil; }
 function remainSec(){ return Math.max(0, Math.ceil((state.limitUntil-Date.now())/1000)); }
 function remainStr(){ const s=remainSec(), m=Math.floor(s/60), ss=s%60; return m>0?`${m}분 ${String(ss).padStart(2,'0')}초`:`${ss}초`; }
@@ -271,25 +274,41 @@ function recordRefresh(){   // 수락가능콜 새로고침 시도 카운트 →
 function enterLimit(){
   state.limitStage=Math.min(state.limitStage+1, LADDER.length);
   state.limitUntil=Date.now()+LADDER[state.limitStage-1]*1000;
+  state.decayAnchor=state.limitUntil;   // 완화 클럭은 '제한 해제 시점'부터 셈(정지 중 시간 미포함)
   state.refreshTimes=[];
   document.getElementById('chrome').innerHTML=chrome();   // 항시 배너 노출
-  updateFabs();
-  startTicker();
+  updateFabs(); updateDevStatus();
 }
 function releaseLimit(){
   state.limitUntil=0;
-  document.getElementById('chrome').innerHTML=chrome();   // 배너 제거
+  document.getElementById('chrome').innerHTML=chrome();   // 배너 제거(단계는 유지 → 완화로 서서히↓)
   updateFabs();
-  if(state.tab==='accept') toast('다시 새로고침할 수 있어요');   // 해제 자기소멸 토스트(2초, 액션 없음)
+  if(state.tab==='accept') toast('다시 새로고침할 수 있어요');   // 해제 자기소멸 토스트
 }
-let _limitTick=null;
-function startTicker(){
-  clearInterval(_limitTick);
-  _limitTick=setInterval(()=>{
-    if(!isLimited()){ clearInterval(_limitTick); releaseLimit(); return; }
+// 개발용 내부상태 readout(드라이버 비노출) — 완화가 눈에 보이게
+function updateDevStatus(){
+  const el=document.getElementById('limitDev'); if(!el) return;
+  if(isLimited()){ el.textContent=`제한 단계 ${state.limitStage}/${LADDER.length} · 제한 중 ${remainSec()}s`; return; }
+  if(state.limitStage>0){
+    const toNext=Math.max(0, Math.ceil((state.decayAnchor+DECAY_STEP-Date.now())/1000));
+    const nextViol=LADDER[Math.min(state.limitStage, LADDER.length-1)];
+    el.textContent=`제한 단계 ${state.limitStage}/${LADDER.length} · 완화 중(다음↓ ${toNext}s) · 지금 위반=${nextViol}s`;
+    return;
+  }
+  el.textContent=`제한 단계 0/${LADDER.length} · 정상`;
+}
+// 지속 티커: 카운트다운 · 해제 · 완화(자유시간 경과 시 단계↓) · 상태 readout
+setInterval(()=>{
+  if(isLimited()){
     const cd=document.getElementById('limitCd'); if(cd) cd.textContent=remainStr();
-  },500);
-}
+  } else if(state.limitUntil>0){
+    releaseLimit();   // 방금 만료 → 해제(limitUntil=0). 이후 완화 시작
+  } else if(state.limitStage>0 && state.decayAnchor && Date.now()-state.decayAnchor>=DECAY_STEP){
+    state.limitStage--;                                                            // 자유시간 DECAY_STEP 경과 → 한 단계↓
+    state.decayAnchor = state.limitStage>0 ? state.decayAnchor+DECAY_STEP : 0;      // 남으면 다음 스텝 기준, 0단계면 초기화
+  }
+  updateDevStatus();
+},1000);
 // 새로고침 시도(FAB·재탭·정렬): 제한 중이면 차단, 아니면 카운트 후 실행
 function attemptRefresh(applyState, toastMsg){
   if(state.tab==='accept' && isLimited()){ toast(remainStr()+' 후 다시 가능'); return; }   // 원인은 배너가 상시 설명 → 토스트는 시점만(비난 없음)
@@ -428,6 +447,11 @@ document.getElementById('simLimit').addEventListener('click',()=>{
   if(state.tab!=='accept'){ state.tab='accept'; render(); }
   enterLimit();   // 단계 1씩 증가(사다리 데모) → 배너+카운트다운
   toast('리프레시 제한 발동 · 단계 '+state.limitStage+' ('+LADDER[state.limitStage-1]+'초)');
+});
+document.getElementById('simDecay').addEventListener('click',()=>{   // 완화 한 단계 즉시(데모용 · 실제는 자유시간 5분/단계)
+  if(isLimited()){ toast('제한 해제 후 완화됩니다'); return; }
+  if(state.limitStage>0){ state.limitStage--; state.decayAnchor = state.limitStage>0 ? Date.now() : 0; updateDevStatus(); toast('완화 → 단계 '+state.limitStage); }
+  else toast('이미 정상 (단계 0)');
 });
 
 document.getElementById('simShuttle').addEventListener('click',()=>{
