@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>셔틀 토글 위계 비교 — 현재 vs A vs B · TADA-9317</title>
+<style>
+:root{--page:#0c1430;--screen:#101a3d;--card:#1e2d59;--line:#293f71;--txt:#f9f9f9;--sub:#c0c2cc;--sub2:#73788b;--blue:#32a2fa;
+  --kr:"Apple SD Gothic Neo","Pretendard",-apple-system,sans-serif;--mono:ui-monospace,Menlo,monospace;}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line-height:1.5}
+.wrap{max-width:1040px;margin:0 auto;padding:32px 18px 80px}
+a.back{color:var(--blue);text-decoration:none;font-size:13px}
+h1{font-size:clamp(20px,4vw,26px);margin:12px 0 6px}
+.lead{color:var(--sub);font-size:14px;margin:0 0 24px}
+.cols{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+.col{flex:1;min-width:280px;max-width:320px}
+.vh{display:flex;align-items:baseline;gap:8px;margin-bottom:3px}
+.vtag{font-family:var(--mono);font-size:12px;font-weight:700;color:#04122b;background:var(--blue);border-radius:6px;padding:2px 9px}
+.vtag.base{background:#8a97b5}
+.vname{font-size:15px;font-weight:700}
+.vwhy{font-size:12.5px;color:var(--sub2);margin:2px 0 12px;min-height:2.4em}
+
+/* phone */
+.scr{background:var(--screen);border:1px solid var(--line);border-radius:16px;overflow:hidden;padding-bottom:8px}
+.sb{height:22px;display:flex;align-items:center;justify-content:flex-end;padding:0 12px;font-size:11px;color:#fff}
+/* tabs (공통) */
+.tabs{display:flex;gap:8px;padding:8px 10px 0}
+.tabs b{flex:1;text-align:center;font-size:17px;border:1.5px solid var(--line);border-radius:4px;padding:11px 4px;color:#f5f6f7;font-weight:400}
+.tabs b.on{border-color:var(--blue);background:#19254d;color:#fff;font-weight:700}
+
+/* switch (공통) */
+.sw{width:40px;height:23px;border-radius:999px;background:var(--blue);position:relative;flex:none}
+.sw::after{content:"";position:absolute;top:3px;right:3px;width:17px;height:17px;border-radius:50%;background:#e2f2fe}
+.lb{flex:1;font-size:16px;color:var(--txt)}
+.ic{font-size:16px}
+
+/* 토글 변형 */
+.tg{display:flex;align-items:center;gap:8px}
+.tg.cur{margin:8px 10px 0;padding:12px;border:1.5px solid var(--blue);border-radius:4px;background:var(--card)}       /* 현재: 탭과 같은 파란 박스 */
+.tg.a{margin:8px 0 0;padding:11px 22px;background:#131d3b;border-top:1px solid #22315a;border-bottom:1px solid #22315a}  /* A: 무보더 하이라인(가벼운 띠) */
+.tg.b{margin:4px 14px 0;padding:9px 2px}                                                                              /* B: 우측 스위치만(무보더·무배경) */
+.tg.a .lb,.tg.b .lb{color:#eef1f7}
+
+/* cards */
+.cards{padding:10px 10px 0}
+.rc{background:var(--card);display:flex;margin-bottom:8px}
+.rc .d{width:74px;flex:none;padding:14px 8px 14px 14px}
+.rc .d1{font-size:14px;font-weight:700}.rc .d2{font-size:12px;color:var(--sub);margin-top:3px}
+.rc .dv{width:1px;background:var(--line);margin:14px 0}
+.rc .bd{flex:1;padding:14px 14px 14px 12px;min-width:0}
+.rc .rt{font-size:13px}.rc .chip{display:inline-block;font-size:10px;font-weight:700;background:rgba(255,148,0,.22);color:#ffc700;border-radius:999px;padding:2px 7px;margin:6px 0}
+.rc .pr{font-size:19px;font-weight:800}
+
+.pcon{margin-top:10px;font-size:12px;display:flex;flex-direction:column;gap:3px}
+.pcon .p{color:#7ee0a0}.pcon .c{color:#ff9a8a}
+.legend{margin-top:26px;background:#0e1836;border:1px solid var(--line);border-radius:12px;padding:16px 18px;font-size:13px;color:var(--sub)}
+.legend h3{margin:0 0 8px;font-size:14px;color:var(--txt)}
+.legend b{color:var(--txt)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="back" href="index.html">← 방식 목록</a>
+  <h1>셔틀 토글 위계 비교 — 현재 vs A vs B</h1>
+  <p class="lead">탭 바로 아래 셔틀 토글(<b style="color:var(--txt)">ON=셔틀 포함됨</b>)을 놓고, <b style="color:var(--txt)">탭(1차)과 위계가 구분되는지</b>를 비교. 핵심: 토글이 "또 하나의 탭"처럼 안 보이고 <b style="color:var(--txt)">하위 필터</b>로 읽혀야 함.</p>
+
+  <div class="cols">
+
+    <!-- 현재 -->
+    <div class="col">
+      <div class="vh"><span class="vtag base">현재</span><span class="vname">풀폭 파란 박스</span></div>
+      <div class="vwhy">탭과 <b style="color:#ff9a8a">같은 파란 보더+네이비 채움</b> → 파란 박스 2겹, 위계 충돌.</div>
+      <div class="scr">
+        <div class="sb">12:30</div>
+        <div class="tabs"><b class="on">수락가능 콜</b><b>내 예약(8)</b></div>
+        <div class="tg cur"><span class="ic">🚐</span><span class="lb">셔틀 포함됨</span><span class="sw"></span></div>
+        <div class="cards">
+          <div class="rc"><div class="d"><div class="d1">오늘</div><div class="d2">09:00</div></div><div class="dv"></div><div class="bd"><div class="rt">성수동1가 → 인천공항</div><span class="chip">셔틀예약</span><div class="pr">23,000원</div></div></div>
+        </div>
+      </div>
+      <div class="pcon"><span class="c">✕ 선택 탭과 구분 안 됨(둘 다 파란 박스)</span><span class="c">✕ 필터가 탭만큼 무거움</span></div>
+    </div>
+
+    <!-- A -->
+    <div class="col">
+      <div class="vh"><span class="vtag">A</span><span class="vname">무보더 하이라인</span></div>
+      <div class="vwhy">보더 박스 제거 → <b style="color:#7ee0a0">얇은 하이라인 띠</b>로 "탭 아래 필터 줄". 상태는 스위치 색으로.</div>
+      <div class="scr">
+        <div class="sb">12:30</div>
+        <div class="tabs"><b class="on">수락가능 콜</b><b>내 예약(8)</b></div>
+        <div class="tg a"><span class="ic">🚐</span><span class="lb">셔틀 포함됨</span><span class="sw"></span></div>
+        <div class="cards">
+          <div class="rc"><div class="d"><div class="d1">오늘</div><div class="d2">09:00</div></div><div class="dv"></div><div class="bd"><div class="rt">성수동1가 → 인천공항</div><span class="chip">셔틀예약</span><div class="pr">23,000원</div></div></div>
+        </div>
+      </div>
+      <div class="pcon"><span class="p">✓ 탭(박스)과 명확히 구분 = 하위 필터로 읽힘</span><span class="p">✓ 띠라서 존재감 유지(시니어 인지 OK)</span><span class="c">✕ 파란 박스 강조가 사라져 살짝 밋밋</span></div>
+    </div>
+
+    <!-- B -->
+    <div class="col">
+      <div class="vh"><span class="vtag">B</span><span class="vname">우측 스위치만</span></div>
+      <div class="vwhy">박스·배경 다 제거 → <b style="color:#7ee0a0">라벨 + 우측 스위치</b>만. 가장 가벼운 설정 줄.</div>
+      <div class="scr">
+        <div class="sb">12:30</div>
+        <div class="tabs"><b class="on">수락가능 콜</b><b>내 예약(8)</b></div>
+        <div class="tg b"><span class="ic">🚐</span><span class="lb">셔틀 포함됨</span><span class="sw"></span></div>
+        <div class="cards">
+          <div class="rc"><div class="d"><div class="d1">오늘</div><div class="d2">09:00</div></div><div class="dv"></div><div class="bd"><div class="rt">성수동1가 → 인천공항</div><span class="chip">셔틀예약</span><div class="pr">23,000원</div></div></div>
+        </div>
+      </div>
+      <div class="pcon"><span class="p">✓ 가장 가벼움 = 리스트 공간 최대</span><span class="p">✓ 위계 충돌 전혀 없음</span><span class="c">✕ 존재감 약해 "여기 필터 있다"를 놓칠 수 있음(시니어 주의)</span></div>
+    </div>
+
+  </div>
+
+  <div class="legend">
+    <h3>판단 가이드</h3>
+    <p style="margin:0 0 6px">세 층의 무게: <b>탭(진한 박스·1차) &gt; 셔틀 토글(2차) &gt; 리스트</b>. 토글이 탭보다 확실히 가벼워야 위계가 읽힙니다.</p>
+    <ul style="margin:6px 0 0;padding-left:18px">
+      <li><b>A(하이라인)</b> — 시니어 인지(“여기 필터 있다”)와 위계 분리의 <b>균형</b>. 무난한 기본값.</li>
+      <li><b>B(스위치만)</b> — 가장 깔끔·공간 이득. 단 <b>발견성</b>이 약해, 고령 사용자가 놓칠 위험 → 아이콘/라벨을 또렷이 하면 보완.</li>
+      <li>공통: ON 상태를 <b>탭의 파란 보더로 표현하지 않기</b>(스위치 색으로). 스크롤 시 접힘과 함께 쓰면 더 정돈.</li>
+    </ul>
+  </div>
+</div>
+</body>
+</html>
