@@ -84,10 +84,10 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 
 /* period filter (내 예약) */
 .period{display:flex;gap:8px;padding:10px;flex:none;overflow-x:auto}   /* Figma 컨테이너 pad[10] · gap8 */
-.period button{box-sizing:border-box;font-family:var(--kr);font-size:1.14em;font-weight:400;white-space:nowrap;color:#c0c2cc;background:transparent;border:1.5px solid #293f71;border-radius:0;padding:12px 16px;min-width:5.4em;cursor:pointer;display:flex;gap:.35em;align-items:center;justify-content:center;transition:padding .18s ease,font-size .18s ease}   /* Figma 13283:96948 B안: 텍스트칩 균일폭(min-width)+중앙정렬 · r0(각짐) · 달력은 자연폭 예외 */
+.period button{box-sizing:border-box;font-family:var(--kr);font-size:1.14em;font-weight:400;white-space:nowrap;color:#c0c2cc;background:transparent;border:1.5px solid #293f71;border-radius:0;padding:12px 24px;min-width:6em;cursor:pointer;display:flex;gap:.35em;align-items:center;justify-content:center;transition:padding .18s ease,font-size .18s ease}   /* Figma 13285:106408: 모든 칩 동일 규칙 — min-width 96·pad[12,24]·r0. 달력 포함 전부 적용(달력은 아이콘 때문에 자연폭 98로 살짝 넓음) */
 .period button.on{color:#fff;font-weight:700;background:#1e2d59;border-color:#32a2fa}   /* Figma: 선택 #1E2D59 fill */
 .period button b{font-weight:inherit;color:inherit}   /* Figma: 카운트 숫자도 칩 굵기 따름(비선택 w400) */
-.period .cal{min-width:0;padding-left:20px;padding-right:20px;background:#1e2d59;border-color:transparent;font-weight:700;color:#f9f9f9}   /* 달력=아이콘 진입점 → 균일폭 예외(자연폭). Figma: #1E2D59 fill·보더 없음 */
+.period .cal{background:#1e2d59;border-color:transparent;font-weight:700;color:#f9f9f9}   /* 달력=#1E2D59 fill·보더 없음. min-width·pad는 일반 칩과 동일(예외 아님) — 아이콘 때문에 자연폭이 min-width 넘어 살짝 넓음 */
 .scr.scrolled .period button{font-size:1em;padding:.42em 1.4em}   /* 스크롤 시 컴팩트(16→14sp·pad 12→8) */
 
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.15em 0 4em;scrollbar-width:none}
