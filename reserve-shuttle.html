@@ -98,9 +98,9 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .rc:active{border-color:var(--btnln)}
 .rc .date{width:8em;flex:none;padding:20px 15px 20px 20px;display:flex;flex-direction:column;gap:5px}   /* Figma 일자 pad[20,15,20,20] · gap5 */
 .rc .date .drow{display:flex;align-items:baseline;gap:.35em;flex-wrap:wrap}
-.rc .date .d1{font-size:1.05em;font-weight:800;color:var(--txt)}
+.rc .date .d1{font-size:1.05em;font-weight:700;color:var(--txt)}   /* Figma: 날짜 w700 */
 .rc .date .imm{font-size:.72em;font-weight:800;color:#fe6f59}
-.rc .date .d2{font-size:.9em;color:var(--sub)}            /* 시간: #fff→서브 (개선 포인트) */
+.rc .date .d2{font-size:1.05em;color:var(--sub)}          /* Figma: 시간 15sp 회색(살림: 0.9→1.05em, 색은 서브 유지) */
 .rc .date .d3{font-size:.82em;color:var(--sub)}   /* 2시간 대절 = Tier2 속성 */
 .rc .date .chg{font-size:.8em;color:var(--sub2);margin-top:.05em}
 .rc .dv{width:1px;background:var(--line);margin:20px 0}   /* Figma 카드 상하 pad 20 정렬 */
@@ -110,9 +110,9 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .rc .chip.t-shuttle{background:rgba(255,148,0,.22);color:#ffc700}
 .rc .chip.t-normal{background:#39456099;color:#cdd9f2}
 .rc .chip.t-charter{background:#2f3f66;color:#bcd6ff}
-.rc .chip.t-bundle{background:transparent;border:1.5px solid #ffd54a;color:#ffd54a;padding:.14em .66em}
-.rc .chip.cash{background:transparent;border:1.5px solid #9a8cff;color:#bcb0ff;padding:.14em .66em}
-.rc .chip.rec{background:rgba(60,203,65,.22);color:#8ce89a}   /* 추천 = 초록 */
+.rc .chip.t-bundle{background:rgba(255,213,74,.2);color:#ffd54a}   /* 타입=채운 칩(강조) */
+.rc .chip.cash{background:transparent;border:1.5px solid rgba(154,140,255,.55);color:#bcb0ff;padding:.14em .66em}   /* 부차 태그=아웃라인(약하게) */
+.rc .chip.rec{background:transparent;border:1.5px solid rgba(60,203,65,.55);color:#8ce89a;padding:.14em .66em}       /* 추천=아웃라인(약하게) → 타입만 도드라짐+색 노이즈↓ */
 .rc .chiprow.bottom{margin-top:.15em}   /* 칩 맨 아래 배치(시안: 전부 하단) */
 .rc .prefix{font-size:.86em;color:var(--sub)}
 .rc .pricerow{display:flex;align-items:baseline;gap:.45em;flex-wrap:wrap}
@@ -208,6 +208,8 @@ const froms=['성동구 성수동1가','용산구 한강로3가','동대문구 �
 const tos=['인천국제공항','김포공항'];
 // 일반/시간대절 (수락가능, 비셔틀)
 const GEN=[
+  // 묶음예약: 수락가능콜에서만 노출. 수락하면 내예약엔 각 개별예약으로만 보임(→ MY엔 묶음 없음)
+  {date:'오늘',time:'아침 11:20',route:'성동구 성수동1가 → 2건 예약 수행 → 인천국제공항',type:'bundle',prefix:'3시간 40분으로',badges:['dangol','rec'],price:73500,surge:'↗1.9배',cash:true},
   {date:'오늘',time:'아침 11:20',route:'성동구 성수동1가 → 인천국제공항',type:'charter',product:'2시간 대절',badges:['dangol'],price:25000,surge:'↗1.9배',rec:true},
   {date:'오늘',time:'낮 12:40',route:'용산구 한강로3가 → 김포공항',type:'normal',badges:['dangol','imm','seat','rec'],price:31000,surge:null,cash:true},
   {date:'내일',time:'아침 08:20',route:'동대문구 답십리1동 → 성동구 성수동1가',type:'normal',badges:['seat'],price:22400,surge:'↘0.9배'},
