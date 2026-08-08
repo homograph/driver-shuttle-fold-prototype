@@ -49,16 +49,18 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .tabs button.on{color:#fff;font-weight:700;background:#1e2d59;border-color:#32a2fa}   /* Figma: 선택 w700·#1E2D59 fill */
 
 /* 셔틀 토글 (Figma 최종: 세그먼트→단일 토글행. ON=셔틀 포함·OFF=셔틀 제외·도착=보기 CTA. 행 전체가 탭 타깃 — 시니어 조준 부담↓) */
-.shtoggle{display:flex;align-items:center;gap:.5em;margin:8px 10px 10px;padding:12px;border:1.5px solid #293f71;border-radius:4px;background:transparent;cursor:pointer;flex:none}   /* Figma pad[12] 대칭 · OFF=회색보더+투명 · 상단 gap8·좌우10·하10 */
-.shtoggle.on{background:#1e2d59;border-color:transparent}   /* Figma 수정: ON=fill만, 파란 보더 제거(탭과 위계 구분) */
-/* 도착(arrive)은 OFF 스타일 유지(회색 보더·투명) + 보기 CTA — 별도 fill 없음 */
+.shtoggle{display:flex;align-items:center;gap:.5em;margin:8px 10px 10px;padding:10px 12px;border:1.5px solid #293f71;border-radius:4px;background:#101a3d;cursor:pointer;flex:none}   /* Figma 13266:68614 실측: OFF/도착=#101A3D fill+#293F71 보더 · pad[10,12] · 상단 gap8·좌우10·하10 */
+.shtoggle.on{background:#1e2d59;border-color:transparent}   /* Figma: ON=#1E2D59 fill·보더 없음(탭과 위계 구분) */
+/* 도착(arrive)은 OFF 스타일 유지(#101A3D·회색보더) + 보기 CTA(파랑) */
 .shtoggle .shic{font-size:1.14em;line-height:1}
-.shtoggle .shlb{flex:1;font-size:1.14em;color:#f9f9f9}
-.shtoggle .shgo{font-size:1.05em;font-weight:700;color:#32a2fa;margin-right:.15em}   /* 보기 = 액센트 CTA(#32A2FA) → "누르는 것"으로 읽히게 */
+.shtoggle .shlb{flex:1;font-size:1.14em;font-weight:400;color:#fff}   /* Figma: OFF/도착 라벨 #FFF w400 */
+.shtoggle.on .shlb{color:#32a2fa;font-weight:700}   /* Figma: ON "셔틀 포함됨" = #32A2FA w700 */
+.shtoggle .shgo{font-size:1.05em;font-weight:700;color:#9da0ae;margin-right:.15em}   /* Figma: 우측 액션 라벨(끄기/보기) 상시 노출 · 기본 회색 #9DA0AE 15sp w700 */
+.shtoggle .shgo.go{color:#32a2fa}   /* 도착 "보기" = 액센트 CTA(#32A2FA) → "누르는 것"으로 읽히게 */
 .shsw{width:2.6em;height:1.5em;border-radius:999px;position:relative;flex:none;background:#9da0ae;transition:background .15s}
 .shsw.on{background:#32a2fa}
-.shsw::after{content:"";position:absolute;top:.16em;left:.16em;width:1.18em;height:1.18em;border-radius:50%;background:#e2f2fe;transition:left .15s,right .15s}
-.shsw.on::after{left:auto;right:.16em}
+.shsw::after{content:"";position:absolute;top:.16em;left:.16em;width:1.18em;height:1.18em;border-radius:50%;background:#efeff1;transition:left .15s,right .15s}   /* Figma: OFF thumb #EFEFF1 */
+.shsw.on::after{left:auto;right:.16em;background:#e2f2fe}   /* Figma: ON thumb #E2F2FE */
 .shtoggle .shgo.dim{opacity:.42}   /* 제한 중: 보기 CTA 딤(지금 못 본다는 기대치) */
 @keyframes swresist{0%{left:.16em}42%{left:.72em}100%{left:.16em}}   /* 켜기 차단: 스위치가 켜지려다 되돌아옴 */
 .shsw.resist::after{animation:swresist .36s ease}
@@ -345,8 +347,10 @@ function chrome(){
     const limitBar = isLimited()
       ? `<div class="limitbar"><span class="li">⏳</span><span>짧은 간격으로 반복 새로고침하여 잠시 제한됩니다 · <b><span id="limitCd">${remainStr()}</span> 후 다시 가능</b></span></div>`
       : '';
+    const rlb = on ? '끄기' : '켜기';   // 우측 액션 라벨 상시(ON=끄기·OFF=켜기·도착=켜기 파랑 CTA). Figma 13269:69280 실측: OFF/도착 모두 '켜기'(도착만 파랑 강조)
+    const rcls = 'shgo' + (arrive ? ' go' : '') + (arrive && isLimited() ? ' dim' : '');   // 도착만 파랑 CTA(제한 중 딤)
     sub=`<div class="shtoggle ${on?'on':'off'}${arrive?' arrive':''}" data-shtoggle>
-      <span class="shic">🚐</span><span class="shlb">${lb}</span>${arrive?`<span class="shgo${isLimited()?' dim':''}">보기</span>`:''}<span class="shsw ${on?'on':'off'}"></span>
+      <span class="shic">🚐</span><span class="shlb">${lb}</span><span class="${rcls}">${rlb}</span><span class="shsw ${on?'on':'off'}"></span>
     </div>${limitBar}`;
   } else {
     sub=`<div class="period">
