@@ -44,13 +44,13 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .appbar .sort{color:var(--sub);padding:.3em .5em;cursor:pointer;font-size:1.05em}
 
 /* primary tabs (Figma: 20sp · r8 · 활성 #19254D + 파란보더 #32A2FA 1.5) */
-.tabs{display:flex;gap:0;margin:10px 10px 0;padding:0;border:1.5px solid #293f71;border-radius:8px;overflow:hidden;flex:none}   /* Figma 13279:92312: 세그먼티드화 — 그룹 외곽 보더 #293F71·r8·버튼 붙임(gap0) */
-.tabs button{flex:1;font-family:var(--kr);font-weight:400;font-size:1.43em;color:#c0c2cc;background:transparent;border:none;border-radius:0;padding:12px 24px;cursor:pointer}   /* 세그먼트 셀: 비선택 w400 #C0C2CC, pad[12,24] */
-.tabs button+button{border-left:1.5px solid #293f71}   /* 셀 구분선 */
-.tabs button.on{color:#fff;font-weight:700;background:#1e2d59;box-shadow:inset 0 0 0 1.5px #32a2fa}   /* Figma: 선택 w700·#1E2D59 fill·파란보더(안쪽) */
+.tabs{display:flex;gap:0;margin:10px 10px 0;padding:0;flex:none}   /* Figma 13283:96948: 세그먼티드 각짐(r0)·버튼 붙임(gap0)·그룹 보더는 셀 보더로 형성 */
+.tabs button{flex:1;font-family:var(--kr);font-weight:400;font-size:1.43em;color:#c0c2cc;background:transparent;border:1.5px solid #293f71;border-radius:0;padding:12px 24px;cursor:pointer}   /* 각 셀 개별 보더 #293F71·r0(각짐)·비선택 w400 #C0C2CC */
+.tabs button+button{margin-left:-1.5px}   /* 인접 보더 공유(이중선 방지) */
+.tabs button.on{color:#fff;font-weight:700;background:#1e2d59;border-color:#32a2fa;position:relative;z-index:1}   /* Figma: 선택 w700·#1E2D59 fill·파란보더(위로) */
 
 /* 셔틀 토글 (Figma 최종: 세그먼트→단일 토글행. ON=셔틀 포함·OFF=셔틀 제외·도착=보기 CTA. 행 전체가 탭 타깃 — 시니어 조준 부담↓) */
-.shtoggle{display:flex;align-items:center;gap:.5em;margin:10px 10px 10px;padding:10px 12px;border:1.5px solid #293f71;border-radius:8px;background:#101a3d;cursor:pointer;flex:none}   /* Figma 13279:92312: OFF/도착=#101A3D fill+#293F71 보더 · pad[10,12] · r8 · dashboard gap10(탭과 간격) */
+.shtoggle{display:flex;align-items:center;gap:.5em;margin:10px 10px 10px;padding:10px 12px;border:1.5px solid #293f71;border-radius:4px;background:#101a3d;cursor:pointer;flex:none}   /* Figma 실측: 토글 r4(유지) · OFF/도착=#101A3D fill+#293F71 보더 · pad[10,12] · dashboard gap10(탭과 간격) */
 .shtoggle.on{background:#1e2d59;border-color:transparent}   /* Figma: ON=#1E2D59 fill·보더 없음(탭과 위계 구분) */
 /* 도착(arrive)은 OFF 스타일 유지(#101A3D·회색보더) + 보기 CTA(파랑) */
 .shtoggle .shic{font-size:1.14em;line-height:1}
@@ -84,7 +84,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 
 /* period filter (내 예약) */
 .period{display:flex;gap:8px;padding:10px;flex:none;overflow-x:auto}   /* Figma 컨테이너 pad[10] · gap8 */
-.period button{box-sizing:border-box;font-family:var(--kr);font-size:1.14em;font-weight:400;white-space:nowrap;color:#c0c2cc;background:transparent;border:1.5px solid #293f71;border-radius:8px;padding:12px 16px;min-width:5.4em;cursor:pointer;display:flex;gap:.35em;align-items:center;justify-content:center;transition:padding .18s ease,font-size .18s ease}   /* Figma 13279:92312 B안: 텍스트칩 균일폭(min-width)+중앙정렬 · r8 · 달력은 자연폭 예외 */
+.period button{box-sizing:border-box;font-family:var(--kr);font-size:1.14em;font-weight:400;white-space:nowrap;color:#c0c2cc;background:transparent;border:1.5px solid #293f71;border-radius:0;padding:12px 16px;min-width:5.4em;cursor:pointer;display:flex;gap:.35em;align-items:center;justify-content:center;transition:padding .18s ease,font-size .18s ease}   /* Figma 13283:96948 B안: 텍스트칩 균일폭(min-width)+중앙정렬 · r0(각짐) · 달력은 자연폭 예외 */
 .period button.on{color:#fff;font-weight:700;background:#1e2d59;border-color:#32a2fa}   /* Figma: 선택 #1E2D59 fill */
 .period button b{font-weight:inherit;color:inherit}   /* Figma: 카운트 숫자도 칩 굵기 따름(비선택 w400) */
 .period .cal{min-width:0;padding-left:20px;padding-right:20px;background:#1e2d59;border-color:transparent;font-weight:700;color:#f9f9f9}   /* 달력=아이콘 진입점 → 균일폭 예외(자연폭). Figma: #1E2D59 fill·보더 없음 */
