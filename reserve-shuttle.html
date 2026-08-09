@@ -45,7 +45,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 
 /* primary tabs (Figma: 20sp · r8 · 활성 #19254D + 파란보더 #32A2FA 1.5) */
 .tabs{display:flex;gap:0;margin:10px 10px 0;padding:0;flex:none}   /* Figma 13283:96948: 세그먼티드 각짐(r0)·버튼 붙임(gap0)·그룹 보더는 셀 보더로 형성 */
-.tabs button{flex:1;font-family:var(--kr);font-weight:400;font-size:1.43em;color:#c0c2cc;background:transparent;border:1.5px solid #293f71;border-radius:0;padding:12px 24px;cursor:pointer}   /* 각 셀 개별 보더 #293F71·r0(각짐)·비선택 w400 #C0C2CC */
+.tabs button{flex:1;font-family:var(--kr);font-weight:400;font-size:1.43em;color:#c0c2cc;background:transparent;border:1.5px solid #293f71;border-radius:4px;padding:12px 24px;cursor:pointer}   /* Figma 13311: 각 셀 개별 보더 #293F71·r4·비선택 w400 #C0C2CC */
 .tabs button+button{margin-left:-1.5px}   /* 인접 보더 공유(이중선 방지) */
 .tabs button.on{color:#fff;font-weight:700;background:#1e2d59;border-color:#32a2fa;position:relative;z-index:1}   /* Figma: 선택 w700·#1E2D59 fill·파란보더(위로) */
 
@@ -55,7 +55,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 /* 도착(arrive)은 OFF 스타일 유지(#101A3D·회색보더) + 보기 CTA(파랑) */
 .shtoggle .shic{font-size:1.14em;line-height:1}
 .shtoggle .shlb{flex:1;font-size:1.14em;font-weight:400;color:#fff}   /* Figma: OFF/도착 라벨 #FFF w400 */
-.shtoggle.on .shlb{color:#32a2fa;font-weight:700}   /* Figma: ON "셔틀 포함됨" = #32A2FA w700 */
+.shtoggle.on .shlb{color:#fff;font-weight:700}   /* Figma 13311: ON "셔틀 포함됨" = #FFF w700 (파랑→흰색으로 변경) */
 .shtoggle .shgo{font-size:1.05em;font-weight:700;color:#9da0ae;margin-right:.15em}   /* Figma: 우측 액션 라벨(끄기/보기) 상시 노출 · 기본 회색 #9DA0AE 15sp w700 */
 .shtoggle .shgo.go{color:#32a2fa}   /* 도착 "보기" = 액센트 CTA(#32A2FA) → "누르는 것"으로 읽히게 */
 .shsw{width:2.6em;height:1.5em;border-radius:999px;position:relative;flex:none;background:#9da0ae;transition:background .15s}
@@ -84,7 +84,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 
 /* period filter (내 예약) */
 .period{display:flex;gap:8px;padding:10px;flex:none;overflow-x:auto}   /* Figma 컨테이너 pad[10] · gap8 */
-.period button{box-sizing:border-box;font-family:var(--kr);font-size:1.14em;font-weight:400;white-space:nowrap;color:#c0c2cc;background:transparent;border:1.5px solid #293f71;border-radius:0;padding:12px 24px;min-width:6em;cursor:pointer;display:flex;gap:.35em;align-items:center;justify-content:center;transition:padding .18s ease,font-size .18s ease}   /* Figma 13285:106408: 모든 칩 동일 규칙 — min-width 96·pad[12,24]·r0. 달력 포함 전부 적용(달력은 아이콘 때문에 자연폭 98로 살짝 넓음) */
+.period button{box-sizing:border-box;font-family:var(--kr);font-size:1.14em;font-weight:400;white-space:nowrap;color:#c0c2cc;background:transparent;border:1.5px solid #293f71;border-radius:4px;padding:12px 24px;min-width:6em;cursor:pointer;display:flex;gap:.35em;align-items:center;justify-content:center;transition:padding .18s ease,font-size .18s ease}   /* Figma 13285:106408: 모든 칩 동일 규칙 — min-width 96·pad[12,24]·r0. 달력 포함 전부 적용(달력은 아이콘 때문에 자연폭 98로 살짝 넓음) */
 .period button.on{color:#fff;font-weight:700;background:#1e2d59;border-color:#32a2fa}   /* Figma: 선택 #1E2D59 fill */
 .period button b{font-weight:inherit;color:inherit}   /* Figma: 카운트 숫자도 칩 굵기 따름(비선택 w400) */
 .period .cal{background:#1e2d59;border-color:transparent;font-weight:700;color:#f9f9f9}   /* 달력=#1E2D59 fill·보더 없음. min-width·pad는 일반 칩과 동일(예외 아님) — 아이콘 때문에 자연폭이 min-width 넘어 살짝 넓음 */
@@ -125,8 +125,9 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .rc .route{font-size:1.143em;color:var(--txt);word-break:keep-all;overflow-wrap:break-word}   /* Figma flow1: 경로 16sp #FFF (두 탭 공통) */
 .rc .route .ar{color:var(--sub)}
 /* 내 예약 탭 위계 반전 (Figma 13287:110972 실측): 수락=가격 강조(흰색)·시간 회색 / 내예약=시간 강조(흰색)·가격 회색. 태스크 성격 차이(수락=수익 판단 / 내예약=일정 확인)를 색으로 구분. */
-.rc.my .pricerow .price{font-size:1.143em;color:#c0c2cc}   /* Figma flow1 내예약: 가격 16sp 회색(경로와 동급·색으로 서브) — 확인용 */
-.rc.my .date .d2{font-size:1.429em;font-weight:700}       /* Figma flow1 내예약: 시간 20sp Bold #FFF(단독 히어로). 날짜(오늘)는 16 유지 → 시간이 크기로 우위 */
+.rc.my .pricerow .price{font-size:1.143em;color:#c0c2cc}   /* Figma flow 내예약: 가격 16sp 회색(경로와 동급·색으로 서브) — 확인용 */
+.rc.my .date .d1{font-size:1.286em}                       /* Figma 13311 내예약: 날짜 18sp Bold */
+.rc.my .date .d2{font-size:1.286em;font-weight:700}       /* Figma 13311 내예약: 시간 18sp Bold #FFF (날짜=시간 동급 18) */
 
 .endmsg{text-align:center;color:var(--sub2);font-size:.8em;padding:.8em}
 
