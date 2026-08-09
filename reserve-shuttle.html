@@ -76,11 +76,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .fab.limited{opacity:.4;pointer-events:auto}   /* 제한 중 새로고침 FAB 딤(눌러도 차단·안내) */
 /* 스크롤 시 sticky 헤더 축소: 토글·탭 컴팩트 — 리스트 세로공간 확보 */
 .tabs,.tabs button,.shtoggle,.shtoggle .shlb,.period,.period button{transition:padding .18s ease,font-size .18s ease,margin .18s ease}
-.scr.scrolled .shtoggle{margin-top:5px;margin-bottom:8px;padding-top:8px;padding-bottom:8px}
-.scr.scrolled .shtoggle .shlb{font-size:1em}
-.scr.scrolled .period{padding-top:5px;padding-bottom:8px}
-.scr.scrolled .tabs{padding-top:6px}
-.scr.scrolled .tabs button{font-size:1.18em;padding:8px 24px}
+/* 스크롤 시 상단 축소 제거(Figma는 고정·축소 없음 — 실측 확인). 네이티브 부적절 사유: 스크롤 연동 폰트 크기 변경(리플로우·성능)·터치타겟 축소(48dp 위반)·sp 접근성 불안정. 상단은 크기 불변 sticky 고정 */
 
 /* period filter (내 예약) */
 .period{display:flex;gap:8px;padding:10px;flex:none;overflow-x:auto}   /* Figma 컨테이너 pad[10] · gap8 */
@@ -88,7 +84,6 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .period button.on{color:#fff;font-weight:700;background:#1e2d59;border-color:#32a2fa}   /* Figma: 선택 #1E2D59 fill */
 .period button b{font-weight:inherit;color:inherit}   /* Figma: 카운트 숫자도 칩 굵기 따름(비선택 w400) */
 .period .cal{background:#1e2d59;border-color:transparent;font-weight:700;color:#f9f9f9}   /* 달력=#1E2D59 fill·보더 없음. min-width·pad는 일반 칩과 동일(예외 아님) — 아이콘 때문에 자연폭이 min-width 넘어 살짝 넓음 */
-.scr.scrolled .period button{font-size:1em;padding:.42em 1.4em}   /* 스크롤 시 컴팩트(16→14sp·pad 12→8) */
 
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:.15em 0 4em;scrollbar-width:none}
 .scroll::-webkit-scrollbar{width:0;height:0;display:none}   /* 프리뷰 브라우저 기본 스크롤바 숨김(디자인엔 없음, 실제 앱은 오버레이) */
@@ -437,8 +432,7 @@ function doRefresh(applyState, toastMsg){
 
 function updateFabs(){
   const sc=document.getElementById('scroll');
-  const scrolled=sc.scrollTop>180;
-  document.getElementById('scr').classList.toggle('scrolled', sc.scrollTop>8);  // 스크롤 시 sticky 헤더 축소
+  const scrolled=sc.scrollTop>180;   // 맨 위로 FAB 표시용(상단 헤더는 축소 없이 고정 — Figma 정합·네이티브 적절)
   const top=document.getElementById('fabTop'), rf=document.getElementById('fabRefresh');
   if(state.tab==='accept'){ rf.classList.add('show'); rf.classList.toggle('limited', isLimited()); top.classList.remove('show'); }   // Figma: 수락가능콜=새로고침(항시), 제한 중 딤
   else { rf.classList.remove('show'); top.classList.toggle('show',scrolled); }           // Figma: 내 예약 = 맨 위로(스크롤 시)
