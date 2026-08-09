@@ -123,6 +123,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .rc .route .ar{color:var(--sub)}
 /* 내 예약 탭 위계 반전 (Figma 13287:110972 실측): 수락=가격 강조(흰색)·시간 회색 / 내예약=시간 강조(흰색)·가격 회색. 태스크 성격 차이(수락=수익 판단 / 내예약=일정 확인)를 색으로 구분. */
 .rc.my .pricerow .price{font-size:1.143em;color:#c0c2cc}   /* Figma flow 내예약: 가격 16sp 회색(경로와 동급·색으로 서브) — 확인용 */
+.rc.my .pricerow .surge{display:none}   /* Figma 내예약: 배수(서지) 미표시 — 확정 예약이라 수익 변동 정보 불필요 */
 .rc.my .date .d1{font-size:1.286em}                       /* Figma 13311 내예약: 날짜 18sp Bold */
 .rc.my .date .d2{font-size:1.286em;font-weight:700}       /* Figma 13311 내예약: 시간 18sp Bold #FFF (날짜=시간 동급 18) */
 
