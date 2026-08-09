@@ -38,7 +38,9 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .sb{height:1.5em;background:#0b1024;flex:none;display:flex;align-items:center;justify-content:flex-end;padding:0 1em;color:#fff;font-size:.8em;font-weight:600}
 
 /* appbar */
-.appbar{display:flex;align-items:center;gap:.4em;padding:.5em .3em .5em .5em;flex:none}
+.appbar{display:flex;align-items:center;gap:.4em;padding:.5em .3em .5em .5em;flex:none;transition:margin-top .22s cubic-bezier(.4,0,.2,1)}
+#chrome{overflow:hidden}   /* 탑 내비 hide-on-scroll 시 상단으로 나간 appbar clip */
+.scr.navhide .appbar{margin-top:calc(-1 * var(--abh, 52px))}   /* Android enterAlways: 스크롤 다운 시 탑 내비(뒤로가기+타이틀+정렬)만 위로 밀어 숨김. 탭·토글·배너·리스트는 그대로 위로 당겨짐 */
 .appbar .bk{font-size:1.3em;color:#fff;padding:0 .25em;cursor:pointer}
 .appbar .ttl{font-size:1.29em;font-weight:800;flex:1}
 .appbar .sort{color:var(--sub);padding:.3em .5em;cursor:pointer;font-size:1.05em}
@@ -430,9 +432,18 @@ function doRefresh(applyState, toastMsg){
   }, 850);
 }
 
+let lastNavY=0;
 function updateFabs(){
   const sc=document.getElementById('scroll');
-  const scrolled=sc.scrollTop>180;   // 맨 위로 FAB 표시용(상단 헤더는 축소 없이 고정 — Figma 정합·네이티브 적절)
+  const y=sc.scrollTop;
+  // 탑 내비 hide-on-scroll (Android enterAlways): 다운(임계 초과)=숨김 / 업 or 최상단=즉시 복귀. 탭·토글·배너는 고정
+  const scrEl=document.getElementById('scr'), ab=scrEl.querySelector('.appbar');
+  if(ab){ const abh=ab.offsetHeight; scrEl.style.setProperty('--abh', abh+'px');
+    if(y>lastNavY && y>abh) scrEl.classList.add('navhide');
+    else if(y<lastNavY || y<=0) scrEl.classList.remove('navhide');
+  }
+  lastNavY=y;
+  const scrolled=y>180;   // 맨 위로 FAB 표시용
   const top=document.getElementById('fabTop'), rf=document.getElementById('fabRefresh');
   if(state.tab==='accept'){ rf.classList.add('show'); rf.classList.toggle('limited', isLimited()); top.classList.remove('show'); }   // Figma: 수락가능콜=새로고침(항시), 제한 중 딤
   else { rf.classList.remove('show'); top.classList.toggle('show',scrolled); }           // Figma: 내 예약 = 맨 위로(스크롤 시)
