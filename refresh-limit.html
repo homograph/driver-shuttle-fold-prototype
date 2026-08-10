@@ -200,7 +200,11 @@ function escalate(){
   render();
   if(state.variant==='toast') toast(limitMsg());
 }
-function flashBanner(){ const b=el('cd'); if(b){b.style.transition='none';b.style.color='#fff';setTimeout(()=>{b.style.transition='color .4s';b.style.color='';},60);} }
+function flashBanner(){ // 가이드 강조: 카운트다운 색 플래시(#ffb4a5→#fff→원복) + 배너 scale 1.0→1.02→1.0
+  const b=el('cd'); if(b){b.style.transition='none';b.style.color='#fff';setTimeout(()=>{b.style.transition='color .4s';b.style.color='';},60);}
+  const bar=document.querySelector('.limitbar');
+  if(bar){ bar.style.transition='transform .075s ease'; bar.style.transform='scale(1.02)'; clearTimeout(bar._p); bar._p=setTimeout(()=>{ bar.style.transform=''; },90); }
+}
 function refreshAnim(source){                             // 로딩 스피너 + 리스트 크로스페이드
   const sc=el('scr'); sc.classList.add('loading'); render();   // 탭 전환 즉시 반영 + 스피너/딤
   clearTimeout(sc._rt); sc._rt=setTimeout(()=>{
