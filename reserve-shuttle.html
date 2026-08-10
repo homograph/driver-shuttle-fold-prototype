@@ -111,13 +111,13 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .rc .chip.t-shuttle{background:rgba(255,148,0,.25);color:#ffc700}                          /* Figma: 셔틀예약 = honey25% · #FFC700 */
 .rc .chip.t-bundle{background:transparent;border-color:#eeff00;color:#eeff00}              /* Figma: 묶음예약 = 노랑 아웃라인 #EEFF00 */
 .rc .chip.cash{background:transparent;border-color:#a47fff;color:#a47fff}                  /* Figma: 현장결제 = 보라 아웃라인 #A47FFF */
-.rc .prefix{font-size:.929em;color:var(--sub)}   /* Figma: prefix "3시간 40분으로" 13sp #C0C2CC */
+.rc .prefix{font-size:.929em;color:var(--sub);margin-bottom:-8px}   /* Figma 13329: prefix "3시간 40분으로"=가격과 한 그룹 → 간격 4px(body gap12 - 8) */
 .rc .pricerow{display:flex;align-items:baseline;gap:.45em;flex-wrap:wrap}
 .rc .pricerow .price{font-size:1.571em;font-weight:700;color:#fff;letter-spacing:-.01em}   /* Figma flow1: 수락 가격 22sp Bold #FFF(히어로). 내예약은 .rc.my에서 16sp 회색 */
 .rc .pricerow .surge{font-size:.82em;font-weight:700}
 .rc .pricerow .surge.up{color:#eeff00}
 .rc .pricerow .surge.down{color:#c0c8d9}
-.rc .detail{font-size:.929em;color:var(--sub);word-break:keep-all}   /* Figma: 부가수익 13sp #C0C2CC */
+.rc .detail{font-size:.929em;color:var(--sub);word-break:keep-all;margin-top:-8px}   /* Figma 13329: 부가수익=가격과 한 그룹(Price Container·gap4). body gap12 - 8 = 4. 수익 정보를 한 덩어리로(게슈탈트 근접성) */
 .rc .detail .dg{color:var(--txt)}   /* 단골 강조 = 흰색(Tier1) 레귤러, 새 색 없이 색 대비로 (Figma 일치) */
 .rc .route{font-size:1.143em;color:var(--txt);word-break:keep-all;overflow-wrap:break-word}   /* Figma flow1: 경로 16sp #FFF (두 탭 공통) */
 .rc .route .ar{color:var(--sub)}
