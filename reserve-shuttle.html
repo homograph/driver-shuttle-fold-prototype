@@ -69,7 +69,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .shsw.resist::after{animation:swresist .36s ease}
 /* TADA-9282 리프레시 제한 배너(수락가능콜·제한 중 항시) */
 .limitbar{margin:0 10px 10px;padding:11px 13px;border-radius:4px;background:rgba(255,148,0,.12);border:1px solid rgba(255,148,0,.4);color:#FFE4B2;font-size:.92em;line-height:1.45;display:flex;gap:.6em;align-items:flex-start;flex:none}   /* DS: honey500(#FF9400) 12%/40% · 본문 honey100(#FFE4B2) */
-.limitbar .cd{color:#FFBA4C;white-space:nowrap;font-size:1.06em;font-weight:700;flex:none}   /* Figma: 카운트다운 좌측 별도 · honey300 · mm:ss(0:29) · 본문보다 살짝 큼 */
+.limitbar .cd{color:#FFBA4C;white-space:nowrap;font-size:1.06em;font-weight:700;flex:none;min-width:2.6em;text-align:left;font-variant-numeric:tabular-nums}   /* Figma: 카운트다운 좌측 별도 · honey300 · mm:ss. 고정 폭 컨테이너(min-width)+tabular-nums로 숫자 변동 시 본문 위치 흔들림 방지 */
 @keyframes limitpulse{0%,100%{background:rgba(255,148,0,.12);border-color:rgba(255,148,0,.4)}35%{background:rgba(255,148,0,.28);border-color:rgba(255,148,0,.85)}}
 .limitbar.pulse{animation:limitpulse .6s ease}   /* 차단 탭 시: 상시 배너를 잠깐 강조(중복 토스트 대신) */
 @keyframes fabshake{0%,100%{transform:translateX(-50%)}22%{transform:translateX(calc(-50% - 6px))}66%{transform:translateX(calc(-50% + 6px))}}
