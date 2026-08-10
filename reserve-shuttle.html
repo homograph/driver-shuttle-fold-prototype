@@ -68,14 +68,13 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 @keyframes swresist{0%{left:.16em}42%{left:.72em}100%{left:.16em}}   /* 켜기 차단: 스위치가 켜지려다 되돌아옴 */
 .shsw.resist::after{animation:swresist .36s ease}
 /* TADA-9282 리프레시 제한 배너(수락가능콜·제한 중 항시) */
-.limitbar{margin:0 10px 10px;padding:11px 13px;border-radius:4px;background:rgba(255,148,0,.12);border:1px solid rgba(255,148,0,.4);color:#FFE4B2;font-size:.92em;line-height:1.45;display:flex;gap:.4em;align-items:flex-start;flex:none}   /* DS: honey500(#FF9400) 12%/40% · 본문 honey100(#FFE4B2) */
-.limitbar .li{flex:none}
-.limitbar b{color:#FFBA4C;white-space:nowrap}   /* DS: honey300 */
+.limitbar{margin:0 10px 10px;padding:11px 13px;border-radius:4px;background:rgba(255,148,0,.12);border:1px solid rgba(255,148,0,.4);color:#FFE4B2;font-size:.92em;line-height:1.45;display:flex;gap:.6em;align-items:flex-start;flex:none}   /* DS: honey500(#FF9400) 12%/40% · 본문 honey100(#FFE4B2) */
+.limitbar .cd{color:#FFBA4C;white-space:nowrap;font-size:1.06em;font-weight:700;flex:none}   /* Figma: 카운트다운 좌측 별도 · honey300 · mm:ss(0:29) · 본문보다 살짝 큼 */
 @keyframes limitpulse{0%,100%{background:rgba(255,148,0,.12);border-color:rgba(255,148,0,.4)}35%{background:rgba(255,148,0,.28);border-color:rgba(255,148,0,.85)}}
 .limitbar.pulse{animation:limitpulse .6s ease}   /* 차단 탭 시: 상시 배너를 잠깐 강조(중복 토스트 대신) */
 @keyframes fabshake{0%,100%{transform:translateX(-50%)}22%{transform:translateX(calc(-50% - 6px))}66%{transform:translateX(calc(-50% + 6px))}}
 .fab.shake{animation:fabshake .32s ease}
-.fab.limited{opacity:.4;pointer-events:auto}   /* 제한 중 새로고침 FAB 딤(눌러도 차단·안내) */
+.fab.limited{display:none}   /* Figma: 제한 중 새로고침 FAB 완전 숨김(진입점 제거 — 안내는 배너가 담당) */
 /* 스크롤 시 sticky 헤더 축소: 토글·탭 컴팩트 — 리스트 세로공간 확보 */
 .tabs,.tabs button,.shtoggle,.shtoggle .shlb,.period,.period button{transition:padding .18s ease,font-size .18s ease,margin .18s ease}
 /* 스크롤 시 상단 축소 제거(Figma는 고정·축소 없음 — 실측 확인). 네이티브 부적절 사유: 스크롤 연동 폰트 크기 변경(리플로우·성능)·터치타겟 축소(48dp 위반)·sp 접근성 불안정. 상단은 크기 불변 sticky 고정 */
@@ -273,7 +272,7 @@ const DEMO_THRESH=5;               // 데모: 10초 내 5회 초과 시 제한(�
 const DECAY_STEP=20000;            // 완화: 자유시간 이만큼마다 한 단계↓ (데모 20초 · 실제 5분=300000). 5단계면 25분 = 완전 초기화
 function isLimited(){ return Date.now() < state.limitUntil; }
 function remainSec(){ return Math.max(0, Math.ceil((state.limitUntil-Date.now())/1000)); }
-function remainStr(){ const s=remainSec(), m=Math.floor(s/60), ss=s%60; return m>0?`${m}분 ${String(ss).padStart(2,'0')}초`:`${ss}초`; }
+function remainStr(){ const s=remainSec(), m=Math.floor(s/60), ss=s%60; return `${m}:${String(ss).padStart(2,'0')}`; }   /* Figma: mm:ss 포맷(0:29) — 카운트 좌측 별도 표기 */
 function recordRefresh(){   // 수락가능콜 새로고침 시도 카운트 → 임계 초과 시 제한
   const now=Date.now();
   state.refreshTimes=state.refreshTimes.filter(t=>now-t<10000);
@@ -292,7 +291,7 @@ function releaseLimit(){
   state.limitUntil=0;
   document.getElementById('chrome').innerHTML=chrome();   // 배너 제거(단계는 유지 → 완화로 서서히↓)
   updateFabs();
-  if(state.tab==='accept') toast('다시 새로고침할 수 있어요');   // 해제 자기소멸 토스트
+  if(state.tab==='accept') toast('다시 새로고침 가능해요');   // Figma: 해제 자기소멸 토스트 문구
 }
 // 개발용 내부상태 readout(드라이버 비노출) — 완화가 눈에 보이게
 function updateDevStatus(){
@@ -342,7 +341,7 @@ function chrome(){
     const on=state.seg==='include', arrive=(state.seg==='exclude'&&state.banner);
     const lb = on ? '셔틀 포함됨' : (arrive ? '새 셔틀 콜이 들어왔어요!' : '셔틀 제외됨');   // Figma: 상태 readout(포함됨/제외됨), 도착만 보기 CTA
     const limitBar = isLimited()
-      ? `<div class="limitbar"><span class="li">⏳</span><span>짧은 간격으로 반복 새로고침하여 잠시 제한됩니다 · <b><span id="limitCd">${remainStr()}</span> 후 다시 가능</b></span></div>`
+      ? `<div class="limitbar"><b class="cd"><span id="limitCd">${remainStr()}</span></b><span>짧은 간격으로 반복 새로고침하여 잠시 제한됩니다</span></div>`
       : '';
     const rlb = on ? '끄기' : '켜기';   // 우측 액션 라벨 상시(ON=끄기·OFF=켜기·도착=켜기 파랑 CTA). Figma 13269:69280 실측: OFF/도착 모두 '켜기'(도착만 파랑 강조)
     const rcls = 'shgo' + (arrive ? ' go' : '') + (arrive && isLimited() ? ' dim' : '');   // 도착만 파랑 CTA(제한 중 딤)
