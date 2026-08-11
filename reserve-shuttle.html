@@ -464,7 +464,7 @@ document.getElementById('scr').addEventListener('click',e=>{
     else { state.seg='exclude'; document.getElementById('chrome').innerHTML=chrome(); render(); toast('셔틀 제외됨'); }   // 끄기=이미 받은 목록 숨김(로컬 필터)→자유·즉시(스피너 없음)
     return; }
   const pd=e.target.closest('[data-pd]'); if(pd){ if(pd.dataset.pd!==state.period) doRefresh(()=>{state.period=pd.dataset.pd;}); const s=document.querySelector('.period button.on'); if(s) s.scrollIntoView({inline:'nearest',block:'nearest',behavior:'smooth'}); return; }   // ① 선택 즉시 칩 scroll-into-view(nearest·smooth)
-  if(e.target.closest('[data-sort]')){ openSheet(); return; }
+  if(e.target.closest('[data-sort]')){ if(state.tab==='accept' && isLimited()){ pulseBanner(); return; } openSheet(); return; }   // 정렬=새로고침(재조회) 경로: 제한 중엔 시트 안 열고 상시 배너 펄스로 차단(재탭·셔틀켜기와 동일)
   if(e.target.closest('[data-sheetclose]')){ closeSheet(); return; }
   const so=e.target.closest('[data-sopt]'); if(so){ closeSheet(); const opt=so.dataset.sopt; if(state.tab==='accept' && opt!==state.sort) attemptRefresh(()=>{state.sort=opt;}, '정렬: '+opt); return; }   // 정렬 변경=제한 대상 경로
   if(e.target.closest('[data-call]')){ toast('콜 상세로 이동 (프로토타입)'); return; }
