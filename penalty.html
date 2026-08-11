@@ -12,6 +12,7 @@
   --red:#ff5a5a; --redbg:rgba(255,90,90,.14); --redln:rgba(255,90,90,.45); --redtx:#ff9b9b;
   --amber:#ffcf6a; --amberbg:rgba(255,190,80,.13); --amberln:rgba(255,190,80,.42); --ambertx:#ffd98a;
   --green:#3ddc84; --orange:#ff7a2f; --gray:#8791a6;
+  --honeybg:rgba(255,148,0,.12); --honeyln:rgba(255,148,0,.4); --honeytx:#FFE4B2; --honeyac:#FFBA4C;
   --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
   --kr:"Apple SD Gothic Neo","Pretendard",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif;
 }
@@ -121,11 +122,10 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .drow.penalty .new{font-size:.62em;background:var(--redbg);border:1px solid var(--redln);color:var(--redtx);border-radius:.35em;padding:.1em .5em}
 .drawer-foot{border-top:1px solid var(--line);padding:.8em .9em;font-size:.9em;color:var(--sub)}
 
-/* ===== 패널티 현황 (2022 '콜 정지 현황' 스타일 재구성) ===== */
+/* ===== 패널티 현황 (2022 '콜 정지 현황' 스타일) ===== */
 .detail{padding:.85em .8em 1.4em;display:flex;flex-direction:column;gap:.85em}
 .grp2{display:flex;flex-direction:column;gap:.4em}
 .sec-title{font-size:.98em;font-weight:800;margin:.1em .1em 0}
-/* 상태 히어로 */
 .sthero{background:var(--card);border-radius:1em;padding:1.1em .9em .85em;text-align:center}
 .sthero .lab{font-size:.8em;color:var(--sub)}
 .sthero .state{font-size:1.55em;font-weight:800;margin:.15em 0 .65em;letter-spacing:-.01em}
@@ -137,6 +137,10 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .traffic .d.r.on{box-shadow:0 0 .55em rgba(255,90,90,.9)}
 .traffic .d.a.on{box-shadow:0 0 .55em rgba(255,207,106,.9)}
 .traffic .d.g.on{box-shadow:0 0 .55em rgba(61,220,132,.9)}
+.st-remain{border-top:1px solid var(--line);margin-top:.85em;padding-top:.75em}
+.st-remain .rl{font-size:.78em;color:var(--sub)}
+.st-remain .rv{font-size:1.5em;font-weight:800;margin:.1em 0}
+.st-remain .ru{font-size:.82em;color:var(--sub)}
 .legend{background:#0e1a34;border-radius:.7em;padding:.65em .8em;margin-top:.85em;text-align:left;font-size:.76em;color:var(--sub);line-height:1.65}
 .legend .lt{color:var(--txt);font-weight:700}
 /* 상품 카드 */
@@ -144,13 +148,14 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .pcard-top{display:flex;align-items:center;justify-content:space-between;gap:.5em;margin-bottom:.4em}
 .pcard-top .pill{font-size:.72em;font-weight:800;color:#fff;background:var(--red);border-radius:.5em;padding:.24em .6em;white-space:nowrap}
 .pcard-top .pill.soon{background:#b6862a}
-.pcard .pdate{font-size:1.32em;font-weight:800;letter-spacing:-.01em}
-.pcard .pdate .cal{margin-right:.3em}
+.pcard .pdate{font-size:1.2em;font-weight:800;letter-spacing:-.01em}
 .pcard .pdate b{color:var(--redtx)}
 .pcard .pdesc{font-size:.85em;color:var(--sub);margin-top:.15em}
 .pcard .pdesc b{color:var(--txt);font-weight:700}
 .ibul{display:flex;gap:.45em;font-size:.8em;color:var(--sub);line-height:1.5;margin-top:.65em;background:#0e1a34;border-radius:.6em;padding:.6em .7em}
 .ibul .ic{color:var(--btnln);flex:none;font-weight:700}
+.feenote{display:flex;gap:.45em;font-size:.78em;color:var(--honeytx);background:var(--honeybg);border:1px solid var(--honeyln);border-radius:.6em;padding:.55em .7em;line-height:1.5;margin-top:.55em}
+.feenote .ic{color:var(--honeyac);flex:none;font-weight:800}
 .morerow{border-top:1px solid var(--line);margin-top:.65em}
 .morerow>summary{list-style:none;cursor:pointer;text-align:right;font-size:.8em;color:var(--sub);padding:.6em .1em .45em}
 .morerow>summary::-webkit-details-marker{display:none}
@@ -165,13 +170,10 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .tl-row.active .st{color:var(--redtx)} .tl-row.sched .st{color:var(--ambertx)}
 .pfine{font-size:.74em;color:var(--sub);line-height:1.55;margin:.1em 0 .5em}
 .pfine b{color:var(--txt)}
-/* 안심 */
 .stillok{display:flex;gap:.45em;font-size:.84em;color:var(--rectx);background:var(--rec);border-radius:.7em;padding:.72em .8em;line-height:1.45}
-/* 이의제기 */
 .appeal-info{display:flex;gap:.45em;font-size:.79em;color:var(--sub);line-height:1.5;background:#0e1a34;border-radius:.6em;padding:.65em .75em}
 .appeal-info .ic{color:var(--btnln);flex:none;font-weight:700}
 .appeal-btn{display:flex;align-items:center;justify-content:center;gap:.4em;border:1px solid var(--btnln);background:var(--btn);border-radius:.75em;padding:.9em;font-size:.92em;font-weight:800;color:#fff;cursor:pointer}
-/* 이력 카드 */
 .histcard{background:var(--card);border-radius:1em;padding:.4em .9em}
 .hist-item{padding:.7em 0}
 .hist-item+.hist-item{border-top:1px solid var(--line)}
@@ -193,14 +195,14 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
   <p style="margin:0 0 10px"><a href="index.html" style="color:#5b93ff;font-size:13px;text-decoration:none">← 셔틀 프로토타입 허브</a></p>
   <div class="head">
     <h1>⚠️ 드라이버앱 패널티 안내 <span style="font-family:var(--mono);font-size:11px;color:var(--btnln)">TADA-9314</span></h1>
-    <p>패널티 현황을 기존 <b>‘콜 정지 현황’ Figma 스타일</b>(상태 히어로+신호등·섹션 카드)로 재구성. 유저 카피는 유지. <b>시나리오를 바꿔가며</b> 눌러보세요. (실데이터 아님)</p>
+    <p>PRD 8/7 통합 반영 — <b>일반·시간대절 묶음 정지(조회 불가)</b> · 만료 <b>HH:MM</b> · <b>위약금 지연 시 연장</b>. <b>시나리오를 바꿔가며</b> 눌러보세요. (실데이터 아님)</p>
   </div>
 
   <div class="ctrl">
     <div class="grp"><span class="lbl">시나리오</span>
-      <button data-sc="general" class="on">일반예약 정지(누적 3건)</button>
-      <button data-sc="charter_shuttle">시간대절·셔틀 정지</button>
-      <button data-sc="noshow">노쇼(전 상품)</button>
+      <button data-sc="reservation" class="on">예약 취소/노쇼(누적 3건)</button>
+      <button data-sc="shuttle">셔틀 취소/노쇼</button>
+      <button data-sc="both">예약+셔틀 노쇼</button>
       <button data-sc="realtime">실시간콜 초과</button>
       <button data-sc="none">정상</button>
     </div>
@@ -224,48 +226,46 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 </div>
 
 <script>
-/* ---------- data ----------
- 서버 정책(2026-05 김민욱): 동일 종류 정지는 누적 스택, 각 정지는 이의제기 3h 유예 후 연속 적용.
- 만료일 = 남은 정지들의 합산·재계산 종료(스냅샷 아님), 중간 해제 시에도 빈 기간 없이 연속.
- → UI는 '결과'만 사람 언어로 노출, 내부 모델(누적/재계산/유예)은 접힌 상세로. 스타일은 2022 '콜 정지 현황'. */
+/* ---------- data ---------- PRD 8/7 통합:
+ · 일반예약+시간대절은 항상 묶여 함께 정지(둘 다 조회+수락). 셔틀은 별도. 실시간콜 초과는 실시간+예약묶음.
+ · 만료 = 남은 정지 합산·재계산(HH:MM), 위약금 입금 지연 시 연장. 각 밴 3h 유예 후 연속 적용. */
 const won = n => n.toLocaleString('ko-KR')+'원';
+
+const RESV = (reason, bans) => ({product:'일반 예약 · 시간대절 예약', types:['일반예약','시간대절'], scope:'조회+수락', reason, fee:true, bans});
+const SHUT = (reason, bans) => ({product:'셔틀 예약', types:['셔틀예약'], scope:'조회+수락', reason, fee:true, bans});
+const RT   = (reason, bans) => ({product:'실시간 콜', types:['실시간콜'], scope:'실시간', reason, fee:true, bans});
 
 const SCEN = {
   none: { label:'정상', realtime:false, products:[] },
-  general: { label:'일반예약 정지 (누적 3건)', realtime:false, products:[
-    { product:'일반예약', scope:'수락', reason:'예약 수락 후 취소', bans:[
+  reservation: { label:'예약 취소/노쇼 (누적 3건)', realtime:false, products:[
+    RESV('예약 수락 후 취소', [
       {start:'07.28 12:00', end:'07.31 24:00', status:'active'},
       {start:'07.31 24:00', end:'08.07 24:00', status:'sched'},
       {start:'08.07 24:00', end:'08.15 24:00', status:'sched'},
-    ]},
+    ]),
   ]},
-  charter_shuttle: { label:'시간대절·셔틀 정지', realtime:false, products:[
-    { product:'시간대절', scope:'조회+수락', reason:'예약 수락 후 취소', bans:[
-      {start:'07.28 09:00', end:'08.02 24:00', status:'active'},
-    ]},
-    { product:'셔틀', scope:'조회+수락', reason:'셔틀 수락 후 취소', bans:[
+  shuttle: { label:'셔틀 취소/노쇼', realtime:false, products:[
+    SHUT('셔틀 수락 후 취소', [
       {start:'07.25 09:00', end:'07.27 24:00', status:'active'},
       {start:'07.27 24:00', end:'07.28 24:00', status:'sched'},
-    ]},
+    ]),
   ]},
-  noshow: { label:'노쇼(전 상품)', realtime:false, products:[
-    { product:'일반예약', scope:'수락',    reason:'예약 불이행(노쇼)', bans:[{start:'07.27 12:00', end:'07.30 24:00', status:'active'}]},
-    { product:'시간대절', scope:'조회+수락', reason:'예약 불이행(노쇼)', bans:[{start:'07.27 12:00', end:'07.30 24:00', status:'active'}]},
-    { product:'셔틀',    scope:'조회+수락', reason:'예약 불이행(노쇼)', bans:[{start:'07.27 12:00', end:'07.30 24:00', status:'active'}]},
+  both: { label:'예약+셔틀 노쇼', realtime:false, products:[
+    RESV('예약 불이행(노쇼)', [{start:'07.27 12:00', end:'07.30 24:00', status:'active'}]),
+    SHUT('예약 불이행(노쇼)', [{start:'07.27 12:00', end:'07.30 24:00', status:'active'}]),
   ]},
   realtime: { label:'실시간콜 취소 초과', realtime:true, products:[
-    { product:'실시간콜', scope:'실시간', reason:'다건 실시간 콜 수락 후 취소', bans:[{start:'07.28 00:00', end:'07.30 24:00', status:'active'}]},
-    { product:'일반예약', scope:'수락',   reason:'다건 실시간 콜 수락 후 취소', bans:[{start:'07.28 00:00', end:'07.30 24:00', status:'active'}]},
+    RT('다건 실시간 콜 수락 후 취소', [{start:'07.28 00:00', end:'07.30 24:00', status:'active'}]),
+    RESV('다건 실시간 콜 수락 후 취소', [{start:'07.28 00:00', end:'07.30 24:00', status:'active'}]),
   ]},
 };
-const ENDED = {product:'셔틀', reason:'셔틀 수락 후 취소', range:'07.18 ~ 07.20'};
+const ENDED = {product:'셔틀 예약', reason:'셔틀 수락 후 취소', range:'07.18 ~ 07.20'};
 const WHY = {
   '예약 수락 후 취소':'예약을 수락한 뒤 취소해서 패널티가 적용됐어요.',
   '셔틀 수락 후 취소':'셔틀 콜을 수락한 뒤 취소해서 패널티가 적용됐어요.',
   '예약 불이행(노쇼)':'예약한 운행에 나타나지 않아(노쇼) 패널티가 적용됐어요.',
   '다건 실시간 콜 수락 후 취소':'실시간 콜을 여러 번 수락 후 취소해서 패널티가 적용됐어요.',
 };
-const ALL_PRODUCTS = ['실시간콜','일반예약','시간대절','셔틀'];
 
 const CALLS = [
   {date:'오늘',          time:'아침 11:20', type:'셔틀예약', route:'성동구 성수동1가 → 인천국제공항', price:25000, badges:['임박']},
@@ -276,18 +276,19 @@ const CALLS = [
 ];
 
 /* ---------- state ---------- */
-const state = { scenario:'general', screen:'home', big:false, hist:[] };
+const state = { scenario:'reservation', screen:'home', big:false, hist:[] };
 const scr=document.getElementById('scr'), screen=document.getElementById('screen');
 
 const sc = () => SCEN[state.scenario];
 const products = () => sc().products;
-const resvProducts = () => products().filter(p=>p.product!=='실시간콜');
-const productFor = name => products().find(p=>p.product===name);
-const typeToProduct = t => ({'셔틀예약':'셔틀','일반예약':'일반예약','시간대절':'시간대절'})[t];
+const resvProducts = () => products().filter(p=>p.scope!=='실시간');   // 예약콜 목록에 영향
+const productForType = t => products().find(p=>(p.types||[]).includes(t));
+const realtimeProduct = () => products().find(p=>p.scope==='실시간');
 const blockLabel = p => p.scope==='수락' ? '수락 불가' : '조회 불가';
 const actWord = p => p.scope==='수락' ? '수락' : '조회·수락';
-const untilEnd  = p => p.bans[p.bans.length-1].end;
+const untilEnd  = p => p.bans[p.bans.length-1].end;         // "08.15 24:00"
 const untilMMDD = p => untilEnd(p).split(' ')[0];
+const untilTime = p => untilEnd(p).split(' ')[1];
 const fmtK  = mmdd => { const [m,d]=mmdd.split('.'); return `${+m}월 ${+d}일`; };
 const fmtSl = mmdd => mmdd.split('.').map(Number).join('/');
 const latestProd = arr => arr.slice().sort((a,b)=>untilMMDD(a)<untilMMDD(b)?-1:1).slice(-1)[0];
@@ -298,7 +299,7 @@ function homeMode(){ return sc().realtime; }
 function renderHome(){
   const rp = resvProducts();
   if(homeMode()){
-    const d = fmtK(untilMMDD(productFor('실시간콜')));
+    const d = fmtK(untilMMDD(realtimeProduct()));
     return `
     <div class="ab home">
       <span class="ic menu" data-go="drawer">☰<i class="dot"></i></span><span class="sp"></span>
@@ -360,14 +361,14 @@ function renderDrawer(){
 }
 
 function callCard(c){
-  const p = productFor(typeToProduct(c.type));
+  const p = productForType(c.type);
   const blocked = !!p;
   const typeBadge = `<i class="type">${c.type}</i>`;
   const rest = (c.badges||[]).map(b=> b==='임박'?'<i class="im">임박</i>' : b==='추천'?'<i class="rec">추천</i>' : `<i>${b}</i>`).join('');
   const mult = c.mult?`<em>↗${c.mult.toFixed(1)}배</em>`:'';
   const lft = `<div class="lft"><b>${c.date}</b><span>${c.time}</span>${c.charter?`<span class="ch">${c.charter}</span>`:''}</div>`;
   const foot = blocked
-    ? `<div class="foot"><span class="blk">${p.scope==='수락'?'⊘':'🚫'} ${blockLabel(p)} · ~${fmtSl(untilMMDD(p))}</span><div class="pr">${won(c.price)}</div></div>`
+    ? `<div class="foot"><span class="blk">🚫 ${blockLabel(p)} · ~${fmtSl(untilMMDD(p))}</span><div class="pr">${won(c.price)}</div></div>`
     : `<div class="foot"><span></span><div class="pr">${mult}${won(c.price)}</div></div>`;
   return `<div class="call ${blocked?'blocked':''}">${lft}<div class="rgt"><div class="route">${c.route}</div><div class="bd">${typeBadge}${rest}</div>${foot}</div></div>`;
 }
@@ -406,10 +407,22 @@ function traffic(st){
 }
 function statusHero(){
   const st=overallState();
+  const ps=products();
+  // 남은 기간(가장 늦은 만료 기준) — 데모용 고정 표기
+  let remain='';
+  if(ps.length){
+    const late = latestProd(ps);
+    remain = `<div class="st-remain">
+        <div class="rl">해제까지</div>
+        <div class="rv">${st==='stop'?'약 3일 12시간':'예정'}</div>
+        <div class="ru">${fmtK(untilMMDD(late))} ${untilTime(late)} 해제 예정</div>
+      </div>`;
+  }
   return `<div class="sthero">
      <div class="lab">현재 내 상태</div>
      <div class="state ${st}">${stateLabel(st)}</div>
      ${traffic(st)}
+     ${remain}
      <div class="legend">현재 패널티 상태를 나타냅니다.<br>
        • <span class="lt">정상</span> : 모든 콜을 정상 수신할 수 있어요<br>
        • <span class="lt">정지 예정</span> : 정지가 예정돼 있지만 이의제기할 수 있어요<br>
@@ -426,23 +439,27 @@ function pcard(p){
        <div class="tlw">${rows}</div>
        <p class="pfine">이의제기가 받아들여지면 남은 정지 기간이 자동으로 <b>앞당겨져요</b>. 표시되는 날짜는 항상 <b>현재 기준</b>이에요.</p>
      </details>` : '';
+  const fee = p.fee ? `<div class="feenote"><span class="ic">!</span><span>위약금 입금이 지연되면 패널티 기간이 <b style="color:var(--honeytx)">연장</b>돼요.</span></div>` : '';
   return `
    <div class="grp2">
      <div class="sec-title">${p.product}</div>
      <div class="pcard">
        <div class="pcard-top">
-         <div class="pdate"><span class="cal">🗓</span><b>${fmtK(untilMMDD(p))}</b>까지</div>
-         <span class="pill ${soon?'soon':''}">❗ ${soon?'정지 예정':'정지 중'}</span>
+         <div class="pdate"><b>${fmtK(untilMMDD(p))} ${untilTime(p)}</b>까지</div>
+         <span class="pill ${soon?'soon':''}">${soon?'정지 예정':'정지 중'}</span>
        </div>
        <div class="pdesc">이 날이 지나면 다시 <b>${p.product} 콜을 ${act}</b>할 수 있어요</div>
        <div class="ibul"><span class="ic">ⓘ</span><span>${WHY[p.reason]||p.reason}</span></div>
+       ${fee}
        ${more}
      </div>
    </div>`;
 }
 function stillOkLine(){
-  const banned = products().map(p=>p.product);
-  const ok = ALL_PRODUCTS.filter(x=>!banned.includes(x)).map(x=> x==='실시간콜'?'실시간 콜':x+' 콜');
+  const banned = new Set();
+  products().forEach(p=>{ (p.types||[]).forEach(t=>banned.add(t)); });
+  const ALL=[['실시간콜','실시간 콜'],['일반예약','일반 예약'],['시간대절','시간대절'],['셔틀예약','셔틀']];
+  const ok = ALL.filter(([k])=>!banned.has(k)).map(([,l])=>l);
   return ok.length ? `<div class="stillok"><span>✅</span><span>${ok.join(' · ')}은 지금도 정상 이용할 수 있어요</span></div>` : '';
 }
 function histBlock(){
@@ -472,7 +489,7 @@ function renderDetail(){
     <div class="grp2">
       <div class="sec-title">이의제기</div>
       <div class="appeal-info"><span class="ic">ⓘ</span><span>패널티 사유에 이의가 있다면 타다 드라이버 콜센터(1800-9198) 또는 게시판으로 접수할 수 있어요.</span></div>
-      <div class="appeal-btn" data-toast="이의제기 접수 (프로토타입 · 콜센터 1800-9198)">⚖️ 이의제기하기</div>
+      <div class="appeal-btn" data-toast="이의제기 접수 (프로토타입 · 콜센터 1800-9198)">이의제기하기</div>
     </div>
     ${histBlock()}
   </div></div>`;
@@ -503,12 +520,12 @@ function explain(){
   const s=sc();
   const rp=resvProducts();
   let desc;
-  if(state.scenario==='none') desc='패널티 없음 — 상태 히어로 신호등 <b>녹색(정상)</b> + “적용 중 없음” + 이력.';
-  else if(s.realtime) desc='실시간콜 정지 — 홈 모드 B. 상세는 히어로 신호등 <b>적색(정지 중)</b> + 실시간콜/일반예약 카드.';
-  else desc=`상세 = 2022 ‘콜 정지 현황’ 스타일: <b>상태 히어로+신호등</b> → 상품별 <b>섹션 카드</b>(만료일 히어로·정지중 pill·ⓘ 사유·자세히) → 안심 → 이의제기 → 이력.`;
+  if(state.scenario==='none') desc='패널티 없음 — 상태 히어로 신호등 녹색(정상) + 이력.';
+  else if(s.realtime) desc='실시간콜 초과 — 실시간 콜 + 예약(일반·시간대절) 묶음 정지. 홈은 모드 B(콜 정지 상태).';
+  else desc=`예약 취소·노쇼 → <b>일반예약+시간대절이 한 덩어리</b>로 조회·수락 정지(둘 다 "조회 불가"). 셔틀은 별도. 상세는 상품별 카드 + 위약금 연장 안내.`;
   document.getElementById('explain').innerHTML =
     `<b>시나리오: ${s.label}</b> — ${desc}<br>
-     <span style="color:var(--sub)">기존 Figma 스타일 재구성: <code>현재 내 상태 + 신호등(적/황/녹)</code> · <code>섹션 타이틀+카드</code> · <code>ⓘ 인포 불릿</code> · <code>자세히 보기 ⌄</code> · <code>패널티 이력 + 더 보기</code>. 신규 모델이라 임계 진행도 대신 <b style="color:var(--txt)">상품별 정지</b>로 대응.</span>`;
+     <span style="color:var(--sub)">PRD 8/7 반영: <code>일반·시간대절 묶음(조회 불가)</code> · <code>만료 HH:MM</code> · <code>위약금 지연 시 연장</code>. 상세 = 상태 히어로(신호등·<b style="color:var(--txt)">남은 기간</b>) → 상품 카드 → 안심 → 이의제기 → 이력.</span>`;
 }
 
 /* ---------- controls ---------- */
