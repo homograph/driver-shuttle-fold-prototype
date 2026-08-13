@@ -128,6 +128,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .rc.my .date .d2{font-size:1.286em;font-weight:700}       /* Figma 13311 내예약: 시간 18sp Bold #FFF (날짜=시간 동급 18) */
 
 .endmsg{text-align:center;color:var(--sub2);font-size:.8em;padding:.8em}
+.endmsg.my{color:#868b9c;font-size:1.05em;padding:2.2em 1em}   /* Figma 내 예약 리스트 끝 문구 '이후 수락한 예약이 없습니다.' 색·크기 정합 */
 .emptymsg{text-align:center;color:#868b9c;font-size:1.05em;padding:6em 1.5em}   /* Figma 내 예약/없음 컴포넌트 문구 색(#868B9C) 정합. 기간 필터 0건 안내 */
 
 /* floating buttons */
@@ -381,7 +382,7 @@ function listHTML(){
       const who = state.period==='전체' ? '현재' : state.period;
       return `<div class="emptymsg">${who} 수락한 예약이 없습니다.</div>`;
     }
-    return sortArr(arr).map(cardHTML).join('') + `<div class="endmsg">— 내 예약 ${arr.length}건 —</div>`;
+    return sortArr(arr).map(cardHTML).join('') + `<div class="endmsg my">이후 수락한 예약이 없습니다.</div>`;   // Figma 13721:23962: 리스트 끝 문구(#868B9C 16sp). 예전 '— 내 예약 N건 —' 대체
   }
   // accept — 세그먼트: 포함=셔틀+일반 함께, 제외=일반만 (Figma 시안3). 정렬은 리스트 전체에 적용.
   const arr = state.seg==='include' ? [...SH,...GEN] : GEN.slice();
