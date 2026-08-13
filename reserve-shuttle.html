@@ -139,6 +139,9 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .spin.on{display:flex}
 .spin .ring{width:2.4em;height:2.4em;border-radius:50%;border:.26em solid rgba(255,255,255,.16);border-top-color:#5b93ff;animation:spin .75s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+.loadmore{display:flex;justify-content:center;align-items:center;padding:16px 0 26px}   /* 무한 스크롤 하단 로더 */
+.loadmore .ring{width:1.5em;height:1.5em;border-radius:50%;border:.2em solid rgba(255,255,255,.16);border-top-color:#5b93ff;animation:spin .75s linear infinite}
+.loadmore.blk .ring{animation:none;border-top-color:rgba(255,255,255,.18);opacity:.35}   /* 제한 중: 정지·딤(더 못 불러옴) */
 
 /* 정렬 바텀시트 */
 .sheetdim{position:absolute;inset:0;background:rgba(6,10,20,.55);opacity:0;pointer-events:none;transition:opacity .2s;z-index:8}
@@ -199,7 +202,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
   </div>
 
   <div class="note">
-    <b>인터랙션:</b> <b>셔틀 포함↔제외 토글</b>(행 전체 탭, 포함=셔틀+일반 함께·제외=일반만) · <b>🔔 새 셔틀 도착 시뮬</b> → 제외 중이면 토글이 <b>「수락 가능한 셔틀 콜이 있어요 · 켜기」</b> 재활성 CTA로 전환(탭=포함) · <b>수락가능 콜</b> 탭은 하단 <b>새로고침</b> FAB(제한 중 숨김) · <b>내 예약</b> 탭은 달력/기간 필터 + 스크롤 시 <b>맨 위로</b> FAB. <b>박스 탭·단일 토글·콜카드 모두 Figma 최종안 실측 반영</b>(탭 20sp 선택 w700/비선택 w400·활성 #19254D+#32A2FA, 토글 스위치·보기 CTA #32A2FA, 행 전체 탭=시니어 조준 부담↓). <b>카드 v2 순서: 경로 상단 → 타입칩 → 가격 → 부가수익 하단</b>. · <b>TADA-9282 리프레시 제한</b> 통합: 🚫 시뮬(or 10초 내 6회 새로고침)로 발동 → <b>수락가능콜 항시 배너 + 카운트다운</b>(사다리 10초→…→5분), 제한 중 새로고침/재탭/정렬 <b>차단</b>(중복 토스트 없이 <b>상시 배너 펄스</b>로 시선 유도)·<b>제한 중 FAB 숨김</b>·직전 목록 유지, 해제 시 <b>자기소멸 토스트</b>. <b>완화</b>: 정상 속도면 자유시간 <b>단계마다↓</b>(데모 20초·실제 5분), 0단계=초기화 — 드라이버 비노출(컨트롤 바 <code>제한 단계 N/5</code> readout·⏩ 버튼으로 확인). 내 예약은 자유(배너 없음). · <b>셔틀 토글</b>: <b>끄기·켜기 모두 셔틀 재조회(새로고침)라 제한 대상·차단</b>(도착 넛지 '보기'도 동일). 켜기 차단 시 <b>스위치 저항 피드백</b>(켜지려다 되돌아옴) + <b>'보기' CTA 딤</b> + 통일 토스트 'N초 후 다시 가능'.
+    <b>인터랙션:</b> <b>셔틀 포함↔제외 토글</b>(행 전체 탭, 포함=셔틀+일반 함께·제외=일반만) · <b>🔔 새 셔틀 도착 시뮬</b> → 제외 중이면 토글이 <b>「수락 가능한 셔틀 콜이 있어요 · 켜기」</b> 재활성 CTA로 전환(탭=포함) · <b>수락가능 콜</b> 탭은 하단 <b>새로고침</b> FAB(제한 중 숨김) · <b>내 예약</b> 탭은 달력/기간 필터 + 스크롤 시 <b>맨 위로</b> FAB. <b>박스 탭·단일 토글·콜카드 모두 Figma 최종안 실측 반영</b>(탭 20sp 선택 w700/비선택 w400·활성 #19254D+#32A2FA, 토글 스위치·보기 CTA #32A2FA, 행 전체 탭=시니어 조준 부담↓). <b>카드 v2 순서: 경로 상단 → 타입칩 → 가격 → 부가수익 하단</b>. · <b>TADA-9282 리프레시 제한</b> 통합: 🚫 시뮬(or 10초 내 6회 새로고침)로 발동 → <b>수락가능콜 항시 배너 + 카운트다운</b>(사다리 10초→…→5분), 제한 중 새로고침/재탭/정렬 <b>차단</b>(중복 토스트 없이 <b>상시 배너 펄스</b>로 시선 유도)·<b>제한 중 FAB 숨김</b>·직전 목록 유지, 해제 시 <b>자기소멸 토스트</b>. <b>완화</b>: 정상 속도면 자유시간 <b>단계마다↓</b>(데모 20초·실제 5분), 0단계=초기화 — 드라이버 비노출(컨트롤 바 <code>제한 단계 N/5</code> readout·⏩ 버튼으로 확인). 내 예약은 자유(배너 없음). · <b>무한 스크롤</b>: 수락가능콜 하단 도달 시 다음 페이지 append(<b>추가로딩=새로고침 1회 카운트</b>), <b>제한 중엔 로딩 차단</b>(로더 딤·이미 로드분은 스크롤 유지). · <b>셔틀 토글</b>: <b>끄기·켜기 모두 셔틀 재조회(새로고침)라 제한 대상·차단</b>(도착 넛지 '보기'도 동일). 켜기 차단 시 <b>스위치 저항 피드백</b>(켜지려다 되돌아옴) + <b>'보기' CTA 딤</b> + 통일 토스트 'N초 후 다시 가능'.
   </div>
 </div>
 
@@ -222,8 +225,9 @@ const GEN=[
 ];
 // 셔틀 (셔틀 포함 시 그룹)
 let SH_COUNT=50;
-const SH=Array.from({length:8},(_,i)=>({
-  date:i<3?'오늘':(i<5?'내일':'10월 '+(16+i)+'일'), time:['아침 09:00','아침 10:20','아침 11:20','낮 12:00','낮 13:40','오후 15:10','오후 16:30','저녁 18:00'][i],
+const SHTIMES=['아침 09:00','아침 10:20','아침 11:20','낮 12:00','낮 13:40','오후 15:10','오후 16:30','저녁 18:00'];
+const SH=Array.from({length:24},(_,i)=>({   // 무한 스크롤(페이지네이션) 시연용 셔틀 다건
+  date:i<3?'오늘':(i<6?'내일':'10월 '+(13+((i-6)%16))+'일'), time:SHTIMES[i%SHTIMES.length],
   route:froms[i%froms.length]+' → '+tos[i%2], type:'shuttle', badges:i<4?['imm']:[], price:23000+(i%6)*2000, surge:i%3?'↗1.5배':null
 }));
 // 내 예약 (변경됨)
@@ -266,11 +270,12 @@ function cardHTML(c){
 }
 
 /* ---------- 상태 ---------- */
-const state={tab:'accept', seg:'include', big:false, period:'전체', banner:false, refreshing:false, sort:'추천순',
-  refreshTimes:[], limitUntil:0, limitStage:0, decayAnchor:0};   // TADA-9282 리프레시 제한(+완화 클럭)
+const state={tab:'accept', seg:'include', big:false, period:'전체', banner:false, refreshing:false, sort:'추천순', page:1, loadingMore:false,
+  refreshTimes:[], limitUntil:0, limitStage:0, decayAnchor:0};   // TADA-9282 리프레시 제한(+완화 클럭) · page=무한스크롤 로드된 페이지 수
 
 /* ---------- TADA-9282 리프레시 제한 (수락가능 콜 전용) ---------- */
 const LADDER=[10,30,60,180,300];   // 제한 사다리(초): 10s→30s→1분→3분→5분
+const PAGE_SIZE=6;                  // 무한 스크롤: 페이지당 카드 수(하단 도달 시 다음 페이지 append)
 const DEMO_THRESH=5;               // 데모: 10초 내 5회 초과 시 제한(실제 서버값 10회)
 const DECAY_STEP=20000;            // 완화: 자유시간 이만큼마다 한 단계↓ (데모 20초 · 실제 5분=300000). 5단계면 25분 = 완전 초기화
 function isLimited(){ return Date.now() < state.limitUntil; }
@@ -293,6 +298,7 @@ function enterLimit(){
 function releaseLimit(){
   state.limitUntil=0;
   document.getElementById('chrome').innerHTML=chrome();   // 배너 제거(단계는 유지 → 완화로 서서히↓)
+  document.getElementById('list').innerHTML=listHTML();   // 하단 로더 blk 해제(로딩 재개) · page 유지(스크롤 보존)
   updateFabs();
   if(state.tab==='accept') toast('다시 새로고침 가능해요');   // Figma: 해제 자기소멸 토스트 문구
 }
@@ -384,12 +390,16 @@ function listHTML(){
     }
     return sortArr(arr).map(cardHTML).join('') + `<div class="endmsg my">이후 수락한 예약이 없습니다.</div>`;   // Figma 13721:23962: 리스트 끝 문구(#868B9C 16sp). 예전 '— 내 예약 N건 —' 대체
   }
-  // accept — 세그먼트: 포함=셔틀+일반 함께, 제외=일반만 (Figma 시안3). 정렬은 리스트 전체에 적용.
-  const arr = state.seg==='include' ? [...SH,...GEN] : GEN.slice();
-  return sortArr(arr).map(cardHTML).join('');   // 수락가능콜은 하단 '— 목록 끝 —' 표기 없음(사용자 요청)
+  // accept — 세그먼트: 포함=셔틀+일반 함께, 제외=일반만 (Figma 시안3). 정렬 후 무한 스크롤 페이지네이션.
+  const arr = sortArr(state.seg==='include' ? [...SH,...GEN] : GEN.slice());
+  const shown = arr.slice(0, state.page*PAGE_SIZE);
+  let html = shown.map(cardHTML).join('');
+  if(arr.length > shown.length) html += `<div class="loadmore${isLimited()?' blk':''}" id="loadmore"><div class="ring"></div></div>`;   // 하단 도달 시 다음 페이지 로딩(제한 중=blk, 로딩 차단·이미 로드분 유지)
+  return html;   // 수락가능콜은 '— 목록 끝 —' 표기 없음(사용자 요청)
 }
 
 function render(){
+  state.page=1;   // 프레시 로드(탭·필터·정렬·새로고침)마다 페이지네이션 초기화 → 최상단 1페이지부터
   document.getElementById('scr').classList.toggle('big',state.big);
   document.getElementById('scr').classList.toggle('tab-my',state.tab==='my');
   document.getElementById('chrome').innerHTML=chrome();
@@ -440,6 +450,20 @@ function doRefresh(applyState, toastMsg){
   }, 850);
 }
 
+// 무한 스크롤: 하단 도달 → 다음 페이지 append(수락가능콜 전용). 추가로딩=새로고침 1회 카운트, 제한 중이면 차단(이미 로드분 유지)
+function loadMore(){
+  if(state.tab!=='accept' || state.loadingMore || state.refreshing) return;
+  const arr = sortArr(state.seg==='include' ? [...SH,...GEN] : GEN.slice());
+  if(state.page*PAGE_SIZE >= arr.length) return;   // 더 없음
+  if(isLimited()){ pulseBanner(); return; }         // 제한 중: 다음 페이지 로딩 차단(배너 펄스) — 이미 뜬 목록은 그대로 스크롤 가능
+  state.loadingMore=true; recordRefresh();           // 추가로딩 = 카운트 1회(임계 초과 시 제한 발동)
+  clearTimeout(loadMore._t);
+  loadMore._t=setTimeout(()=>{
+    state.page++;
+    document.getElementById('list').innerHTML=listHTML();   // 리스트만 재렌더 → 스크롤 위치 보존한 채 아래로 append
+    state.loadingMore=false; updateDevStatus();
+  }, 700);
+}
 let lastNavY=0;
 function updateFabs(){
   const sc=document.getElementById('scroll');
@@ -455,6 +479,7 @@ function updateFabs(){
   const top=document.getElementById('fabTop'), rf=document.getElementById('fabRefresh');
   if(state.tab==='accept'){ rf.classList.toggle('show', !isLimited()); rf.classList.remove('limited'); top.classList.remove('show'); }   // Figma: 수락가능콜=새로고침 FAB, 단 제한 중엔 완전 숨김(진입점 제거 — 안내는 상시 배너)
   else { rf.classList.remove('show'); top.classList.toggle('show',scrolled); }           // Figma: 내 예약 = 맨 위로(스크롤 시)
+  if(state.tab==='accept' && (sc.scrollHeight - (y + sc.clientHeight) < 140)) loadMore();   // 무한 스크롤: 하단 근접 → 다음 페이지 로딩
 }
 document.getElementById('scroll').addEventListener('scroll',updateFabs);
 
