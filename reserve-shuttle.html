@@ -386,7 +386,7 @@ function listHTML(){
   }
   // accept — 세그먼트: 포함=셔틀+일반 함께, 제외=일반만 (Figma 시안3). 정렬은 리스트 전체에 적용.
   const arr = state.seg==='include' ? [...SH,...GEN] : GEN.slice();
-  return sortArr(arr).map(cardHTML).join('') + `<div class="endmsg">— 목록 끝 —</div>`;
+  return sortArr(arr).map(cardHTML).join('');   // 수락가능콜은 하단 '— 목록 끝 —' 표기 없음(사용자 요청)
 }
 
 function render(){
