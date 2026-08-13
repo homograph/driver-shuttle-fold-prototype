@@ -270,7 +270,7 @@ function cardHTML(c){
 }
 
 /* ---------- 상태 ---------- */
-const state={tab:'accept', seg:'include', big:false, period:'전체', banner:false, refreshing:false, sort:'추천순', page:1, loadingMore:false,
+const state={tab:'accept', seg:'include', big:false, period:'전체', banner:false, refreshing:false, sort:'추천순', page:1, loadingMore:false, atBottom:false,
   refreshTimes:[], limitUntil:0, limitStage:0, decayAnchor:0};   // TADA-9282 리프레시 제한(+완화 클럭) · page=무한스크롤 로드된 페이지 수
 
 /* ---------- TADA-9282 리프레시 제한 (수락가능 콜 전용) ---------- */
@@ -397,7 +397,9 @@ function listHTML(){
   let html = shown.map(cardHTML).join('');
   html += arr.length > shown.length
     ? `<div class="loadmore${isLimited()?' blk':''}" id="loadmore"><div class="ring"></div></div>`   // 더 있음 → 로더(제한 중=blk 차단, 이미 로드분 유지)
-    : `<div class="endmsg">지금 받을 수 있는 콜을 모두 확인했어요</div>`;                              // 끝(완결): 다 봄 → 반사적 재조회 억제. 디바이더 아님
+    : state.loadingMore
+      ? `<div class="loadmore" id="loadmore"><div class="ring"></div></div>`                          // 끝에서 새 콜 확인 중(짧은 스피너)
+      : `<div class="endmsg">지금 받을 수 있는 콜을 모두 확인했어요</div>`;                            // 끝(완결): 확인했는데 없음. 디바이더 아님·새로고침 유도 없음
   return html;
 }
 
@@ -456,15 +458,17 @@ function doRefresh(applyState, toastMsg){
 // 무한 스크롤: 하단 도달 → 다음 페이지 append(수락가능콜 전용). 추가로딩=새로고침 1회 카운트, 제한 중이면 차단(이미 로드분 유지)
 function loadMore(){
   if(state.tab!=='accept' || state.loadingMore || state.refreshing) return;
+  if(isLimited()){ pulseBanner(); return; }          // 제한 중: 로딩 차단(배너 펄스) — 이미 뜬 목록은 그대로 스크롤 가능
   const arr = sortArr(state.seg==='include' ? [...SH,...GEN] : GEN.slice());
-  if(state.page*PAGE_SIZE >= arr.length) return;   // 더 없음
-  if(isLimited()){ pulseBanner(); return; }         // 제한 중: 다음 페이지 로딩 차단(배너 펄스) — 이미 뜬 목록은 그대로 스크롤 가능
-  state.loadingMore=true; recordRefresh();           // 추가로딩 = 카운트 1회(임계 초과 시 제한 발동)
+  const hasMore = state.page*PAGE_SIZE < arr.length;  // 끝이어도 재확인은 진행(새 콜 확인) — early-return 안 함
+  state.loadingMore=true; recordRefresh();            // 스크롤 로딩(끝에서 새 콜 확인 포함) = 카운트 1회(임계 초과 시 제한 발동)
+  document.getElementById('list').innerHTML=listHTML();   // 로딩 표시(끝이어도 '확인 중' 스피너로 전환)
   clearTimeout(loadMore._t);
   loadMore._t=setTimeout(()=>{
-    state.page++;
-    document.getElementById('list').innerHTML=listHTML();   // 리스트만 재렌더 → 스크롤 위치 보존한 채 아래로 append
-    state.loadingMore=false; updateDevStatus();
+    if(hasMore) state.page++;                          // 더 있으면 다음 페이지 append (없으면 page 유지)
+    state.loadingMore=false;
+    document.getElementById('list').innerHTML=listHTML();   // 더 있으면 카드 추가, 없으면 '지금 받을 수 있는 콜을 모두 확인했어요' 재노출
+    updateDevStatus();
   }, 700);
 }
 let lastNavY=0;
@@ -482,7 +486,9 @@ function updateFabs(){
   const top=document.getElementById('fabTop'), rf=document.getElementById('fabRefresh');
   if(state.tab==='accept'){ rf.classList.toggle('show', !isLimited()); rf.classList.remove('limited'); top.classList.remove('show'); }   // Figma: 수락가능콜=새로고침 FAB, 단 제한 중엔 완전 숨김(진입점 제거 — 안내는 상시 배너)
   else { rf.classList.remove('show'); top.classList.toggle('show',scrolled); }           // Figma: 내 예약 = 맨 위로(스크롤 시)
-  if(state.tab==='accept' && (sc.scrollHeight - (y + sc.clientHeight) < 140)) loadMore();   // 무한 스크롤: 하단 근접 → 다음 페이지 로딩
+  const nearBottom = sc.scrollHeight - (y + sc.clientHeight) < 140;
+  if(state.tab==='accept' && nearBottom && !state.atBottom) loadMore();   // 무한 스크롤: 바닥 진입 순간(엣지)에만 → 끝에서도 재확인 가능, 연속 폭주 방지
+  state.atBottom = nearBottom;
 }
 document.getElementById('scroll').addEventListener('scroll',updateFabs);
 
