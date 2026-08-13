@@ -226,7 +226,7 @@ const GEN=[
 // 셔틀 (셔틀 포함 시 그룹)
 let SH_COUNT=50;
 const SHTIMES=['아침 09:00','아침 10:20','아침 11:20','낮 12:00','낮 13:40','오후 15:10','오후 16:30','저녁 18:00'];
-const SH=Array.from({length:24},(_,i)=>({   // 무한 스크롤(페이지네이션) 시연용 셔틀 다건
+const SH=Array.from({length:10},(_,i)=>({   // 페이지네이션 시연: 포함=셔틀10+일반8=18장 → PAGE_SIZE6 기준 스크롤 2번이면 '끝'
   date:i<3?'오늘':(i<6?'내일':'10월 '+(13+((i-6)%16))+'일'), time:SHTIMES[i%SHTIMES.length],
   route:froms[i%froms.length]+' → '+tos[i%2], type:'shuttle', badges:i<4?['imm']:[], price:23000+(i%6)*2000, surge:i%3?'↗1.5배':null
 }));
