@@ -397,7 +397,9 @@ function listHTML(){
   let html = shown.map(cardHTML).join('');
   html += arr.length > shown.length
     ? `<div class="loadmore${isLimited()?' blk':''}" id="loadmore"><div class="ring"></div></div>`   // 더 있음 → 로더(제한 중=blk 차단, 이미 로드분 유지)
-    : `<div class="endmsg">지금 받을 수 있는 콜을 모두 확인했어요</div>`;                            // 끝(완결): 전부 로드됨(API 미호출·카운트 없음). 디바이더 아님·새로고침 유도 없음
+    : state.loadingMore
+      ? `<div class="loadmore" id="loadmore"><div class="ring"></div></div>`                          // 끝에서 아래로 스크롤 시 스피너 대응(API 미호출·카운트 없음)
+      : `<div class="endmsg">지금 받을 수 있는 콜을 모두 확인했어요</div>`;                            // 스피너 끝나면 다시 완결 문구
   return html;
 }
 
@@ -456,15 +458,18 @@ function doRefresh(applyState, toastMsg){
 // 무한 스크롤: 하단 도달 → 다음 페이지 append(수락가능콜 전용). 추가로딩=새로고침 1회 카운트, 제한 중이면 차단(이미 로드분 유지)
 function loadMore(){
   if(state.tab!=='accept' || state.loadingMore || state.refreshing) return;
+  if(isLimited()){ pulseBanner(); return; }            // 제한 중: 로딩/재확인 차단(배너 펄스)
   const arr = sortArr(state.seg==='include' ? [...SH,...GEN] : GEN.slice());
-  if(state.page*PAGE_SIZE >= arr.length) return;      // 이미 전부 로드됨 → API 미호출 → 카운트 X, '모두 확인했어요' 유지(스크롤은 여전히 가능)
-  if(isLimited()){ pulseBanner(); return; }            // 제한 중: 다음 페이지 로딩 차단(배너 펄스) — 이미 뜬 목록은 그대로 스크롤 가능
-  state.loadingMore=true; recordRefresh();             // 실제 다음 페이지 로딩(API 호출)만 새로고침 1회 카운트(임계 초과 시 제한 발동)
+  const hasMore = state.page*PAGE_SIZE < arr.length;
+  state.loadingMore=true;
+  if(hasMore) recordRefresh();                         // 실제 다음 페이지 로딩(API 호출)만 카운트. 끝 재확인은 이미 전부 로드→API 미호출→카운트 X
+  document.getElementById('list').innerHTML=listHTML();// 스피너 노출(더 있음=로더 / 끝=재확인 스피너)
   clearTimeout(loadMore._t);
   loadMore._t=setTimeout(()=>{
-    state.page++;
-    document.getElementById('list').innerHTML=listHTML();   // 다음 페이지 append(스크롤 위치 보존)
-    state.loadingMore=false; updateDevStatus();
+    if(hasMore) state.page++;                           // 더 있으면 다음 페이지 append (끝이면 page 유지)
+    state.loadingMore=false;
+    document.getElementById('list').innerHTML=listHTML();// 더 있으면 카드 추가 / 끝이면 '모두 확인했어요' 재노출
+    updateDevStatus();
   }, 700);
 }
 let lastNavY=0;
