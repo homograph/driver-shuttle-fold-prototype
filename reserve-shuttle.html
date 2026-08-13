@@ -40,8 +40,8 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 /* appbar */
 .appbar{display:flex;align-items:center;gap:.4em;padding:.5em .3em .5em .5em;flex:none}
 #chrome{overflow:hidden}   /* 탑 내비 hide-on-scroll 시 위로 나간 topnav clip */
-.topnav{transition:margin-top .22s cubic-bezier(.4,0,.2,1)}   /* 앱바+탭 묶음 = hide 대상(네비) */
-.scr.navhide .topnav{margin-top:calc(-1 * var(--tnh, 130px))}   /* Android enterAlways: 스크롤 다운 시 앱바+탭 함께 위로 접힘. 토글·배너·리스트는 고정(위로 당겨짐). 탭=단순 네비라 hide OK / 토글=실시간(도착넛지)이라 고정 */
+.appbar{transition:margin-top .22s cubic-bezier(.4,0,.2,1)}   /* 앱바만 = hide 대상(네비). 탭은 고정 */
+.scr.navhide .appbar{margin-top:calc(-1 * var(--abh, 56px))}   /* Android enterAlways: 스크롤 다운 시 앱바만 위로 접힘. 탭·토글·배너·리스트는 고정(위로 당겨짐). ※탭까지 숨기면 셔틀 권한 없는 드라이버는 상단 앵커가 토글 없이 불안정 → 탭 상시 노출 */
 .appbar .bk{font-size:1.3em;color:#fff;padding:0 .25em;cursor:pointer}
 .appbar .ttl{font-size:1.29em;font-weight:700;flex:1}   /* Figma: 타이틀 18sp Bold(700) */
 .appbar .sort{color:var(--sub);padding:.3em .5em;cursor:pointer;font-size:1.05em}
@@ -439,9 +439,9 @@ function updateFabs(){
   const sc=document.getElementById('scroll');
   const y=sc.scrollTop;
   // 탑 내비 hide-on-scroll (Android enterAlways): 다운(임계 초과)=숨김 / 업 or 최상단=즉시 복귀. 탭·토글·배너는 고정
-  const scrEl=document.getElementById('scr'), ab=scrEl.querySelector('.topnav');
-  if(ab){ scrEl.style.setProperty('--tnh', ab.offsetHeight+'px');
-    if(y>lastNavY && y>60) scrEl.classList.add('navhide');   // 다운(60px 초과) → 앱바+탭 접힘
+  const scrEl=document.getElementById('scr'), ab=scrEl.querySelector('.appbar');
+  if(ab){ scrEl.style.setProperty('--abh', ab.offsetHeight+'px');
+    if(y>lastNavY && y>60) scrEl.classList.add('navhide');   // 다운(60px 초과) → 앱바만 접힘
     else if(y<lastNavY || y<=0) scrEl.classList.remove('navhide');   // 업 or 최상단 → 즉시 복귀(enterAlways)
   }
   lastNavY=y;
