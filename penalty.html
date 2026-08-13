@@ -83,7 +83,14 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .badge2.act .dot{background:var(--red);box-shadow:0 0 .5em rgba(255,124,124,.9)}
 .badge2.soon .dot{background:var(--amber);box-shadow:0 0 .5em rgba(255,186,76,.9)}
 .badge2.ok .dot{background:var(--green);box-shadow:0 0 .5em rgba(126,224,129,.9)}
+.traffic{display:inline-flex;gap:.55em;align-items:center;background:#0f1c37;border:1px solid var(--line);border-radius:999px;padding:.5em .85em}
+.traffic .d{width:.72em;height:.72em;border-radius:50%;opacity:.28}
+.traffic .d.r{background:var(--red)} .traffic .d.a{background:var(--amber)} .traffic .d.g{background:var(--green)}
+.traffic .d.on{opacity:1}
+.traffic .d.r.on{box-shadow:0 0 .55em rgba(255,124,124,.95)}
+.traffic .d.g.on{box-shadow:0 0 .55em rgba(126,224,129,.95)}
 .p-head{text-align:center;font-size:1.55em;font-weight:800;line-height:1.22;letter-spacing:-.01em}
+.p-restrict{text-align:center;color:var(--sub);font-size:.92em;line-height:1.4}
 .p-when{text-align:center;font-weight:800;font-size:1em;line-height:1.5}
 .p-when.act{color:var(--red)} .p-when.soon{color:var(--amber)}
 .p-panel{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:.95em 0;display:flex;flex-direction:column;gap:.7em}
@@ -219,16 +226,16 @@ function renderList(){
 /* ---------- 패널티 현황 상세 (v3) ---------- */
 function pcard(c){
   return `<div class="pcard2">
-    <div class="p-badgewrap"><span class="badge2 act"><span class="dot"></span>적용중</span></div>
-    <div class="p-head">${c.head} 패널티</div>
-    <div class="p-when act">${c.when} 까지<br>조회·수락 불가</div>
+    <div class="p-badgewrap"><div class="traffic"><span class="d r on"></span><span class="d a"></span><span class="d g"></span></div></div>
+    <div class="p-head">${c.head} 정지</div>
+    <div class="p-restrict">조회·수락 불가</div>
+    <div class="p-when act">${c.when} 까지</div>
     <div class="p-panel">
       <div class="inforow2"><span class="l">대상</span><span class="v">${c.target}</span></div>
       <div class="inforow2"><span class="l">기간</span><span class="v">${c.period}</span></div>
       <div class="inforow2"><span class="l">사유</span><span class="v">${c.reason}</span></div>
     </div>
     <div class="p-note">위약금 입금이 지연되면 패널티 기간이 연장돼요.</div>
-    <div class="p-detail-row" data-toast="정지 기간 상세 (프로토타입)">정지 기간 자세히 보기<span class="cv">›</span></div>
   </div>`;
 }
 function renderDetail(){
@@ -237,7 +244,7 @@ function renderDetail(){
   if(!blocked()){
     return `${appbar}<div class="scroll"><div class="detail">
       <div class="pcard2">
-        <div class="p-badgewrap"><span class="badge2 ok"><span class="dot"></span>정상</span></div>
+        <div class="p-badgewrap"><div class="traffic"><span class="d r"></span><span class="d a"></span><span class="d g on"></span></div></div>
         <div class="p-head">패널티 없음</div>
         <div class="p-empty">현재 적용 중인 패널티가 없습니다.<br>안전 운행에 감사드립니다.</div>
       </div>
@@ -277,7 +284,7 @@ function explain(){
   else desc=`${s.tab} 취소 → <b>조회+수락 정지</b>라 콜 목록이 <b>빈 리스트</b>. 하단 배너 → 자세히 보기 → 상세 카드.`;
   document.getElementById('explain').innerHTML =
     `<b>시나리오: ${s.tab}</b> — ${desc}<br>
-     <span style="color:var(--sub)">플로우: <code>예약콜 목록(빈+배너)</code> → <code>자세히 보기</code> → <code>패널티 현황 상세</code>. 상세 카드 = 배지 · <b style="color:var(--txt)">[상품] 콜 패널티</b> · 큰 날짜(까지) · 대상/기간/사유 · 위약금 연장. ‘정지 예정’은 PRD 미정의라 보류.</span>`;
+     <span style="color:var(--sub)">플로우: <code>예약콜 목록(빈+배너)</code> → <code>자세히 보기</code> → <code>패널티 현황 상세</code>. 상세 카드 = 신호등 · <b style="color:var(--txt)">[상품] 콜 정지</b> · 조회·수락 불가(중립) · 큰 날짜(빨강) · 대상/기간/사유 · 위약금 연장. ‘정지 예정’은 PRD 미정의라 보류.</span>`;
 }
 
 /* ---------- controls ---------- */
