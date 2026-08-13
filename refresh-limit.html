@@ -184,8 +184,8 @@ function render(){
   el('chrome').innerHTML=chrome();
   const list=el('list'); list.innerHTML=listHTML();
   list.classList.remove('dim');   // 제한 중에도 목록은 그대로(딤 없음) — 수락 가능해야 하므로
-  const fab=el('fab');            // 하단 플로팅 새로고침: 수락가능 콜에서만, 제한 중엔 딤(눌러도 배너 안내)
-  if(fab){ fab.classList.toggle('hide', state.tab!=='accept' || limited()); }  // 제한 중엔 버튼 숨김(실제 디자인) · 재시도·강조 주 경로는 상단 탭 연타
+  const fab=el('fab');            // 하단 플로팅 새로고침: 수락가능 콜에서만
+  if(fab){ fab.classList.toggle('hide', state.tab!=='accept' || limited()); }  // 제한 중엔 버튼 완전 숨김(진입점 제거) · 재시도·강조 주 경로는 상단 탭 연타
   readout();
 }
 function readout(){
