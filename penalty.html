@@ -6,13 +6,11 @@
 <title>패널티 안내 프로토타입 · TADA-9314</title>
 <style>
 :root{
-  --page:#0c1526; --nv:#0f1c37; --card:#1a2c50; --line:#2b4067; --txt:#f2f6ff; --sub:#a7b8d6;
-  --blue:#3d7bff; --btn:#1b3e79; --btnln:#5b93ff; --sh:#bcd3ff; --mult:#c7ef4c;
-  --badge:#334870; --badgetx:#cdd9f2; --imm:#8a3a58; --immtx:#ffb0c6; --rec:#1f3a2e; --rectx:#7fe3ac;
-  --red:#ff5a5a; --redbg:rgba(255,90,90,.14); --redln:rgba(255,90,90,.45); --redtx:#ff9b9b;
-  --amber:#ffcf6a; --amberbg:rgba(255,190,80,.13); --amberln:rgba(255,190,80,.42); --ambertx:#ffd98a;
-  --green:#3ddc84; --orange:#ff7a2f; --gray:#8791a6;
-  --honeybg:rgba(255,148,0,.12); --honeyln:rgba(255,148,0,.4); --honeytx:#FFE4B2; --honeyac:#FFBA4C;
+  --page:#0c1526; --nv:#101a3d; --card:#1e2d59; --line:#293f71; --txt:#f2f6ff; --sub:#99a5c0;
+  --blue:#298dff; --btn:#26324f; --btnln:#5b93ff;
+  --red:#ff7c7c; --redbg:rgba(255,124,124,.12); --redln:rgba(255,124,124,.4);
+  --amber:#ffba4c; --amberbg:rgba(255,186,76,.12); --amberln:rgba(255,186,76,.4);
+  --green:#7ee081;
   --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
   --kr:"Apple SD Gothic Neo","Pretendard",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif;
 }
@@ -31,163 +29,80 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .stage{display:flex;justify-content:center}
 .phone{width:100%;max-width:390px;background:#0a1428;border:1px solid var(--line);border-radius:26px;padding:8px;box-shadow:0 18px 50px rgba(0,0,0,.4)}
 .scr{background:var(--nv);border:1px solid var(--line);border-radius:19px;overflow:hidden;display:flex;flex-direction:column;height:730px;font-size:14px;position:relative}
-.scr.big{font-size:18px}
+.scr.big{font-size:17px}
 .sb{height:1.4em;background:#0b1730;flex:none}
 .screen{flex:1;display:flex;flex-direction:column;min-height:0}
 
 /* app bar */
-.ab{padding:.7em .85em;font-weight:800;display:flex;align-items:center;gap:.5em;border-bottom:1px solid var(--line);flex:none}
-.ab .sp{flex:1}.ab .i{color:var(--sub);font-weight:600;font-size:.8em}
-.ab .ic{cursor:pointer}
-.ab.home{font-weight:700;gap:.4em}
-.ab.home .menu{position:relative;font-size:1.05em}
-.ab.home .menu .dot{position:absolute;top:-.1em;right:-.2em;width:.42em;height:.42em;background:var(--orange);border-radius:50%}
-.ab.home .chip{font-size:.8em;font-weight:700;background:#26324f;border-radius:.7em;padding:.35em .7em;color:#fff;cursor:pointer}
-.ab.home .chip.ghost{background:#16223d;color:var(--sub);cursor:default}
-.ab.home .chip.ghost.off{color:#5a647e}
+.ab{padding:.75em .85em;font-weight:800;display:flex;align-items:center;gap:.5em;border-bottom:1px solid var(--line);flex:none}
+.ab .sp{flex:1}
+.ab .i{color:var(--sub);font-weight:600;font-size:.82em}
+.ab .ic{cursor:pointer;color:var(--txt)}
 
 /* tabs */
 .tabs{display:flex;font-size:.92em;border-bottom:1px solid var(--line);flex:none}
-.tabs div{flex:1;text-align:center;padding:.7em 0;color:var(--sub);cursor:pointer}
+.tabs div{flex:1;text-align:center;padding:.8em 0;color:var(--sub);cursor:pointer}
 .tabs .on{color:var(--txt);font-weight:800;box-shadow:inset 0 -3px 0 var(--blue)}
 
-.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0;display:flex;flex-direction:column}
+
+/* 예약콜 목록 — 빈 상태 */
+.emptycall{flex:1;display:flex;align-items:center;justify-content:center;color:var(--sub);font-size:.95em;text-align:center;padding:2em}
+
+/* 정상 콜 카드 */
 .list{padding:.6em;display:flex;flex-direction:column;gap:.55em}
-.sortrow{display:flex;gap:.4em;font-size:.82em;color:var(--sub);margin-bottom:.1em}
-.sortrow .c{border:1px solid var(--line);border-radius:999px;padding:.3em .7em;cursor:pointer;background:transparent;color:var(--sub);font-family:var(--kr)}
+.sortrow{display:flex;gap:.4em;font-size:.82em;margin-bottom:.1em}
+.sortrow .c{border:1px solid var(--line);border-radius:999px;padding:.3em .7em;color:var(--sub);background:transparent;font-family:var(--kr);cursor:pointer}
 .sortrow .c.act{color:#fff;border-color:var(--btnln)}
 .sortrow .f{margin-left:auto}
-
-/* banners */
-.banner{margin:.55em .6em 0;border-radius:.7em;padding:.7em .8em;display:flex;align-items:center;gap:.5em;cursor:pointer;font-size:.86em;line-height:1.4}
-.banner .cv{margin-left:auto;font-size:1.2em}
-.banner.amber{background:var(--amberbg);border:1px solid var(--amberln);color:var(--ambertx)}
-.banner.red{background:var(--redbg);border:1px solid var(--redln);color:var(--redtx)}
-.banner.red .lines b{font-weight:800;color:#ffbcbc}
-
-/* call cards */
 .call{background:var(--card);border-radius:.75em;padding:.72em;display:flex;gap:.6em;cursor:pointer;border:1px solid transparent}
 .call:active{border-color:var(--btnln)}
-.call.blocked{opacity:.5;background:#182238;cursor:default}
-.call .lft{width:4.8em;flex:none}
+.call .lft{width:4.6em;flex:none}
 .call .lft b{font-weight:800}.call .lft span{display:block;font-size:.78em;color:var(--sub)}
-.call .lft .ch{display:block;font-size:.72em;color:var(--sub);margin-top:.2em}
 .call .rgt{flex:1;min-width:0}
 .call .route{font-size:.92em}
 .call .bd{display:flex;flex-wrap:wrap;gap:.3em;margin:.38em 0}
-.call .bd i{font-style:normal;font-size:.72em;background:var(--badge);color:var(--badgetx);border-radius:.4em;padding:.17em .5em}
+.call .bd i{font-style:normal;font-size:.72em;background:#334870;color:#cdd9f2;border-radius:.4em;padding:.17em .5em}
 .call .bd i.type{font-weight:700}
-.call .bd i.im{background:var(--imm);color:var(--immtx)}
-.call .bd i.rec{background:var(--rec);color:var(--rectx)}
-.call .foot{display:flex;justify-content:space-between;align-items:center;margin-top:.3em}
+.call .foot{display:flex;justify-content:flex-end;margin-top:.3em}
 .call .pr{text-align:right;font-weight:800}
-.call .pr em{font-style:normal;color:var(--mult);font-size:.78em;font-weight:700;margin-right:.25em}
-.call .blk{font-size:.78em;font-weight:800;color:var(--redtx)}
 
-/* fab */
-.fab{position:absolute;left:50%;bottom:1em;transform:translateX(-50%);background:#fff;color:#0b1220;font-weight:800;font-size:.82em;border-radius:999px;padding:.6em 1.3em;box-shadow:0 8px 24px rgba(0,0,0,.4);cursor:pointer}
+/* 하단 도킹 정지 배너 (컨텍스트) */
+.blockban{flex:none;margin:.2em .7em .8em;border:1px solid var(--line);border-radius:.85em;padding:1em .9em;background:#16223d}
+.blockban .bd{text-align:center;font-weight:800;color:var(--red);font-size:1.02em;line-height:1.35}
+.blockban .bp{text-align:center;font-weight:700;color:var(--txt);margin-top:.15em}
+.blockban .bbtn{margin-top:.85em;text-align:center;font-weight:800;background:var(--btn);border:1px solid var(--line);border-radius:.6em;padding:.8em;cursor:pointer;color:#fff}
+.blockban .bbtn:active{border-color:var(--btnln)}
 
-/* home map / status */
-.map{flex:1;margin:.6em;border-radius:.9em;background:radial-gradient(120% 90% at 50% 20%,#1a2b4d 0,#12203c 60%,#0e1a32 100%);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4em;min-height:8em;overflow:hidden}
-.map .reccard{position:absolute;top:.7em;left:.7em;right:.7em;background:#0e1830;border:1px solid #26324f;border-radius:.6em;padding:.5em .7em;font-size:.76em;color:#c9d2e3}
-.map .reccard b{color:var(--redtx);font-weight:700}
-.map .statusic{width:2.6em;height:2.6em;border-radius:50%;background:#1f3a2e;display:flex;align-items:center;justify-content:center;font-size:1.2em}
-.map .statustx{font-weight:800;color:var(--rectx)}
-.map .statussub{font-size:.76em;color:var(--sub)}
-.homectrl{display:flex;gap:.5em;padding:.6em}
-.homectrl .hc{flex:1;text-align:center;font-size:.82em;padding:.75em;border-radius:.7em;background:#16223d;color:var(--sub)}
-.homectrl .hc.solid{background:#26324f;color:#fff;font-weight:700}
-
-/* mode B takeover */
-.takeover{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.25em;padding:1em}
-.takeover .tl0{color:#6e56c4;font-size:1.1em;line-height:.7}
-.takeover .slash{background:#7b5cd6;color:#fff;font-size:.72em;border-radius:.35em;padding:.05em .6em;margin:.15em 0}
-.takeover .tri{width:3.4em;height:3.4em;border-radius:.8em;background:#3a4358;display:flex;align-items:center;justify-content:center;font-size:1.8em;margin:.3em 0}
-.takeover .big{font-size:1.35em;font-weight:800;color:#aeb6c7}
-.takeovercard{margin:0 .8em .9em;border:1px solid #26324f;border-radius:.9em;padding:.9em}
-.takeovercard .m{text-align:center;font-size:.95em;line-height:1.5}
-.takeovercard .m b{color:var(--orange);font-weight:800}
-.takeovercard .s{text-align:center;font-size:.76em;color:var(--sub);margin:.35em 0 .7em}
-.takeovercard .btn{background:#26324f;border-radius:.55em;text-align:center;font-weight:800;padding:.7em;cursor:pointer}
-
-/* drawer */
-.drawer-prof{display:flex;align-items:center;gap:.6em;padding:0 .9em .8em;border-bottom:1px solid var(--line)}
-.drawer-prof .av{width:2.6em;height:2.6em;border-radius:50%;background:#26324f;flex:none}
-.drawer-prof b{font-weight:800}
-.drawer-prof span{display:block;font-size:.78em;color:var(--sub)}
-.dsec{font-size:.72em;color:#5a647e;padding:.9em .9em .35em}
-.drow{padding:.65em .9em;font-size:.92em;color:var(--sub);cursor:pointer}
-.drow.penalty{margin:.15em .6em;padding:.7em .7em;border:1.5px solid var(--redln);border-radius:.6em;color:var(--redtx);font-weight:800;display:flex;align-items:center;justify-content:space-between}
-.drow.penalty.calm{border-color:var(--line);color:var(--txt)}
-.drow.penalty .new{font-size:.62em;background:var(--redbg);border:1px solid var(--redln);color:var(--redtx);border-radius:.35em;padding:.1em .5em}
-.drawer-foot{border-top:1px solid var(--line);padding:.8em .9em;font-size:.9em;color:var(--sub)}
-
-/* ===== 패널티 현황 (2022 '콜 정지 현황' 스타일) ===== */
+/* ===== 패널티 현황 상세 (v3 · board + 정보패널) ===== */
 .detail{padding:.85em .8em 1.4em;display:flex;flex-direction:column;gap:.85em}
-.grp2{display:flex;flex-direction:column;gap:.4em}
-.sec-title{font-size:.98em;font-weight:800;margin:.1em .1em 0}
-.sthero{background:var(--card);border-radius:1em;padding:1.1em .9em .85em;text-align:center}
-.sthero .lab{font-size:.8em;color:var(--sub)}
-.sthero .state{font-size:1.55em;font-weight:800;margin:.15em 0 .65em;letter-spacing:-.01em}
-.sthero .state.stop{color:var(--red)} .sthero .state.soon{color:var(--amber)} .sthero .state.ok{color:var(--green)}
-.traffic{display:inline-flex;gap:.6em;background:#0a1324;border:1px solid #223350;border-radius:999px;padding:.42em .85em}
-.traffic .d{width:.85em;height:.85em;border-radius:50%;opacity:.26}
-.traffic .d.r{background:var(--red)} .traffic .d.a{background:var(--amber)} .traffic .d.g{background:var(--green)}
-.traffic .d.on{opacity:1}
-.traffic .d.r.on{box-shadow:0 0 .55em rgba(255,90,90,.9)}
-.traffic .d.a.on{box-shadow:0 0 .55em rgba(255,207,106,.9)}
-.traffic .d.g.on{box-shadow:0 0 .55em rgba(61,220,132,.9)}
-.st-remain{border-top:1px solid var(--line);margin-top:.85em;padding-top:.75em}
-.st-remain .rl{font-size:.78em;color:var(--sub)}
-.st-remain .rv{font-size:1.5em;font-weight:800;margin:.1em 0}
-.st-remain .ru{font-size:.82em;color:var(--sub)}
-.legend{background:#0e1a34;border-radius:.7em;padding:.65em .8em;margin-top:.85em;text-align:left;font-size:.76em;color:var(--sub);line-height:1.65}
-.legend .lt{color:var(--txt);font-weight:700}
-/* 상품 카드 */
-.pcard{background:var(--card);border-radius:1em;padding:1em .9em .55em}
-.pcard-top{display:flex;align-items:center;justify-content:space-between;gap:.5em;margin-bottom:.4em}
-.pcard-top .pill{font-size:.72em;font-weight:800;color:#fff;background:var(--red);border-radius:.5em;padding:.24em .6em;white-space:nowrap}
-.pcard-top .pill.soon{background:#b6862a}
-.pcard .pdate{font-size:1.2em;font-weight:800;letter-spacing:-.01em}
-.pcard .pdate b{color:var(--redtx)}
-.pcard .pdesc{font-size:.85em;color:var(--sub);margin-top:.15em}
-.pcard .pdesc b{color:var(--txt);font-weight:700}
-.ibul{display:flex;gap:.45em;font-size:.8em;color:var(--sub);line-height:1.5;margin-top:.65em;background:#0e1a34;border-radius:.6em;padding:.6em .7em}
-.ibul .ic{color:var(--btnln);flex:none;font-weight:700}
-.feenote{display:flex;gap:.45em;font-size:.78em;color:var(--honeytx);background:var(--honeybg);border:1px solid var(--honeyln);border-radius:.6em;padding:.55em .7em;line-height:1.5;margin-top:.55em}
-.feenote .ic{color:var(--honeyac);flex:none;font-weight:800}
-.morerow{border-top:1px solid var(--line);margin-top:.65em}
-.morerow>summary{list-style:none;cursor:pointer;text-align:right;font-size:.8em;color:var(--sub);padding:.6em .1em .45em}
-.morerow>summary::-webkit-details-marker{display:none}
-.morerow>summary::after{content:' ⌄';font-size:1.1em}
-.morerow[open]>summary::after{content:' ⌃'}
-.tlw{position:relative;margin:.1em 0 .5em}
-.tlw::before{content:'';position:absolute;left:.29em;top:.5em;bottom:.6em;width:2px;background:var(--line)}
-.tl-row{position:relative;padding:.12em 0 .5em 1.15em;font-size:.82em}
-.tl-row .dot{position:absolute;left:0;top:.32em;width:.6em;height:.6em;border-radius:50%;background:var(--line);border:2px solid var(--card)}
-.tl-row.active .dot{background:var(--red)} .tl-row.sched .dot{background:var(--amber)}
-.tl-row .st{font-weight:800;font-size:.86em;margin-right:.35em}
-.tl-row.active .st{color:var(--redtx)} .tl-row.sched .st{color:var(--ambertx)}
-.pfine{font-size:.74em;color:var(--sub);line-height:1.55;margin:.1em 0 .5em}
-.pfine b{color:var(--txt)}
-.stillok{display:flex;gap:.45em;font-size:.84em;color:var(--rectx);background:var(--rec);border-radius:.7em;padding:.72em .8em;line-height:1.45}
-.appeal-info{display:flex;gap:.45em;font-size:.79em;color:var(--sub);line-height:1.5;background:#0e1a34;border-radius:.6em;padding:.65em .75em}
-.appeal-info .ic{color:var(--btnln);flex:none;font-weight:700}
-.appeal-btn{display:flex;align-items:center;justify-content:center;gap:.4em;border:1px solid var(--btnln);background:var(--btn);border-radius:.75em;padding:.9em;font-size:.92em;font-weight:800;color:#fff;cursor:pointer}
-.histcard{background:var(--card);border-radius:1em;padding:.4em .9em}
-.hist-item{padding:.7em 0}
-.hist-item+.hist-item{border-top:1px solid var(--line)}
-.hist-item .hs{font-weight:800;font-size:.9em}
-.hist-item .hb{font-size:.8em;color:var(--sub);margin:.2em 0}
-.hist-item .hd{font-size:.8em;color:var(--gray)}
-.moremini{text-align:center;border-top:1px solid var(--line);padding:.65em 0 .55em;font-size:.82em;color:var(--sub);cursor:pointer}
-.empty{text-align:center;color:var(--sub);font-size:.9em;padding:1.6em 1em;line-height:1.6}
+.pcard2{background:var(--card);border-radius:.85em;padding:1.15em 1.05em;display:flex;flex-direction:column;gap:.85em}
+.p-badgewrap{text-align:center}
+.badge2{display:inline-flex;align-items:center;gap:.45em;background:#0f1c37;border:1px solid var(--line);border-radius:999px;padding:.4em .95em;font-size:.82em;font-weight:800;color:#e6e9ef}
+.badge2 .dot{width:.62em;height:.62em;border-radius:50%}
+.badge2.act .dot{background:var(--red);box-shadow:0 0 .5em rgba(255,124,124,.9)}
+.badge2.soon .dot{background:var(--amber);box-shadow:0 0 .5em rgba(255,186,76,.9)}
+.badge2.ok .dot{background:var(--green);box-shadow:0 0 .5em rgba(126,224,129,.9)}
+.p-head{text-align:center;font-size:1.55em;font-weight:800;line-height:1.22;letter-spacing:-.01em}
+.p-when{text-align:center;font-weight:800;font-size:1em;line-height:1.5}
+.p-when.act{color:var(--red)} .p-when.soon{color:var(--amber)}
+.p-panel{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:.95em 0;display:flex;flex-direction:column;gap:.7em}
+.inforow2{display:flex;gap:1.1em;font-size:.92em;align-items:baseline}
+.inforow2 .l{color:var(--sub);width:2.6em;flex:none}
+.inforow2 .v{color:var(--txt);flex:1}
+.p-note{font-size:.82em;color:var(--sub);line-height:1.55}
+.p-detail-row{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);margin-top:.1em;padding-top:.85em;font-size:.92em;color:#e6e9ef;cursor:pointer}
+.p-detail-row .cv{color:var(--sub)}
+.p-empty{text-align:center;color:var(--sub);font-size:.9em;line-height:1.6;padding:.4em 0 .2em}
+
+.appeal-info{display:flex;gap:.45em;font-size:.82em;color:var(--sub);line-height:1.55;padding:.2em .15em}
+.appeal-btn{display:flex;align-items:center;justify-content:center;border:1px solid var(--line);background:var(--blue);border-radius:.7em;padding:.9em;font-size:.95em;font-weight:800;color:#fff;cursor:pointer}
 
 .toast{position:absolute;left:50%;bottom:1.4em;transform:translateX(-50%) translateY(1em);opacity:0;transition:.2s;pointer-events:none;background:#0b1830;border:1px solid var(--line);color:var(--txt);font-size:.82em;padding:.55em .9em;border-radius:999px;white-space:nowrap;z-index:5}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 .note{margin-top:12px;color:var(--sub);font-size:12px;border:1px dashed var(--line);border-radius:10px;padding:10px 12px}
 .note b{color:var(--txt)}
-.note code{font-family:var(--mono);color:var(--sh);font-size:.92em}
+.note code{font-family:var(--mono);color:#bcd3ff;font-size:.92em}
 </style>
 </head>
 <body>
@@ -195,15 +110,15 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
   <p style="margin:0 0 10px"><a href="index.html" style="color:#5b93ff;font-size:13px;text-decoration:none">← 셔틀 프로토타입 허브</a></p>
   <div class="head">
     <h1>⚠️ 드라이버앱 패널티 안내 <span style="font-family:var(--mono);font-size:11px;color:var(--btnln)">TADA-9314</span></h1>
-    <p>PRD 8/7 통합 반영 — <b>일반·시간대절 묶음 정지(조회 불가)</b> · 만료 <b>HH:MM</b> · <b>위약금 지연 시 연장</b>. <b>시나리오를 바꿔가며</b> 눌러보세요. (실데이터 아님)</p>
+    <p>확정 플로우 — <b>예약콜 목록(빈 리스트 + 하단 정지 배너)</b> → <b>자세히 보기</b> → <b>패널티 현황 상세</b>. 시나리오를 바꿔가며 배너·상세를 눌러보세요. (실데이터 아님)</p>
   </div>
 
   <div class="ctrl">
     <div class="grp"><span class="lbl">시나리오</span>
-      <button data-sc="reservation" class="on">예약 취소/노쇼(누적 3건)</button>
-      <button data-sc="shuttle">셔틀 취소/노쇼</button>
-      <button data-sc="both">예약+셔틀 노쇼</button>
-      <button data-sc="realtime">실시간콜 초과</button>
+      <button data-sc="reservation" class="on">예약 정지</button>
+      <button data-sc="shuttle">셔틀 정지</button>
+      <button data-sc="realtime">실시간·예약 정지</button>
+      <button data-sc="dagon">다건(예약+셔틀)</button>
       <button data-sc="none">정상</button>
     </div>
     <div class="sep"></div>
@@ -222,316 +137,153 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
   </div>
 
   <div class="note" id="explain"></div>
-  <p style="margin-top:10px;text-align:center;color:var(--sub);font-size:12px">기존 셔틀 프로토타입은 그대로 · <a href="index.html" style="color:var(--btnln)">허브 →</a></p>
+  <p style="margin-top:10px;text-align:center;color:var(--sub);font-size:12px">‘정지 예정’ 상태는 PRD 미정의라 보류 · 기존 셔틀 프로토타입은 그대로 · <a href="index.html" style="color:var(--btnln)">허브 →</a></p>
 </div>
 
 <script>
-/* ---------- data ---------- PRD 8/7 통합:
- · 일반예약+시간대절은 항상 묶여 함께 정지(둘 다 조회+수락). 셔틀은 별도. 실시간콜 초과는 실시간+예약묶음.
- · 만료 = 남은 정지 합산·재계산(HH:MM), 위약금 입금 지연 시 연장. 각 밴 3h 유예 후 연속 적용. */
+/* ---------- data ----------
+ 확정 플로우: 콜 목록(빈 리스트 + 하단 컨텍스트 배너) → 자세히 보기 → 패널티 현황 상세(v3 카드)
+ · 정지 = 조회+수락 정지 → 콜 목록에 아무것도 안 보임(빈 리스트). 하단 배너로 사유·기간 안내.
+ · 상세 카드: 배지(적용중) · [상품] 콜 패널티 · 큰 날짜(까지) · 대상/기간/사유 · 위약금 연장.
+ · 다건 = 상품별 카드 2개. 실시간콜 초과 = 실시간+예약 묶음 1건.
+ · 날짜/기간은 데모용 예시(실서버는 재계산된 유효 종료 시각). '노쇼(driver_no_show)'는 내부 코드라 표시 사유는 '예약 불이행'. */
 const won = n => n.toLocaleString('ko-KR')+'원';
 
-const RESV = (reason, bans) => ({product:'일반 예약 · 시간대절 예약', types:['일반예약','시간대절'], scope:'조회+수락', reason, fee:true, bans});
-const SHUT = (reason, bans) => ({product:'셔틀 예약', types:['셔틀예약'], scope:'조회+수락', reason, fee:true, bans});
-const RT   = (reason, bans) => ({product:'실시간 콜', types:['실시간콜'], scope:'실시간', reason, fee:true, bans});
-
 const SCEN = {
-  none: { label:'정상', realtime:false, products:[] },
-  reservation: { label:'예약 취소/노쇼 (누적 3건)', realtime:false, products:[
-    RESV('예약 수락 후 취소', [
-      {start:'07.28 12:00', end:'07.31 24:00', status:'active'},
-      {start:'07.31 24:00', end:'08.07 24:00', status:'sched'},
-      {start:'08.07 24:00', end:'08.15 24:00', status:'sched'},
-    ]),
-  ]},
-  shuttle: { label:'셔틀 취소/노쇼', realtime:false, products:[
-    SHUT('셔틀 수락 후 취소', [
-      {start:'07.25 09:00', end:'07.27 24:00', status:'active'},
-      {start:'07.27 24:00', end:'07.28 24:00', status:'sched'},
-    ]),
-  ]},
-  both: { label:'예약+셔틀 노쇼', realtime:false, products:[
-    RESV('예약 불이행(노쇼)', [{start:'07.27 12:00', end:'07.30 24:00', status:'active'}]),
-    SHUT('예약 불이행(노쇼)', [{start:'07.27 12:00', end:'07.30 24:00', status:'active'}]),
-  ]},
-  realtime: { label:'실시간콜 취소 초과', realtime:true, products:[
-    RT('다건 실시간 콜 수락 후 취소', [{start:'07.28 00:00', end:'07.30 24:00', status:'active'}]),
-    RESV('다건 실시간 콜 수락 후 취소', [{start:'07.28 00:00', end:'07.30 24:00', status:'active'}]),
-  ]},
-};
-const ENDED = {product:'셔틀 예약', reason:'셔틀 수락 후 취소', range:'07.18 ~ 07.20'};
-const WHY = {
-  '예약 수락 후 취소':'예약을 수락한 뒤 취소해서 패널티가 적용됐어요.',
-  '셔틀 수락 후 취소':'셔틀 콜을 수락한 뒤 취소해서 패널티가 적용됐어요.',
-  '예약 불이행(노쇼)':'예약한 운행에 나타나지 않아(노쇼) 패널티가 적용됐어요.',
-  '다건 실시간 콜 수락 후 취소':'실시간 콜을 여러 번 수락 후 취소해서 패널티가 적용됐어요.',
+  reservation:{
+    tab:'예약', bannerProd:'예약 콜', until:'8월 15일 24:00',
+    cards:[{head:'예약 콜', target:'일반 예약 · 시간대절 예약', when:'8월 15일 24:00', period:'8월 13일 (수) 00:00 ~ 8월 15일 (금) 24:00', reason:'예약 수락 후 취소'}]
+  },
+  shuttle:{
+    tab:'셔틀', bannerProd:'셔틀 콜', until:'7월 28일 24:00',
+    cards:[{head:'셔틀 콜', target:'셔틀 예약', when:'7월 28일 24:00', period:'7월 26일 (토) 24:00 ~ 7월 28일 (월) 24:00', reason:'예약 수락 후 취소'}]
+  },
+  realtime:{
+    tab:'실시간', bannerProd:'실시간·예약 콜', until:'8월 10일 24:00',
+    cards:[{head:'실시간·예약 콜', target:'실시간 콜 · 일반 예약 · 시간대절 예약', when:'8월 10일 24:00', period:'8월 8일 (금) 24:00 ~ 8월 10일 (일) 24:00', reason:'다건의 실시간 콜 수락 후 취소'}]
+  },
+  dagon:{
+    tab:'다건', bannerProd:'예약·셔틀 콜', until:'8월 15일 24:00',
+    cards:[
+      {head:'예약 콜', target:'일반 예약 · 시간대절 예약', when:'8월 15일 24:00', period:'8월 13일 (수) 00:00 ~ 8월 15일 (금) 24:00', reason:'예약 수락 후 취소'},
+      {head:'셔틀 콜', target:'셔틀 예약', when:'7월 28일 24:00', period:'7월 26일 (토) 24:00 ~ 7월 28일 (월) 24:00', reason:'예약 수락 후 취소'}
+    ]
+  },
+  none:{ tab:'정상', bannerProd:null, cards:[] }
 };
 
+/* 정상 시나리오용 콜 카드 */
 const CALLS = [
-  {date:'오늘',          time:'아침 11:20', type:'셔틀예약', route:'성동구 성수동1가 → 인천국제공항', price:25000, badges:['임박']},
-  {date:'내일',          time:'아침 11:20', type:'일반예약', route:'성동구 성수동1가 → 인천국제공항', price:25000, mult:1.9, badges:['단골','임박','추천']},
-  {date:'10월 16일 (수)', time:'아침 11:20', type:'일반예약', route:'용산구 동자동 → 경유지 2곳 → 동대문구 답십리1동', price:25000, mult:0.9, badges:['카시트']},
-  {date:'10월 19일 (목)', time:'아침 11:40', type:'시간대절', charter:'2시간 대절', route:'동대문구 답십리1동 → 인천국제공항', price:81400, mult:0.9, badges:['카시트']},
-  {date:'10월 21일 (화)', time:'아침 11:20', type:'일반예약', route:'동대문구 답십리1동 → 성동구 성수동1가', price:81400, badges:[]},
+  {date:'오늘',           time:'아침 11:20', type:'셔틀예약', route:'성동구 성수동1가 → 인천국제공항', price:25000, badges:['임박']},
+  {date:'내일',           time:'아침 11:20', type:'일반예약', route:'성동구 성수동1가 → 인천국제공항', price:47500, badges:['단골','추천']},
+  {date:'8월 19일 (화)',  time:'아침 11:40', type:'시간대절', route:'동대문구 답십리1동 → 인천국제공항', price:81400, badges:['카시트']},
 ];
 
 /* ---------- state ---------- */
-const state = { scenario:'reservation', screen:'home', big:false, hist:[] };
+const state = { scenario:'reservation', screen:'list', big:false };
 const scr=document.getElementById('scr'), screen=document.getElementById('screen');
-
 const sc = () => SCEN[state.scenario];
-const products = () => sc().products;
-const resvProducts = () => products().filter(p=>p.scope!=='실시간');   // 예약콜 목록에 영향
-const productForType = t => products().find(p=>(p.types||[]).includes(t));
-const realtimeProduct = () => products().find(p=>p.scope==='실시간');
-const blockLabel = p => p.scope==='수락' ? '수락 불가' : '조회 불가';
-const actWord = p => p.scope==='수락' ? '수락' : '조회·수락';
-const untilEnd  = p => p.bans[p.bans.length-1].end;         // "08.15 24:00"
-const untilMMDD = p => untilEnd(p).split(' ')[0];
-const untilTime = p => untilEnd(p).split(' ')[1];
-const fmtK  = mmdd => { const [m,d]=mmdd.split('.'); return `${+m}월 ${+d}일`; };
-const fmtSl = mmdd => mmdd.split('.').map(Number).join('/');
-const latestProd = arr => arr.slice().sort((a,b)=>untilMMDD(a)<untilMMDD(b)?-1:1).slice(-1)[0];
+const blocked = () => sc().cards.length>0;
 
-/* ---------- screens ---------- */
-function homeMode(){ return sc().realtime; }
-
-function renderHome(){
-  const rp = resvProducts();
-  if(homeMode()){
-    const d = fmtK(untilMMDD(realtimeProduct()));
-    return `
-    <div class="ab home">
-      <span class="ic menu" data-go="drawer">☰<i class="dot"></i></span><span class="sp"></span>
-      <span class="chip" data-go="list">📅 예약콜</span>
-      <span class="chip ghost off">미리배차 꺼짐</span>
-    </div>
-    <div class="takeover">
-      <div class="tl0">⋮</div><div class="slash">//</div><div class="tl0">⋮</div>
-      <div class="tri">⚠️</div>
-      <div class="big">콜 정지 상태</div>
-      <div class="tl0">⋮</div><div class="slash">//</div>
-    </div>
-    <div class="takeovercard">
-      <div class="m"><b>${d}</b>까지 콜을 받을 수 없어요<br><span style="font-weight:400;color:var(--sub);font-size:.86em">이 날이 지나면 다시 콜을 받을 수 있어요</span></div>
-      <div class="s">실시간 콜 · 예약 콜 모두 정지</div>
-      <div class="btn" data-go="detail">이유 보기</div>
-    </div>`;
-  }
-  const banner = rp.length ? `
-    <div class="banner amber" data-go="detail">
-      <span>${fmtK(untilMMDD(latestProd(rp)))}까지 일부 예약 콜을 받을 수 없어요</span><span class="cv">›</span>
-    </div>` : '';
-  return `
-    <div class="ab home">
-      <span class="ic menu" data-go="drawer">☰${rp.length?'<i class="dot"></i>':''}</span><span class="sp"></span>
-      <span class="chip" data-go="list">📅 예약콜</span>
-      <span class="chip ghost">미리배차 켜짐</span>
-    </div>
-    ${banner}
-    <div class="map">
-      <div class="reccard">언주역 근처 · <b>콜 증가 지역(~12:40)</b></div>
-      <div class="statusic">📡</div>
-      <div class="statustx">콜 수신중</div>
-      <div class="statussub">거절/미수락 1</div>
-    </div>
-    <div class="homectrl"><div class="hc" data-toast="콜 휴식 (프로토타입)">콜 휴식</div><div class="hc solid" data-toast="퇴근콜 받기 (프로토타입)">퇴근콜 받기</div></div>`;
-}
-
-function renderDrawer(){
-  const active = products().length>0;
-  const dot = active?'<i class="new">NEW · 적용중</i>':'<i class="new" style="background:transparent;border-color:var(--line);color:var(--sub)">NEW</i>';
-  return `
-    <div class="ab"><span class="ic" data-go="back">✕</span></div>
-    <div class="drawer-prof"><div class="av"></div><div><b>김재욱</b><span>드라이버</span></div></div>
-    <div class="scroll">
-      <div class="dsec">타다 운행</div>
-      <div class="drow" data-toast="운행 이력 (프로토타입)">운행 이력</div>
-      <div class="drow" data-toast="내 운행리포트 (프로토타입)">내 운행리포트</div>
-      <div class="drow" data-toast="내 대기순번 (프로토타입)">내 대기순번</div>
-      <div class="drow penalty ${active?'':'calm'}" data-go="detail"><span>⚠️ 패널티 현황</span>${dot}</div>
-      <div class="drow" data-go="list">예약콜 목록</div>
-      <div class="drow" data-toast="대시보드 (프로토타입)">대시보드</div>
-      <div class="dsec">안내/지원</div>
-      <div class="drow" data-toast="공지사항 (프로토타입)">공지사항</div>
-      <div class="drow" data-toast="고객센터 (프로토타입)">고객센터</div>
-      <div class="drow" data-toast="도움말 (프로토타입)">도움말</div>
-    </div>
-    <div class="drawer-foot">⎋ 퇴근하기</div>`;
-}
-
+/* ---------- 예약콜 목록 ---------- */
 function callCard(c){
-  const p = productForType(c.type);
-  const blocked = !!p;
-  const typeBadge = `<i class="type">${c.type}</i>`;
-  const rest = (c.badges||[]).map(b=> b==='임박'?'<i class="im">임박</i>' : b==='추천'?'<i class="rec">추천</i>' : `<i>${b}</i>`).join('');
-  const mult = c.mult?`<em>↗${c.mult.toFixed(1)}배</em>`:'';
-  const lft = `<div class="lft"><b>${c.date}</b><span>${c.time}</span>${c.charter?`<span class="ch">${c.charter}</span>`:''}</div>`;
-  const foot = blocked
-    ? `<div class="foot"><span class="blk">🚫 ${blockLabel(p)} · ~${fmtSl(untilMMDD(p))}</span><div class="pr">${won(c.price)}</div></div>`
-    : `<div class="foot"><span></span><div class="pr">${mult}${won(c.price)}</div></div>`;
-  return `<div class="call ${blocked?'blocked':''}">${lft}<div class="rgt"><div class="route">${c.route}</div><div class="bd">${typeBadge}${rest}</div>${foot}</div></div>`;
+  const rest=(c.badges||[]).map(b=>`<i>${b}</i>`).join('');
+  return `<div class="call" data-toast="콜 상세로 이동 (프로토타입)">
+    <div class="lft"><b>${c.date}</b><span>${c.time}</span></div>
+    <div class="rgt"><div class="route">${c.route}</div>
+      <div class="bd"><i class="type">${c.type}</i>${rest}</div>
+      <div class="foot"><div class="pr">${won(c.price)}</div></div>
+    </div></div>`;
 }
-
 function renderList(){
-  const rp = resvProducts();
-  let banner='';
-  if(rp.length){
-    const lines = rp.map(p=>`· ${p.product} — ${fmtK(untilMMDD(p))}까지 <b>${blockLabel(p)}</b>`).join('<br>');
-    banner = `<div class="banner red" data-go="detail"><div class="lines" style="flex:1">일부 예약 콜을 받을 수 없어요<div style="font-size:.92em;margin-top:.2em;font-weight:400">${lines}</div></div><span class="cv">›</span></div>`;
-  }
-  const cards = CALLS.map(callCard).join('');
-  return `
-    <div class="ab"><span class="ic" data-go="back">←</span> 예약콜 목록 <span class="sp"></span><span class="i">ⓘ 도움말</span></div>
-    <div class="tabs"><div class="on">수락가능 콜</div><div data-toast="내 예약 (프로토타입)">내 예약(9)</div></div>
-    ${banner}
-    <div class="scroll"><div class="list">
+  const s=sc();
+  const appbar=`<div class="ab"><span class="ic" data-toast="뒤로 (프로토타입)">←</span> 예약콜 목록 <span class="sp"></span><span class="i">⇅ 추천순</span></div>
+    <div class="tabs"><div class="on">수락가능 콜</div><div data-toast="내 예약 (프로토타입)">내 예약(8)</div></div>`;
+  if(!blocked()){
+    // 정상 — 콜 노출, 배너 없음
+    return `${appbar}<div class="scroll"><div class="list">
       <div class="sortrow"><button class="f c" data-toast="공항콜만 보기 (프로토타입)">✈ 공항콜만 보기</button><button class="c act" data-toast="정렬 (프로토타입)">↕ 추천순</button></div>
-      ${cards}
-    </div></div>
-    <div class="fab" data-toast="전체 새로고침 (프로토타입)">↻ 새로고침</div>`;
+      ${CALLS.map(callCard).join('')}
+    </div></div>`;
+  }
+  // 정지 — 빈 리스트 + 하단 컨텍스트 배너
+  return `${appbar}
+    <div class="scroll"><div class="emptycall">수락 가능한 콜이 없습니다.</div></div>
+    <div class="blockban" data-go="detail">
+      <div class="bd">${s.until}까지</div>
+      <div class="bp">${s.bannerProd} 정지</div>
+      <div class="bbtn">자세히 보기</div>
+    </div>`;
 }
 
-/* ----- 패널티 현황: 2022 콜 정지 현황 스타일 ----- */
-function overallState(){
-  const ps=products();
-  if(!ps.length) return 'ok';
-  return ps.some(p=>p.bans.some(b=>b.status==='active')) ? 'stop' : 'soon';
-}
-const stateLabel = st => st==='stop'?'정지 중':st==='soon'?'정지 예정':'정상';
-function traffic(st){
-  return `<div class="traffic">
-    <span class="d r ${st==='stop'?'on':''}"></span>
-    <span class="d a ${st==='soon'?'on':''}"></span>
-    <span class="d g ${st==='ok'?'on':''}"></span></div>`;
-}
-function statusHero(){
-  const st=overallState();
-  const ps=products();
-  // 남은 기간(가장 늦은 만료 기준) — 데모용 고정 표기
-  let remain='';
-  if(ps.length){
-    const late = latestProd(ps);
-    remain = `<div class="st-remain">
-        <div class="rl">해제까지</div>
-        <div class="rv">${st==='stop'?'약 3일 12시간':'예정'}</div>
-        <div class="ru">${fmtK(untilMMDD(late))} ${untilTime(late)} 해제 예정</div>
-      </div>`;
-  }
-  return `<div class="sthero">
-     <div class="lab">현재 내 상태</div>
-     <div class="state ${st}">${stateLabel(st)}</div>
-     ${traffic(st)}
-     ${remain}
-     <div class="legend">현재 패널티 상태를 나타냅니다.<br>
-       • <span class="lt">정상</span> : 모든 콜을 정상 수신할 수 있어요<br>
-       • <span class="lt">정지 예정</span> : 정지가 예정돼 있지만 이의제기할 수 있어요<br>
-       • <span class="lt">정지 중</span> : 일부 또는 전체 콜을 받을 수 없어요</div>
-   </div>`;
-}
-function pcard(p){
-  const act=actWord(p);
-  const soon = !p.bans.some(b=>b.status==='active');
-  const rows = p.bans.map(b=>`
-    <div class="tl-row ${b.status}"><span class="dot"></span><span class="st">${b.status==='active'?'적용 중':'예정'}</span><span class="rng">${fmtSl(b.start.split(' ')[0])} ${b.start.split(' ')[1]} ~ ${fmtSl(b.end.split(' ')[0])} ${b.end.split(' ')[1]}</span></div>`).join('');
-  const more = p.bans.length>1 ? `
-     <details class="morerow"><summary>정지 내역 ${p.bans.length}건 자세히</summary>
-       <div class="tlw">${rows}</div>
-       <p class="pfine">이의제기가 받아들여지면 남은 정지 기간이 자동으로 <b>앞당겨져요</b>. 표시되는 날짜는 항상 <b>현재 기준</b>이에요.</p>
-     </details>` : '';
-  const fee = p.fee ? `<div class="feenote"><span class="ic">!</span><span>위약금 입금이 지연되면 패널티 기간이 <b style="color:var(--honeytx)">연장</b>돼요.</span></div>` : '';
-  return `
-   <div class="grp2">
-     <div class="sec-title">${p.product}</div>
-     <div class="pcard">
-       <div class="pcard-top">
-         <div class="pdate"><b>${fmtK(untilMMDD(p))} ${untilTime(p)}</b>까지</div>
-         <span class="pill ${soon?'soon':''}">${soon?'정지 예정':'정지 중'}</span>
-       </div>
-       <div class="pdesc">이 날이 지나면 다시 <b>${p.product} 콜을 ${act}</b>할 수 있어요</div>
-       <div class="ibul"><span class="ic">ⓘ</span><span>${WHY[p.reason]||p.reason}</span></div>
-       ${fee}
-       ${more}
-     </div>
-   </div>`;
-}
-function stillOkLine(){
-  const banned = new Set();
-  products().forEach(p=>{ (p.types||[]).forEach(t=>banned.add(t)); });
-  const ALL=[['실시간콜','실시간 콜'],['일반예약','일반 예약'],['시간대절','시간대절'],['셔틀예약','셔틀']];
-  const ok = ALL.filter(([k])=>!banned.has(k)).map(([,l])=>l);
-  return ok.length ? `<div class="stillok"><span>✅</span><span>${ok.join(' · ')}은 지금도 정상 이용할 수 있어요</span></div>` : '';
-}
-function histBlock(){
-  const [s,e]=ENDED.range.split(' ~ ');
-  return `<div class="grp2">
-    <div class="sec-title">패널티 이력</div>
-    <div class="histcard">
-      <div class="hist-item"><div class="hs">${ENDED.reason}</div><div class="hb">• 정상 종료됨</div><div class="hd">${fmtSl(s)} ~ ${fmtSl(e)}</div></div>
-      <div class="moremini" data-toast="이력 더 보기 (프로토타입)">더 보기 ⌄</div>
+/* ---------- 패널티 현황 상세 (v3) ---------- */
+function pcard(c){
+  return `<div class="pcard2">
+    <div class="p-badgewrap"><span class="badge2 act"><span class="dot"></span>적용중</span></div>
+    <div class="p-head">${c.head} 패널티</div>
+    <div class="p-when act">${c.when} 까지<br>조회·수락 불가</div>
+    <div class="p-panel">
+      <div class="inforow2"><span class="l">대상</span><span class="v">${c.target}</span></div>
+      <div class="inforow2"><span class="l">기간</span><span class="v">${c.period}</span></div>
+      <div class="inforow2"><span class="l">사유</span><span class="v">${c.reason}</span></div>
     </div>
+    <div class="p-note">위약금 입금이 지연되면 패널티 기간이 연장돼요.</div>
+    <div class="p-detail-row" data-toast="정지 기간 상세 (프로토타입)">정지 기간 자세히 보기<span class="cv">›</span></div>
   </div>`;
 }
 function renderDetail(){
-  const prods=products();
-  const ab=`<div class="ab"><span class="ic" data-go="back">←</span> 패널티 현황 <span class="sp"></span></div>`;
-  if(!prods.length){
-    return `${ab}<div class="scroll"><div class="detail">
-      ${statusHero()}
-      <div class="empty">✅ 지금은 적용 중인 패널티가 없어요.<br>안전 운행 감사합니다!</div>
-      ${histBlock()}
+  const s=sc();
+  const appbar=`<div class="ab"><span class="ic" data-go="back">←</span> 패널티 현황 <span class="sp"></span></div>`;
+  if(!blocked()){
+    return `${appbar}<div class="scroll"><div class="detail">
+      <div class="pcard2">
+        <div class="p-badgewrap"><span class="badge2 ok"><span class="dot"></span>정상</span></div>
+        <div class="p-head">패널티 없음</div>
+        <div class="p-empty">현재 적용 중인 패널티가 없습니다.<br>안전 운행에 감사드립니다.</div>
+      </div>
     </div></div>`;
   }
-  return `${ab}<div class="scroll"><div class="detail">
-    ${statusHero()}
-    ${prods.map(pcard).join('')}
-    ${stillOkLine()}
-    <div class="grp2">
-      <div class="sec-title">이의제기</div>
-      <div class="appeal-info"><span class="ic">ⓘ</span><span>패널티 사유에 이의가 있다면 타다 드라이버 콜센터(1800-9198) 또는 게시판으로 접수할 수 있어요.</span></div>
-      <div class="appeal-btn" data-toast="이의제기 접수 (프로토타입 · 콜센터 1800-9198)">이의제기하기</div>
-    </div>
-    ${histBlock()}
+  return `${appbar}<div class="scroll"><div class="detail">
+    ${s.cards.map(pcard).join('')}
+    <div class="appeal-info">패널티 사유에 대한 이의제기는 타다 드라이버 콜센터(1800-9198) 또는 게시판으로 접수 가능합니다.</div>
+    <div class="appeal-btn" data-toast="이의제기 접수 (프로토타입 · 콜센터 1800-9198)">이의 제기</div>
   </div></div>`;
 }
 
 /* ---------- render / nav ---------- */
 function render(){
   scr.classList.toggle('big', state.big);
-  const map = {home:renderHome, drawer:renderDrawer, list:renderList, detail:renderDetail};
-  screen.innerHTML = map[state.screen]();
+  screen.innerHTML = (state.screen==='detail'?renderDetail:renderList)();
   explain();
 }
 function go(target){
-  if(target==='back'){ state.screen = state.hist.pop() || 'home'; }
-  else { if(state.screen!==target){ state.hist.push(state.screen); state.screen=target; } }
+  if(target==='back') state.screen='list';
+  else state.screen=target;
   render();
 }
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),1400); }
 
 scr.addEventListener('click', e=>{
-  if(e.target.closest('summary')) return;
   const g=e.target.closest('[data-go]'); if(g){ go(g.dataset.go); return; }
   const t=e.target.closest('[data-toast]'); if(t){ toast(t.dataset.toast); return; }
-  const call=e.target.closest('.call'); if(call){ toast(call.classList.contains('blocked')?'정지 기간 동안 이용할 수 없어요':'콜 상세로 이동 (프로토타입)'); return; }
 });
 
 function explain(){
   const s=sc();
-  const rp=resvProducts();
   let desc;
-  if(state.scenario==='none') desc='패널티 없음 — 상태 히어로 신호등 녹색(정상) + 이력.';
-  else if(s.realtime) desc='실시간콜 초과 — 실시간 콜 + 예약(일반·시간대절) 묶음 정지. 홈은 모드 B(콜 정지 상태).';
-  else desc=`예약 취소·노쇼 → <b>일반예약+시간대절이 한 덩어리</b>로 조회·수락 정지(둘 다 "조회 불가"). 셔틀은 별도. 상세는 상품별 카드 + 위약금 연장 안내.`;
+  if(state.scenario==='none') desc='패널티 없음 — 콜 목록 정상 노출(배너 없음). 상세 진입 시 “패널티 없음”.';
+  else if(state.scenario==='dagon') desc='예약+셔틀 <b>서로 다른 두 패널티</b> 동시 — 배너는 “예약·셔틀 콜 정지”, 상세는 <b>상품별 카드 2개</b>.';
+  else if(state.scenario==='realtime') desc='월간 실시간콜 초과 — <b>실시간+예약(일반·시간대절) 묶음</b> 1건 정지. (사유 수 1개이므로 단건 카드)';
+  else desc=`${s.tab} 취소 → <b>조회+수락 정지</b>라 콜 목록이 <b>빈 리스트</b>. 하단 배너 → 자세히 보기 → 상세 카드.`;
   document.getElementById('explain').innerHTML =
-    `<b>시나리오: ${s.label}</b> — ${desc}<br>
-     <span style="color:var(--sub)">PRD 8/7 반영: <code>일반·시간대절 묶음(조회 불가)</code> · <code>만료 HH:MM</code> · <code>위약금 지연 시 연장</code>. 상세 = 상태 히어로(신호등·<b style="color:var(--txt)">남은 기간</b>) → 상품 카드 → 안심 → 이의제기 → 이력.</span>`;
+    `<b>시나리오: ${s.tab}</b> — ${desc}<br>
+     <span style="color:var(--sub)">플로우: <code>예약콜 목록(빈+배너)</code> → <code>자세히 보기</code> → <code>패널티 현황 상세</code>. 상세 카드 = 배지 · <b style="color:var(--txt)">[상품] 콜 패널티</b> · 큰 날짜(까지) · 대상/기간/사유 · 위약금 연장. ‘정지 예정’은 PRD 미정의라 보류.</span>`;
 }
 
 /* ---------- controls ---------- */
 document.querySelectorAll('.ctrl [data-sc]').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('.ctrl [data-sc]').forEach(x=>x.classList.remove('on')); b.classList.add('on');
-  state.scenario=b.dataset.sc; state.screen='home'; state.hist=[]; render();
+  state.scenario=b.dataset.sc; state.screen='list'; render();
 }));
 document.querySelectorAll('.ctrl [data-fs]').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('.ctrl [data-fs]').forEach(x=>x.classList.remove('on')); b.classList.add('on');
