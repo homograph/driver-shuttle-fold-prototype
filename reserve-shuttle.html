@@ -392,7 +392,7 @@ function listHTML(){
   }
   // accept — 세그먼트: 포함=셔틀+일반 함께, 제외=일반만 (Figma 시안3). 정렬 후 무한 스크롤 페이지네이션.
   const arr = sortArr(state.seg==='include' ? [...SH,...GEN] : GEN.slice());
-  if(arr.length===0) return `<div class="emptymsg">지금은 수락 가능한 콜이 없어요.</div>`;   // 빈 상태(0건): 처음부터 콜 없음
+  if(arr.length===0) return `<div class="emptymsg">수락 가능한 콜이 없습니다.</div>`;   // 빈 상태(0건): 기존 Figma '수락가능콜/없음' 문구(#868B9C 16sp) 정합
   const shown = arr.slice(0, state.page*PAGE_SIZE);
   let html = shown.map(cardHTML).join('');
   html += arr.length > shown.length
