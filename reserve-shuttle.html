@@ -350,7 +350,7 @@ function chrome(){
     const on=state.seg==='include', arrive=(state.seg==='exclude'&&state.banner);
     const lb = on ? '셔틀 포함됨' : (arrive ? '수락 가능한 셔틀 콜이 있어요' : '셔틀 제외됨');   // Figma 13552:18099: 도착 문구 갱신(옛 '새 셔틀 콜이 들어왔어요!'→'수락 가능한 셔틀 콜이 있어요'), 우측 '켜기' 파랑 CTA
     const limitBar = isLimited()
-      ? `<div class="limitbar"><b class="cd"><span id="limitCd">${remainStr()}</span></b><span>비정상적인 동작이 감지되어 새로고침을 잠시 제한합니다</span></div>`
+      ? `<div class="limitbar"><b class="cd"><span id="limitCd">${remainStr()}</span></b><span>앱 안정성을 위해 반복 새로고침이 잠시 제한됩니다</span></div>`
       : '';
     const rlb = on ? '끄기' : '켜기';   // 우측 액션 라벨 상시(ON=끄기·OFF=켜기·도착=켜기 파랑 CTA). Figma 13269:69280 실측: OFF/도착 모두 '켜기'(도착만 파랑 강조)
     const rcls = 'shgo' + (arrive ? ' go' : '') + (arrive && isLimited() ? ' dim' : '');   // 도착만 파랑 CTA(제한 중 딤)
