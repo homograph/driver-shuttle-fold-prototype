@@ -181,6 +181,8 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
     <button id="simShuttle">🔔 새 셔틀 도착 시뮬</button>
     <button id="simLimit">🚫 리프레시 제한 시뮬</button>
     <button id="simDecay">⏩ 완화(한 단계↓)</button>
+    <span class="sep"></span>
+    <button id="simNoShuttle">🚐 셔틀 권한 없음</button>
     <span id="limitDev" style="font-family:var(--mono);font-size:11px;color:var(--sub2);margin-left:4px">제한 단계 0/5 · 정상</span>
   </div>
 
@@ -238,6 +240,8 @@ const MY=[
   {date:'10월 19일 (목)',time:'아침 11:20',route:'동대문구 답십리1동 → 성동구 성수동1가',type:'charter',product:'2시간 대절',badges:['dangol'],price:81400,surge:null,changed:true,day:'tmr'},
 ];
 
+// 내 예약 카운트: 하드코딩 대신 실제 MY 데이터로 계산 → 탭·칩 배지가 항상 리스트와 일치(Figma '그 외 화면' 대조 반영)
+const MY_TODAY=MY.filter(c=>c.day==='today').length, MY_TMR=MY.filter(c=>c.day==='tmr').length, MY_ALL=MY.length;
 const TLABEL={shuttle:'셔틀예약',normal:'일반예약',charter:'시간대절',bundle:'묶음예약'};
 function routeHTML(r){ return r.replace(/→/g,'<span class="ar">→</span>'); }
 // 부가수익 로직 (TADA-8462 PRD): 카시트 개수×5,000×60%=개당 3,000 · 단골(마드) 3,000×50%=1,500. 셔틀은 부가서비스 없음→0
@@ -270,7 +274,7 @@ function cardHTML(c){
 }
 
 /* ---------- 상태 ---------- */
-const state={tab:'accept', seg:'include', big:false, period:'전체', banner:false, refreshing:false, sort:'추천순', page:1, loadingMore:false, atBottom:false,
+const state={tab:'accept', seg:'include', big:false, period:'전체', banner:false, refreshing:false, sort:'추천순', page:1, loadingMore:false, atBottom:false, noShuttle:false,
   refreshTimes:[], limitUntil:0, limitStage:0, decayAnchor:0};   // TADA-9282 리프레시 제한(+완화 클럭) · page=무한스크롤 로드된 페이지 수
 
 /* ---------- TADA-9282 리프레시 제한 (수락가능 콜 전용) ---------- */
@@ -347,11 +351,12 @@ function chrome(){
   const sort = `<span class="sort" data-sort>↕ ${effSort()}</span>`;
   let sub='';
   if(state.tab==='accept'){
-    const on=state.seg==='include', arrive=(state.seg==='exclude'&&state.banner);
-    const lb = on ? '셔틀 포함됨' : (arrive ? '수락 가능한 셔틀 콜이 있어요' : '셔틀 제외됨');   // Figma 13552:18099: 도착 문구 갱신(옛 '새 셔틀 콜이 들어왔어요!'→'수락 가능한 셔틀 콜이 있어요'), 우측 '켜기' 파랑 CTA
     const limitBar = isLimited()
       ? `<div class="limitbar"><b class="cd"><span id="limitCd">${remainStr()}</span></b><span>앱 안정성을 위해 반복 새로고침이 잠시 제한됩니다</span></div>`
       : '';
+    if(state.noShuttle){ sub=limitBar; return topnav(sort, sub); }   // Figma '그 외 화면·셔틀 권한 없음': 셔틀 안 하는 드라이버는 토글 미노출(제한 배너만). 리스트=일반콜만
+    const on=state.seg==='include', arrive=(state.seg==='exclude'&&state.banner);
+    const lb = on ? '셔틀 포함됨' : (arrive ? '수락 가능한 셔틀 콜이 있어요' : '셔틀 제외됨');   // Figma 13552:18099: 도착 문구 갱신(옛 '새 셔틀 콜이 들어왔어요!'→'수락 가능한 셔틀 콜이 있어요'), 우측 '켜기' 파랑 CTA
     const rlb = on ? '끄기' : '켜기';   // 우측 액션 라벨 상시(ON=끄기·OFF=켜기·도착=켜기 파랑 CTA). Figma 13269:69280 실측: OFF/도착 모두 '켜기'(도착만 파랑 강조)
     const rcls = 'shgo' + (arrive ? ' go' : '') + (arrive && isLimited() ? ' dim' : '');   // 도착만 파랑 CTA(제한 중 딤)
     sub=`<div class="shtoggle ${on?'on':'off'}${arrive?' arrive':''}" data-shtoggle>
@@ -361,14 +366,17 @@ function chrome(){
     sub=`<div class="period">
       <button class="cal">📅 달력</button>
       <button data-pd="전체" class="${state.period==='전체'?'on':''}">전체</button>
-      <button data-pd="오늘" class="${state.period==='오늘'?'on':''}">오늘 <b>2</b></button>
-      <button data-pd="내일" class="${state.period==='내일'?'on':''}">내일 <b>6</b></button>
+      <button data-pd="오늘" class="${state.period==='오늘'?'on':''}">오늘 <b>${MY_TODAY}</b></button>
+      <button data-pd="내일" class="${state.period==='내일'?'on':''}">내일 <b>${MY_TMR}</b></button>
     </div>`;
   }
+  return topnav(sort, sub);
+}
+function topnav(sort, sub){
   return `<div class="topnav"><div class="appbar"><span class="bk">←</span><span class="ttl">예약콜 목록</span>${sort}</div>
     <div class="tabs">
       <button data-tab="accept" class="${state.tab==='accept'?'on':''}">수락가능 콜</button>
-      <button data-tab="my" class="${state.tab==='my'?'on':''}">내 예약(8)</button>
+      <button data-tab="my" class="${state.tab==='my'?'on':''}">내 예약(${MY_ALL})</button>
     </div></div>${sub}`;
 }
 
@@ -391,7 +399,7 @@ function listHTML(){
     return sortArr(arr).map(cardHTML).join('') + `<div class="endmsg my">이후 수락한 예약이 없습니다.</div>`;   // Figma 13721:23962: 리스트 끝 문구(#868B9C 16sp). 예전 '— 내 예약 N건 —' 대체
   }
   // accept — 세그먼트: 포함=셔틀+일반 함께, 제외=일반만 (Figma 시안3). 정렬 후 무한 스크롤 페이지네이션.
-  const arr = sortArr(state.seg==='include' ? [...SH,...GEN] : GEN.slice());
+  const arr = sortArr((state.noShuttle || state.seg!=='include') ? GEN.slice() : [...SH,...GEN]);
   if(arr.length===0) return `<div class="emptymsg">수락 가능한 콜이 없습니다.</div>`;   // 빈 상태(0건): 기존 Figma '수락가능콜/없음' 문구(#868B9C 16sp) 정합
   const shown = arr.slice(0, state.page*PAGE_SIZE);
   let html = shown.map(cardHTML).join('');
@@ -459,7 +467,7 @@ function doRefresh(applyState, toastMsg){
 function loadMore(){
   if(state.tab!=='accept' || state.loadingMore || state.refreshing) return;
   if(isLimited()){ pulseBanner(); return; }            // 제한 중: 로딩/재확인 차단(배너 펄스)
-  const arr = sortArr(state.seg==='include' ? [...SH,...GEN] : GEN.slice());
+  const arr = sortArr((state.noShuttle || state.seg!=='include') ? GEN.slice() : [...SH,...GEN]);
   const hasMore = state.page*PAGE_SIZE < arr.length;
   state.loadingMore=true;
   if(hasMore) recordRefresh();                         // 실제 다음 페이지 로딩(API 호출)만 카운트. 끝 재확인은 이미 전부 로드→API 미호출→카운트 X
@@ -530,6 +538,12 @@ document.getElementById('simShuttle').addEventListener('click',()=>{
   if(state.tab!=='accept'){ state.tab='accept'; }
   if(state.seg==='exclude'){ state.banner=true; render(); toast('새 셔틀 도착 → 안내 노출(제외 중)'); }
   else { render(); toast('새 셔틀 예약 도착'); }
+});
+
+document.getElementById('simNoShuttle').addEventListener('click',(e)=>{   // Figma '그 외 화면·셔틀 권한 없음': 셔틀 미권한 드라이버 = 토글 미노출·일반콜만
+  state.noShuttle=!state.noShuttle; e.target.classList.toggle('on',state.noShuttle);
+  if(state.noShuttle){ state.seg='include'; state.banner=false; }   // 토글 상태 초기화(권한 없으면 셔틀 개념 없음)
+  render(); toast(state.noShuttle?'셔틀 권한 없음 — 토글 숨김·일반콜만':'셔틀 권한 있음 — 토글 노출');
 });
 
 document.querySelectorAll('.ctrl [data-fs]').forEach(b=>b.addEventListener('click',()=>{

@@ -70,6 +70,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 /* 하단 도킹 정지 배너 (컨텍스트) */
 .blockban{flex:none;margin:.2em .7em .8em;border:1px solid var(--line);border-radius:.85em;padding:1em .9em;background:#16223d}
 .blockban .bd{text-align:center;font-weight:800;color:var(--red);font-size:1.02em;line-height:1.35}
+.blockban.ok .bd{color:var(--green)}
 .blockban .bp{text-align:center;font-weight:700;color:var(--txt);margin-top:.15em}
 .blockban .bbtn{margin-top:.85em;text-align:center;font-weight:800;background:var(--btn);border:1px solid var(--line);border-radius:.6em;padding:.8em;cursor:pointer;color:#fff}
 .blockban .bbtn:active{border-color:var(--btnln)}
@@ -126,7 +127,7 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
       <button data-sc="shuttle">셔틀 정지</button>
       <button data-sc="realtime">실시간·예약 정지</button>
       <button data-sc="dagon">다건(예약+셔틀)</button>
-      <button data-sc="none">정상</button>
+      <button data-sc="none">해제됨</button>
     </div>
     <div class="sep"></div>
     <div class="grp"><span class="lbl">글씨</span>
@@ -176,7 +177,7 @@ const SCEN = {
       {head:'셔틀 콜', target:'셔틀 예약', when:'7월 28일 24:00', period:'7월 26일 (토) 24:00 ~ 7월 28일 (월) 24:00', reason:'예약 수락 후 취소'}
     ]
   },
-  none:{ tab:'정상', bannerProd:null, cards:[] }
+  none:{ tab:'해제됨', bannerProd:null, cards:[], releasedAt:'8월 15일 24:00' }
 };
 
 /* 정상 시나리오용 콜 카드 */
@@ -207,11 +208,17 @@ function renderList(){
   const appbar=`<div class="ab"><span class="ic" data-toast="뒤로 (프로토타입)">←</span> 예약콜 목록 <span class="sp"></span><span class="i">⇅ 추천순</span></div>
     <div class="tabs"><div class="on">수락가능 콜</div><div data-toast="내 예약 (프로토타입)">내 예약(8)</div></div>`;
   if(!blocked()){
-    // 정상 — 콜 노출, 배너 없음
-    return `${appbar}<div class="scroll"><div class="list">
+    // 해제됨 — 콜 복귀 + 하단 해제 안내 배너
+    return `${appbar}
+      <div class="scroll"><div class="list">
       <div class="sortrow"><button class="f c" data-toast="공항콜만 보기 (프로토타입)">✈ 공항콜만 보기</button><button class="c act" data-toast="정렬 (프로토타입)">↕ 추천순</button></div>
       ${CALLS.map(callCard).join('')}
-    </div></div>`;
+    </div></div>
+    <div class="blockban ok" data-go="detail">
+      <div class="bd">패널티가 해제되었어요</div>
+      <div class="bp">이제 콜을 다시 받을 수 있어요</div>
+      <div class="bbtn">확인</div>
+    </div>`;
   }
   // 정지 — 빈 리스트 + 하단 컨텍스트 배너
   return `${appbar}
@@ -245,9 +252,14 @@ function renderDetail(){
     return `${appbar}<div class="scroll"><div class="detail">
       <div class="pcard2">
         <div class="p-badgewrap"><div class="traffic"><span class="d r"></span><span class="d a"></span><span class="d g on"></span></div></div>
-        <div class="p-head">패널티 없음</div>
-        <div class="p-empty">현재 적용 중인 패널티가 없습니다.<br>안전 운행에 감사드립니다.</div>
+        <div class="p-head">패널티 해제됨</div>
+        <div class="p-restrict">조회·수락 가능</div>
+        <div class="p-panel">
+          <div class="inforow2"><span class="l">해제</span><span class="v">${s.releasedAt}</span></div>
+        </div>
+        <div class="p-note">현재 적용 중인 패널티가 없습니다.</div>
       </div>
+      <div class="appeal-btn" data-go="list">콜 보러가기</div>
     </div></div>`;
   }
   return `${appbar}<div class="scroll"><div class="detail">
@@ -278,7 +290,7 @@ scr.addEventListener('click', e=>{
 function explain(){
   const s=sc();
   let desc;
-  if(state.scenario==='none') desc='패널티 없음 — 콜 목록 정상 노출(배너 없음). 상세 진입 시 “패널티 없음”.';
+  if(state.scenario==='none') desc='패널티 해제됨 — 콜 복귀 + 하단 “해제되었어요” 배너 → 확인 → 해제 카드(초록 신호등·“콜 보러가기”로 목록 복귀).';
   else if(state.scenario==='dagon') desc='예약+셔틀 <b>서로 다른 두 패널티</b> 동시 — 배너는 “예약·셔틀 콜 정지”, 상세는 <b>상품별 카드 2개</b>.';
   else if(state.scenario==='realtime') desc='월간 실시간콜 초과 — <b>실시간+예약(일반·시간대절) 묶음</b> 1건 정지. (사유 수 1개이므로 단건 카드)';
   else desc=`${s.tab} 취소 → <b>조회+수락 정지</b>라 콜 목록이 <b>빈 리스트</b>. 하단 배너 → 자세히 보기 → 상세 카드.`;
