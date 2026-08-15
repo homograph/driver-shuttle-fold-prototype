@@ -150,7 +150,7 @@ function fmt(sec){ sec=Math.max(0,Math.ceil(sec)); const m=Math.floor(sec/60),s=
 function mmss(sec){ sec=Math.max(0,Math.ceil(sec)); const m=Math.floor(sec/60),s=sec%60; return m+':'+String(s).padStart(2,'0'); }  // 배너 카운트다운 0:29 형식
 const limited=()=>nowMs()<state.limitUntil;
 function remain(){ return (state.limitUntil-nowMs())/1000; }
-function limitMsg(){ return `앱 안정성을 위해 반복 새로고침이 잠시 제한됩니다 · ${mmss(remain())} 후 다시 가능`; }
+function limitMsg(){ return `너무 잦은 새로고침이 자동 감지되어 신규 콜 열람이 잠시 제한됩니다 · ${mmss(remain())} 후 다시 가능`; }
 
 function card(c){ const su=c.surge?`<span class="su">↗${c.surge.toFixed(1)}배</span>`:''; return `<div class="rc" data-call>
   <div class="date"><span class="d1">${c.date}</span><span class="d2">${c.time}</span></div>
@@ -173,7 +173,7 @@ function chrome(){
 function bar(){
   if(state.tab!=='accept') return '';   // 제한은 수락가능 콜 전용 → 내 예약엔 배너 없음
   if(state.variant!=='banner') return '';
-  if(limited()) return `<div class="limitbar"><span class="cd" id="cd">${mmss(remain())}</span><span class="msg">앱 안정성을 위해 반복 새로고침이 잠시 제한됩니다</span></div>`;
+  if(limited()) return `<div class="limitbar"><span class="cd" id="cd">${mmss(remain())}</span><span class="msg">너무 잦은 새로고침이 자동 감지되어 신규 콜 열람이 잠시 제한됩니다.</span></div>`;
   return '';   // 해제 순간은 지속 배너 없음 — 자기소멸 토스트로만 알림(아래 setInterval)
 }
 function listHTML(){
