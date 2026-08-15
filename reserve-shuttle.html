@@ -47,10 +47,9 @@ body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line
 .appbar .sort{color:var(--sub);padding:.3em .5em;cursor:pointer;font-size:1.05em}
 
 /* primary tabs (Figma: 20sp · r8 · 활성 #19254D + 파란보더 #32A2FA 1.5) */
-.tabs{display:flex;gap:0;margin:10px 10px 0;padding:0;flex:none}   /* Figma 13283:96948: 세그먼티드 각짐(r0)·버튼 붙임(gap0)·그룹 보더는 셀 보더로 형성 */
-.tabs button{flex:1;font-family:var(--kr);font-weight:400;font-size:1.43em;color:#c0c2cc;background:transparent;border:1.5px solid #293f71;border-radius:4px;padding:12px 24px;cursor:pointer}   /* Figma 13311: 각 셀 개별 보더 #293F71·r4·비선택 w400 #C0C2CC */
-.tabs button+button{margin-left:-1.5px}   /* 인접 보더 공유(이중선 방지) */
-.tabs button.on{color:#fff;font-weight:700;background:#1e2d59;border-color:#32a2fa;position:relative;z-index:1}   /* Figma: 선택 w700·#1E2D59 fill·파란보더(위로) */
+.tabs{display:flex;gap:0;margin:10px 10px 0;padding:0;flex:none;border:1.5px solid #293f71;border-radius:4px}   /* Figma 최신(13897:27298): 컨테이너에만 아웃라인(#293F71·r4). 비선택 탭은 자체 보더/fill 없음 */
+.tabs button{flex:1;font-family:var(--kr);font-weight:400;font-size:1.43em;color:#c0c2cc;background:transparent;border:1.5px solid transparent;border-radius:4px;padding:12px 24px;cursor:pointer;margin:-1.5px}   /* 비선택=투명(보더 없음, 회색 텍스트만). margin -1.5로 선택 박스 보더가 컨테이너 보더선에 겹침 */
+.tabs button.on{color:#fff;font-weight:700;background:#1e2d59;border-color:#32a2fa;position:relative;z-index:1}   /* Figma: 선택만 #1E2D59 fill + #32A2FA 보더 박스(w700) */
 
 /* 셔틀 토글 (Figma 최종: 세그먼트→단일 토글행. ON=셔틀 포함·OFF=셔틀 제외·도착=보기 CTA. 행 전체가 탭 타깃 — 시니어 조준 부담↓) */
 .shtoggle{display:flex;align-items:center;gap:.5em;margin:10px 10px 10px;padding:10px 12px;border:1.5px solid #293f71;border-radius:4px;background:#101a3d;cursor:pointer;flex:none}   /* Figma 실측: 토글 r4(유지) · OFF/도착=#101A3D fill+#293F71 보더 · pad[10,12] · dashboard gap10(탭과 간격) */
