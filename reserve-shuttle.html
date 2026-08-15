@@ -355,7 +355,7 @@ function chrome(){
     const limitBar = isLimited()
       ? `<div class="limitbar"><b class="cd"><span id="limitCd">${remainStr()}</span></b><span>너무 잦은 새로고침이 자동 감지되어 신규 콜 열람이 잠시 제한됩니다.</span></div>`
       : '';
-    if(state.noShuttle){ sub=limitBar || '<div class="subgap"></div>'; return topnav(sort, sub); }   // Figma '그 외 화면·셔틀 권한 없음': 셔틀 안 하는 드라이버는 토글 미노출(제한 배너만). 리스트=일반콜만. 토글 자리 빈 만큼 탭↔리스트 10px 간격 유지
+    if(state.noShuttle){ sub='<div class="subgap"></div>'+limitBar; return topnav(sort, sub); }   // Figma '그 외 화면·셔틀 권한 없음': 셔틀 안 하는 드라이버는 토글 미노출(제한 배너만). 리스트=일반콜만. 토글이 만들던 탭 하단 간격을 subgap으로 대체 → 배너 있어도 탭↔배너 10px 유지(배너 margin-top:0)
     const on=state.seg==='include', arrive=(state.seg==='exclude'&&state.banner);
     const lb = on ? '셔틀 포함됨' : (arrive ? '수락 가능한 셔틀 콜이 있어요' : '셔틀 제외됨');   // Figma 13552:18099: 도착 문구 갱신(옛 '새 셔틀 콜이 들어왔어요!'→'수락 가능한 셔틀 콜이 있어요'), 우측 '켜기' 파랑 CTA
     const rlb = on ? '끄기' : '켜기';   // 우측 액션 라벨 상시(ON=끄기·OFF=켜기·도착=켜기 파랑 CTA). Figma 13269:69280 실측: OFF/도착 모두 '켜기'(도착만 파랑 강조)
