@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>노선형 셔틀 — 콜 상세·전체 경로·운행 중 · TADA-9474</title>
+<style>
+/* ══════════════════════════════════════════════════════════════
+   DP / SP 원칙 (Figma 'font X1' · 'SP font 예시' 스펙)
+   · SP(글자만 확대) = font-size 뿐. 전부 calc(Npx * var(--sp)).
+   · DP(확대 안 함)  = padding · gap · radius · stroke · 아이콘/원 크기 ·
+                      뱃지(출발/경유/도착) 글자 · 바텀시트 max-height.
+   실측 근거: SP 예시 카드(27661:7169/7170)는 글자만 24→34·16→22·20→34sp로
+   커지고 pad[28,20,20,20]·pad[25,20,25,20]·pad[3,6,3,6]·gap12는 그대로.
+   뱃지 '출발' 18sp도 그대로 → 뱃지는 DP.
+   ══════════════════════════════════════════════════════════════ */
+:root{
+  --page:#0c1430; --screen:#101a3d; --line:#293f71;
+  --sheet:#101a3d; --guide:#19254d; --guideln:#293f71;
+  --txt:#efeff1; --sub:#d5d7dc; --sub2:#9da0ae;
+  --honey:#ff9400; --yellow:#eeff00; --blue:#0074d7; --red:#fe4c00;
+  --chip:#283873; --navi:#0044a6; --btn2:#293f71; --btn2ln:#384f85;
+  --dis:#868b9c; --distx:#e3e4e8;
+  --btnln:#5b93ff;
+  --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
+  --kr:"Apple SD Gothic Neo","Pretendard",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--page);color:#f9f9f9;font-family:var(--kr);line-height:1.5}
+.app{max-width:920px;margin:0 auto;padding:18px 16px 40px}
+.head h1{font-size:18px;margin:0 0 3px;letter-spacing:-.02em}
+.head p{margin:0;color:var(--sub2);font-size:12.5px}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0 10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#0e1836}
+.ctrl .lbl{font-size:11px;color:var(--sub2);font-family:var(--mono);margin-right:2px}
+.ctrl button{font-family:var(--kr);font-size:12px;color:#c0c2cc;background:transparent;border:1px solid var(--line);border-radius:999px;padding:5px 11px;cursor:pointer}
+.ctrl button.on{color:#fff;background:var(--btnln);border-color:var(--btnln)}
+.ctrl .sep{width:1px;height:20px;background:var(--line);margin:0 2px}
+.ctrl .dev{font-family:var(--mono);font-size:11px;color:var(--sub2);margin-left:4px}
+
+.stage{display:flex;justify-content:center}
+.phone{width:376px;max-width:100%;background:#0a1330;border:1px solid var(--line);border-radius:26px;padding:8px;box-shadow:0 18px 50px rgba(0,0,0,.45)}
+/* Figma 프레임 실측: 360 × 760dp (720×1520 @2x) */
+.scr{--sp:1;width:100%;height:760px;background:var(--screen);border-radius:19px;overflow:hidden;display:flex;flex-direction:column;position:relative}
+.sb{height:36px;background:#000;flex:none;display:flex;align-items:center;justify-content:flex-end;padding:0 14px;color:#fff;font-size:13px;font-weight:600}   /* 상태바 36dp */
+
+/* appbar — Figma 실측 56dp · pad[6,10,6,15] */
+.appbar{height:56px;flex:none;display:flex;align-items:center;justify-content:space-between;background:var(--screen);padding:6px 10px 6px 15px}
+.appbar .menu{width:24px;height:24px;display:flex;flex-direction:column;justify-content:center;gap:5px;cursor:pointer}
+.appbar .menu i{display:block;height:2px;background:#fff;border-radius:2px}
+.appbar .fd{display:flex;align-items:center;gap:1px;background:rgba(35,53,101,.8);border-radius:8px;padding:10px 10px 10px 3px}
+.appbar .fd .dot{width:16px;height:16px;border-radius:50%;background:var(--yellow);flex:none;margin:0 4px}
+.appbar .fd span{font-size:calc(16px * var(--sp));font-weight:700;color:var(--yellow)}
+
+/* map — 앱바 아래 전부(고정 영역, 스크롤 없음) */
+.map{flex:1;position:relative;overflow:hidden;background:#eceff3;min-height:0}
+.map .roads{position:absolute;inset:0;width:100%;height:100%}
+.naver{position:absolute;left:8px;bottom:6px;font:700 10px/1 var(--mono);color:#12b34b;background:#fff;padding:3px 5px;border-radius:2px}
+/* 남은 대기시간 칩 — 실측: 좌측 플러시 · 지도 상단에서 20dp · h70dp · #283873 80% */
+.waitchip{position:absolute;left:0;top:20px;background:rgba(40,56,115,.8);border-radius:0 10px 10px 0;padding:8px 16px 8px 12px;display:none}
+.waitchip.on{display:block}
+.waitchip .wl{font-size:16px;color:#fff}                                                                                      /* 라벨 = DP(고정) */
+.waitchip .wv{font-size:calc(20px * var(--sp));font-weight:700;color:var(--yellow);font-variant-numeric:tabular-nums}          /* 카운트 = SP(확대) */
+/* 우측 버블 (27661:6791 ic_bubble_navi_accepted_26) — 지도 오버레이라 전부 DP.
+   실측: 62×62dp 정사각 · r15 · 흰 보더 2 · 세로 gap8 · 우측 플러시 · 지도 상단 +20dp
+   예약 배지 = 24dp 원(#FE4C00·흰 보더1)이 좌상단으로 7dp 튀어나옴 · 내비는 아이콘이 글자 위 */
+.bubbles{position:absolute;right:0;top:20px;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.bub{width:62px;height:62px;flex:none;border:2px solid #fff;border-radius:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#fff;text-align:center;line-height:1.15;position:relative;cursor:pointer}   /* 20sp지만 DP 고정 */
+.bub.resv{background:#223065}
+.bub.route{background:var(--chip)}
+.bub.navi{background:rgba(0,68,166,.9);gap:2px}
+.bub.navi .nic{width:24px;height:24px;border-radius:50%;background:#f9f9f9;color:#2f8fe8;font-size:13px;display:flex;align-items:center;justify-content:center;flex:none;transform:rotate(-45deg)}
+.bub .cnt{position:absolute;top:-7px;left:-7px;width:24px;height:24px;border-radius:50%;background:var(--red);border:1px solid #fff;font-size:16px;display:flex;align-items:center;justify-content:center;line-height:1}   /* 카운트도 DP */
+.pin{position:absolute;left:50%;top:46%;transform:translate(-50%,-100%);text-align:center}
+.pin .lb{font-size:16px;font-weight:700;color:#fff;background:var(--blue);border-radius:3px;padding:2px 7px;display:inline-block}   /* 지도 핀 라벨 = DP(확정) */
+.pin.dest .lb{background:var(--red)}
+.pin .stick{width:2px;height:20px;background:var(--blue);margin:0 auto}
+.pin.dest .stick{background:var(--red)}
+.car{position:absolute;left:50%;top:64%;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;background:#384f85;border:1px solid #31487d;display:flex;align-items:center;justify-content:center;font-size:15px}
+
+/* ══ 바텀시트 (Bottomsheet_노선) ══
+   구조 = [스크롤: 노선 정보 리스트(헤더+가이드)] + [고정: CTA]
+   실측: CTA 80dp 고정 · 스크롤 영역 max-height 340dp(그 미만은 hug)      */
+/* 시트는 지도 위에 오버레이(Figma와 동일: 지도는 앱바 아래 668dp 전체를 차지하고 가려짐) */
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--sheet);border-radius:10px 10px 0 0;display:flex;flex-direction:column;z-index:3;overflow:hidden}
+.sheetwrap{position:relative;display:flex;flex-direction:column;max-height:340px;min-height:0}   /* ← DP 고정(글자 커져도 안 늘어남 = 스크롤 전환) */
+.sheetbody{overflow-y:auto;scrollbar-width:thin;scrollbar-color:#4b5c8c transparent}
+.sheetbody::-webkit-scrollbar{width:4px}
+.sheetbody::-webkit-scrollbar-thumb{background:#4b5c8c;border-radius:4px}
+.sheetwrap .grad{position:absolute;left:0;right:0;height:28px;pointer-events:none;z-index:2;opacity:0;transition:opacity .15s}
+.sheetwrap .grad.t{top:0;background:linear-gradient(#101a3d,rgba(16,26,61,0))}
+.sheetwrap .grad.b{bottom:0;background:linear-gradient(rgba(16,26,61,0),#101a3d)}
+.sheetwrap .grad.on{opacity:1}
+
+/* 최종안(28819): 상단 fixed 영역 없음 — 헤더도 같이 스크롤되는 풀 스크롤 */
+/* 헤더 A: 이동 중 (28819:99734) — col gap20 · pad[28,20,28,20] */
+.shead{display:flex;flex-direction:column;gap:20px;padding:28px 20px}
+.shead .toprow{display:flex;gap:1px;align-items:flex-start}   /* Frame 2085666313 row gap1 */
+.shead .nmrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.badge{flex:none;align-self:flex-start;border-radius:6px;padding:3px 6px;background:var(--blue);color:#fff;font-size:18px;font-weight:700}   /* DP 고정 */
+.badge.dest{background:var(--red)}
+.shead .adr{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.shead .nm{font-size:calc(24px * var(--sp));font-weight:700;color:var(--txt);word-break:keep-all}
+.shead .ad{font-size:calc(14px * var(--sp));color:var(--txt);word-break:keep-all}   /* 수정안: 16→14sp · 색 #EFEFF1 */
+.navbtn{flex:none;width:44px;height:44px;border-radius:50%;background:#e3e4e8;color:#101a3d;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer}   /* 아이콘=DP */
+/* Detailed Info Button (28819 수정안 실측: #293F71 · stroke #384F85/1 · r6 · pad[10,16] · 15sp w700) */
+.routebtn{align-self:flex-start;display:inline-flex;align-items:center;gap:10px;background:var(--btn2);border:1px solid var(--btn2ln);border-radius:6px;padding:10px 16px;font-size:calc(15px * var(--sp));font-weight:700;color:var(--txt);cursor:pointer}
+
+/* 헤더 B: 도착완료 후 (28819:100104) — row gap12 · pad[28,24,20,24] · 라벨 위 / 값 아래 · 세로 구분선 */
+.thead{display:flex;align-items:center;gap:12px;padding:28px 24px 20px}   /* Figma: 교차축=center */
+.thead .tcol{flex:1;min-width:0;display:flex;flex-direction:column}   /* Figma: grow1 = 균등 분할(각 144px) */
+.thead .lb{font-size:calc(15px * var(--sp));color:var(--txt)}                       /* 2026-08-16 수정: 16→15sp */
+.thead .vl{font-size:calc(20px * var(--sp));font-weight:700;color:var(--txt)}      /* 2026-08-16 수정: 24→20sp */
+
+/* 가이드 (call_block/board_warning) — pad[20,24,28,24] · gap20 · 안쪽 gap8
+   ⚪/🟠 는 텍스트 안의 이모지(=SP로 같이 커짐) · 바디는 들여쓰기 없음(실측 좌측 24dp 정렬) */
+.guide{background:var(--guide);border:1px solid var(--guideln);display:flex;flex-direction:column;gap:20px;padding:20px 24px 28px}   /* Figma: stroke 4면 */
+.guide .g{display:flex;flex-direction:column;gap:8px}
+.guide .gt{font-size:calc(16px * var(--sp));color:#fff;word-break:keep-all}   /* 수정안: 18→16sp */
+.guide .gt.route{color:var(--honey)}
+.guide .gb{font-size:calc(15px * var(--sp));color:var(--sub2);word-break:keep-all}
+.guide .rl{font-size:calc(18px * var(--sp));color:var(--txt)}   /* 노선 라인 — 🟠 불릿 없음 */
+.tiles{display:flex;gap:10px}                                   /* 버튼 행 (Frame 2085666316) */
+.tiles .routebtn{flex:1;justify-content:center;align-self:auto}  /* Figma 실측: 각 151dp = 균등 분할(fill) */
+/* ★ 28819 수정안: 승하차 지점이 가이드 타일 → 헤더의 2칸 정보로 올라감 (세로 구분선으로 분리) */
+.facts{display:flex;gap:16px;align-items:stretch}
+.fact{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}   /* Figma: grow1 = 균등 분할(각 144px) */
+.fact b{font-size:calc(18px * var(--sp));font-weight:700;color:var(--txt)}
+.fact span{font-size:calc(14px * var(--sp));color:var(--txt)}
+.vdiv{width:1px;background:var(--guideln);align-self:stretch;flex:none}
+
+/* ★ C안: 운행 방법 전용 전체화면 (상한 없는 텍스트를 시트에 밀어넣지 않음) */
+.mv{position:absolute;inset:0;background:var(--screen);z-index:11;display:none;flex-direction:column}
+.mv.on{display:flex}
+.mv .mvsc{flex:1;overflow-y:auto;padding:20px;min-height:0}
+.mv .mvrt{font-size:calc(16px * var(--sp));color:var(--honey);margin-bottom:4px}
+.mv .mvpt{margin:0 0 16px}
+.mv .mvb{font-size:calc(16px * var(--sp));color:#e6e9ef;line-height:1.7;white-space:pre-wrap;word-break:keep-all}
+
+/* CTA — 고정(스크롤 밖). pad[25,20] + 20sp = 80dp */
+.cta{flex:none;display:flex;align-items:center;justify-content:center;gap:10px;min-height:80px;padding:25px 20px;font-size:calc(20px * var(--sp));font-weight:700;color:#fff;background:var(--honey);cursor:pointer}
+.cta:active{filter:brightness(.92)}
+.cta.dis{background:var(--dis);color:var(--distx);cursor:default;padding:24px 20px}   /* '버튼 아님, 터치 없음' */
+.cta.dis:active{filter:none}
+
+/* 콜 상세(수락 전, 27661:6573) / 전체 경로(수락 후, 27661:7297) — 같은 화면, CTA만 다름 */
+.rv{position:absolute;inset:0;background:var(--screen);z-index:9;display:none;flex-direction:column}
+.rv.on{display:flex}
+.rv .rvbar{height:56px;flex:none;display:flex;align-items:center;gap:12px;padding:0 15px;background:var(--screen)}
+.rv .rvbar .bk{font-size:20px;color:#fff;cursor:pointer;line-height:1}
+.rv .rvbar .tt{font-size:calc(18px * var(--sp));font-weight:700;color:#fff}
+.rv .rvsc{flex:1;overflow-y:auto;padding:20px 20px 14px;min-height:0}
+/* 지도 썸네일 + 크게 보기 */
+.thumb{position:relative;height:150px;border-radius:6px;overflow:hidden;margin:12px 0 4px;background:#eceff3}
+.thumb .big{position:absolute;right:10px;top:10px;background:#fff;color:#101a3d;font-size:13px;font-weight:700;border-radius:4px;padding:6px 10px}   /* 지도 위 = DP */
+.thumb .mk{position:absolute;background:var(--blue);color:#fff;font-size:12px;font-weight:700;border-radius:999px;width:20px;height:20px;display:flex;align-items:center;justify-content:center}
+.thumb .mk.dest{background:var(--red);border-radius:4px;width:auto;padding:2px 6px}
+.thumb .mk.org{background:var(--blue);border-radius:4px;width:auto;padding:2px 6px}
+
+/* ★ TADA-9474 ① 승하차 지점 — 1안: 정류장(POI)에 붙임 */
+.pt{display:flex;align-items:baseline;gap:6px;margin-top:5px}
+.pt .k{flex:none;font-size:13px;font-weight:700;color:#101a3d;background:#8fb6e8;border-radius:4px;padding:1px 5px}   /* 승차/하차 라벨 = 뱃지류라 DP */
+.pt .k.off{background:#f0a98a}
+.pt .v{font-size:calc(15px * var(--sp));font-weight:700;color:var(--txt);word-break:keep-all}
+/* ★ TADA-9474 ② 요청사항 — 기존 드라이버앱 컴포넌트 재사용
+   Figma '요청사항 (통합)' 24998:11821 실측: col · #19254D · stroke #32A2FA/1 · r4 · gap12 · pad[15]
+   제목 16sp Bold #E6E9EF · 본문 16sp Regular #E6E9EF · 하단 액션 16sp #7282A6('원본 보기' 자리) */
+.req{background:#19254d;border:1px solid #32a2fa;border-radius:4px;padding:15px;margin:20px 0 0;display:flex;flex-direction:column;gap:12px}
+.req .rqt{font-size:calc(16px * var(--sp));font-weight:700;color:#e6e9ef}
+.req .rqb{font-size:calc(16px * var(--sp));color:#e6e9ef;line-height:1.6;white-space:pre-wrap;word-break:keep-all}
+.req .rqb.clip{display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+.req .rqm{align-self:flex-start;background:none;border:0;padding:0;font-family:var(--kr);font-size:calc(16px * var(--sp));color:#7282a6;cursor:pointer}
+.rv .rvd{font-size:calc(18px * var(--sp));font-weight:700}
+.rv .rvd span{color:var(--sub2);font-weight:400;margin:0 6px}
+.rv .rvt{font-size:calc(16px * var(--sp));color:var(--sub);margin-top:3px}
+.rv .rvchips{display:flex;gap:6px;margin:12px 0 14px}
+.rv .rvchips i{font-style:normal;font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px}   /* 칩=DP */
+.rv .rvchips .s{background:rgba(255,148,0,.25);color:#ffc700}
+.rv .rvchips .m{background:rgba(254,76,0,.25);color:#ff9c86}
+.rv .stop{display:flex;gap:12px;align-items:flex-start;padding:9px 0}
+.rv .stop .tm{width:52px;flex:none;font-size:calc(15px * var(--sp));color:var(--sub2)}
+.rv .stop .kd{width:56px;flex:none;font-size:calc(15px * var(--sp));color:var(--sub2)}
+.rv .stop .nm{flex:1;min-width:0;font-size:calc(16px * var(--sp));color:var(--txt);word-break:keep-all}
+.rv .stop .navbtn{width:34px;height:34px;font-size:14px}
+.rv .hr{height:1px;background:var(--line);margin:14px 0}
+.rv .row{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0}
+.rv .row .k{font-size:calc(16px * var(--sp));color:var(--sub2)}
+.rv .row .v{font-size:calc(20px * var(--sp));font-weight:700}
+.rv .note2{text-align:right;font-size:calc(13px * var(--sp));color:var(--honey)}
+.rv h4{font-size:calc(16px * var(--sp));color:var(--sub2);font-weight:400;margin:18px 0 7px}
+.rv ul{margin:0;padding-left:16px}
+.rv li{font-size:calc(16px * var(--sp));color:var(--txt);margin:7px 0;word-break:keep-all}
+.rv li.hl{color:var(--honey)}
+
+.toast{position:absolute;left:50%;bottom:100px;transform:translateX(-50%) translateY(1em);opacity:0;transition:.2s;pointer-events:none;background:#0b1830;border:1px solid var(--line);color:#f9f9f9;font-size:12px;padding:8px 13px;border-radius:999px;white-space:nowrap;z-index:10}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.note{margin-top:12px;color:var(--sub2);font-size:12px;border:1px dashed var(--line);border-radius:10px;padding:11px 13px;line-height:1.65}
+.note b{color:#f9f9f9}
+.note code{font-family:var(--mono);font-size:11px;color:#c0c2cc}
+.steps{margin-top:10px;font-size:12px;color:var(--sub2);font-family:var(--mono)}
+.back{margin:0 0 10px}.back a{color:var(--btnln);font-size:13px;text-decoration:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <p class="back"><a href="index.html">← 방식 목록</a></p>
+  <div class="head">
+    <h1>🚌 노선형 셔틀 — 콜 상세 · 전체 경로 · 운행 중 <span style="font-family:var(--mono);font-size:11px;color:var(--btnln)">TADA-9474</span></h1>
+    <p>Figma <b>26.2Q _ 노선 셔틀 드라이버</b>(SECTION 27661:6521) 실측 재현 위에 <b>TADA-9474 ‘드라이버 노출’</b>(승하차 지점 · 요청사항)을 얹은 프로토. 화면 <b>360×760dp</b>·상태바 36·앱바 56·<b>CTA 80dp 고정</b>·<b>시트 스크롤 max 340dp</b>, <b>SP는 글자만·나머지 전부 DP</b>.</p>
+  </div>
+
+  <div class="ctrl">
+    <span class="lbl">방향</span>
+    <button data-dir="go" class="on">출근 셔틀</button>
+    <button data-dir="back">퇴근 셔틀</button>
+    <span class="sep"></span>
+    <span class="lbl">도착 시점</span>
+    <button data-arr="ample" class="on">여유(10:00)</button>
+    <button data-arr="tight">임박(0:30)</button>
+    <button data-arr="late">이미 지남</button>
+    <span class="sep"></span>
+    <span class="lbl">운행 방법</span>
+    <button data-nt="long" class="on">길게</button>
+    <button data-nt="short">짧게</button>
+    <button data-nt="none">없음</button>
+    <span class="sep"></span>
+    <button id="goDetail">📄 콜 상세로</button>
+    <button id="skip">⏩ 대기시간 건너뛰기</button>
+    <button id="reset">↺ 처음으로</button>
+    <span class="sep"></span>
+    <span class="lbl">글씨(sp)</span>
+    <button data-sp="1" class="on">기본</button>
+    <button data-sp="1.3">크게 ×1.3</button>
+    <button data-sp="1.6">최대 ×1.6</button>
+    <span class="dev" id="dev"></span>
+  </div>
+
+  <div class="stage">
+    <div class="phone"><div class="scr" id="scr">
+      <div class="sb">12:30</div>
+      <div class="appbar">
+        <div class="menu"><i></i><i></i><i></i></div>
+        <div class="fd"><span class="dot"></span><span>미리배차 켜짐</span></div>
+      </div>
+      <div class="map">
+        <svg class="roads" viewBox="0 0 360 400" preserveAspectRatio="xMidYMid slice">
+          <rect width="360" height="400" fill="#eceff3"/>
+          <path d="M-20 300 L380 250" stroke="#fff" stroke-width="26"/>
+          <path d="M55 -20 L110 420" stroke="#fff" stroke-width="18"/>
+          <path d="M-20 120 L380 90" stroke="#fff" stroke-width="14"/>
+          <path d="M280 -20 L240 420" stroke="#fff" stroke-width="14"/>
+          <path d="M-20 380 L380 340" stroke="#f5e9a8" stroke-width="10"/>
+          <path d="M-20 200 L380 175" stroke="#dfe4ea" stroke-width="8"/>
+          <g fill="#dde2e8"><rect x="140" y="130" width="70" height="46" rx="4"/><rect x="18" y="210" width="58" height="40" rx="4"/><rect x="280" y="200" width="66" height="52" rx="4"/><rect x="140" y="300" width="78" height="44" rx="4"/></g>
+          <g fill="#aab3c0" font-size="9" font-family="sans-serif"><text x="24" y="150">압구정</text><text x="216" y="120">청담동거리</text><text x="28" y="330">논현2동</text><text x="278" y="330">강남구청</text></g>
+        </svg>
+        <div class="waitchip" id="waitchip"><div class="wl">남은 대기시간</div><div class="wv" id="waitval">10:00</div></div>
+        <div class="bubbles">
+          <div class="bub resv">예약<span class="cnt">3</span></div>
+          <div class="bub route">경로<br>변경</div>
+          <div class="bub navi"><span class="nic">➤</span>내비</div>
+        </div>
+        <div class="pin" id="pin"><span class="lb">출발</span><div class="stick"></div></div>
+        <div class="car">🚌</div>
+        <span class="naver">NAVER</span>
+      </div>
+
+      <div class="sheet" id="sheet">
+        <div class="sheetwrap">
+          <div class="grad t" id="gradt"></div>
+          <div class="sheetbody" id="sheetbody"></div>
+          <div class="grad b" id="gradb"></div>
+        </div>
+        <div class="cta" id="cta"></div>
+      </div>
+
+      <div class="rv" id="rv">
+        <div class="rvbar"><span class="bk" id="rvbk">←</span><span class="tt">셔틀예약 콜 상세정보</span></div>
+        <div class="rvsc" id="rvsc"></div>
+        <div class="cta" id="rvok">확인</div>
+      </div>
+      <div class="mv" id="mv">
+        <div class="rvbar"><span class="bk" id="mvbk">←</span><span class="tt">운행 방법</span></div>
+        <div class="mvsc" id="mvsc"></div>
+        <div class="cta" id="mvok">확인</div>
+      </div>
+      <div class="toast" id="toast"></div>
+    </div></div>
+  </div>
+
+  <div class="steps" id="steps"></div>
+
+  <div class="note">
+    <b style="color:#ffc700">★ TADA-9474 (셔틀 어드민 요청사항) 반영 — 요구사항 ‘드라이버 노출’</b><br>
+    ① <b>승하차 지점 [1안: 정류장(POI)에 붙임]</b> — 근무지에서 승차면 <b>승차 지점</b>, 하차면 <b>하차 지점</b>을 정류장 바로 아래 <code>승차·지상 7층</code> 라벨+값으로. <b>콜 상세 · 전체 경로 · 운행 중(이동 중 헤더 · 도착완료 후 가이드 최상단) 4곳 모두</b> 같은 형태 — <b>운전자가 필요한 순간(운행 중)에 화면 안에서 바로 보이는 것이 핵심</b>. 지점이 없는 일반 정류장(역·아파트)은 줄 자체가 없음. <i>1안 근거: 승하차 지점은 정류장에 종속된 값이라 정류장 옆이 정보구조상 맞고 — 요청사항 본문에 섞으면 정류장 매핑이 깨지고, 지도 위는 핀과 겹쳐 층수를 못 읽음.</i> 지점이 등록된 정류장은 그 값이 <b>탑승/도착 문구의 기준</b>이 됨(출근 노선의 센터 경유 = ‘까지 도착’).<br>
+    ② <b>운행 방법(어드민 요청사항) — 기존 컴포넌트 재사용</b>: 드라이버앱 <b>‘요청사항 (통합)’</b>(03-2 예약콜 목록 › 로컬 컴포넌트 <code>24998:11821</code>) 실측 그대로 — <code>#19254D</code> 카드 + <b>#32A2FA 1px 보더</b> · r4 · pad15 · gap12 · 제목 16sp Bold와 본문 16sp Regular <code>#E6E9EF</code> · 하단 좌측 액션 16sp <code>#7282A6</code>(원본 보기 자리에 <b>더보기</b>). <b>제목만 <code>운행 방법</code></b> 으로 달리해 승객이 남긴 <code>요청사항</code>과 구분(일반/맞춤 예약으로 확장돼 한 화면에 둘 다 와도 구분됨). <b>콜 상세(수락 전)</b> 부터 노출, <b>기존 ‘셔틀 운행 안내’ 4줄과 별도 영역</b>, 길면 <b>6줄 + 더보기</b>, <b>없으면 카드 전체 삭제</b>. 위치는 요금·거리·인원 <b>아래</b> / 셔틀 운행 안내 <b>위</b>(수락 판단 정보 → 상시 고정 문구보다 앞). 서식은 <b>줄바꿈만</b>(평문), 글자 수 상한 없음.<br>
+    ②-B <b>[디자이너 신안 반영 · 28813:99477/99667/99529/99625]</b> — 운행 중 시트를 신안 구조로 교체했습니다. ⓐ <b>이동 중에도 가이드 블록 상시 노출</b>(기존엔 도착완료 후에만). ⓑ 가이드 최상단 = <code>노선 : {이름}</code>(18sp, <b>🟠 불릿 없음</b>) + <b>2칸 타일</b>(<code>Frame 48097455</code> row gap10) — <code>승차/지상 1층</code>와 <code>운행 방법/확인하기 ›</code>(honey). 타일 = <code>Detailed Info Button</code> col #233565·stroke #293F71·r6·gap4·pad[8,10], 라벨 16sp w400 · 값 18sp w700. ⓒ <b>헤더 sticky + 스크롤 시 축약</b> — 이동 중은 <code>Header_fixed</code>(뱃지+장소명+내비만, 주소·시각 사라짐), 도착완료는 <code>time_fixed</code>(‘출발 시간’ 라벨 사라지고 시각만). ⓓ 이동 중 헤더에서 <b>노선 라인·전체 경로 버튼 제거</b>(노선은 가이드로 내려감). ⓔ <b>[디자이너 수정안 · 28819:99734/100104 최종 반영]</b> — 승하차 지점이 가이드 타일에서 <b>헤더의 2칸 정보</b>로 올라갔습니다. <b>이동 중</b>: 뱃지+장소명 / 주소(14sp) / 그 아래 <code>18:20 · 까지 고객 탑승</code> ｜ <code>지상 1층 · 승차 위치</code>(값 18sp w700 위, 라벨 14sp 아래, <b>세로 구분선</b> #293F71). <b>도착완료 후</b>: <code>출발 시간 / 18시 20분</code> ｜ <code>승차 위치 / 지상 1층</code>(라벨 <b>15sp</b> 위, 값 <b>20sp</b> w700 아래 — 2026-08-16 수정으로 16/24에서 축소). 두 칸과 버튼 두 개 모두 <b>fill(균등 분할)</b>, 내비 아이콘 44dp. 가이드 블록엔 <b><code>[운행 방법 ›] [전체 경로 ›]</code> 두 버튼만</b> — 2줄 타일이 아니라 1줄 <code>Detailed Info Button</code>(#293F71·stroke #384F85·r6·<b>pad[10,16]</b>·15sp w700)로 되돌아왔습니다. 가이드 항목 타이틀도 18→<b>16sp</b>. <b>상단 fixed 영역은 없습니다</b> — 헤더도 같이 스크롤되는 <b>풀 스크롤</b>(28813 단계의 <code>Header_fixed</code>/<code>time_fixed</code> 축약은 폐기).<br>
+    <b>전용 화면</b>(앱바 <code>← 운행 방법</code> + 노선 + 현재 정류장 승하차 지점 + 전문 + CTA <code>확인</code>)은 그대로 유지 — 타일의 <code>확인하기 ›</code>가 진입점입니다. 콜 상세·전체 경로는 카드 6줄 + <code>전체 보기 ›</code>.<br>
+    <b>남은 한계:</b> C도 <b>읽힘을 강제하진 못합니다</b>. 미운행·배차취소처럼 안 읽으면 사고 나는 내용은 <b>수락 시점 ‘확인했습니다’ 체크(B안)</b> 가 담당해야 하며, 기존 <code>요청사항 (통합)</code> 컴포넌트에 그 패턴(<code>✅ 고객 요청사항을 확인했습니다</code>)이 이미 있습니다.<br>
+    ③ 데모 컨트롤 <b>운행 방법 길게/짧게/없음</b> · <b>📄 콜 상세로</b>. <b>변경 알림·‘변경됨’ 표시는 이번 프로토 범위 밖</b>. 콜 목록에는 표시하지 않음. 피크데이도 노선 셔틀에 포함.<br>
+    <b>조작:</b> <b>콜 상세(수락 전)</b> → [셔틀예약 콜 수락] → <b>운행 중</b> → 하단 CTA(<b>도착완료 → 고객 탑승 대기중(비활성) → 다음 장소로 이동하기 → … → 요금 결제하기</b>)로 노선 진행. 시트의 <b>[전체 경로 ›]</b> = 같은 콜 상세 + 주소 옆 내비 버튼, CTA <b>‘확인’</b>으로 복귀.<br>
+    <b>고정 / 스크롤 (실측):</b> 상태바 36 · 앱바 56 · 지도(나머지 전부)는 <b>고정</b>. 바텀시트는 <b>[스크롤: 노선 정보 리스트 = 헤더 + 가이드 — 상단 fixed 없이 헤더까지 전부 스크롤]</b> + <b>[고정: CTA 80dp]</b> 2단. 스크롤 영역은 <code>max-height 340dp</code>(=지도 영역 668dp의 약 50%, 스펙 문구 ‘50vh’)까지만 늘고 그 미만은 hug, 넘치면 스크롤 + 상하 그라데이션(28dp) + 우측 스크롤 인디케이터. 실측: 도착완료 화면 12개가 모두 리스트 340dp에서 잘림(캡), 이동 중 288dp·짧은 가이드 258dp는 hug.<br>
+    <b>SP / DP (실측):</b> <b>바텀시트 글자만 SP</b> — 장소명 24 · 주소 16 · 노선 16(가이드는 18) · 시각 18 · 전체경로 15 · 가이드 타이틀 18/바디 15 · CTA 20 · <b>대기시간 카운트 20</b>. <b>DP(안 커짐)</b> — 시트 <b>뱃지 18</b>(출발/경유/도착), <b>지도 핀 라벨 16</b>, <b>대기시간 라벨 16</b>(‘남은 대기시간’ — 카운트만 sp), <b>우측 버블 전체</b>(예약 20·카운트 16·경로변경 20·내비 20 — <code>27661:6791</code>), 그리고 모든 padding(28/20/24/25·8/10·3/6)·gap(12/16/8/20/4)·radius(10/6)·내비 원 40·시트 max 340·CTA 80. → 지도 위 오버레이는 크기 고정, 시트 콘텐츠만 sp로 커짐.<br>
+    <b>버블 실측(<code>27661:6791</code>):</b> <b>62×62dp 정사각</b> · r15 · 흰 보더 2 · 세로 gap 8 · <b>우측 플러시(여백 0)</b> · 지도 상단 +20dp. 예약 카운트는 <b>24dp 원</b>(#FE4C00·흰 보더 1)이 <b>좌상단으로 7dp 튀어나옴</b>, 내비는 <b>아이콘이 글자 위</b>(24dp 흰 원). 색: 예약 #223065 · 경로변경 #283873 · 내비 #0044A6(90%). → <b>크게 ×1.3 / 최대 ×1.6</b>을 눌러 보세요: 여백은 그대로, 글자만 커지며 시트가 340dp에서 멈추고 스크롤로 전환됩니다(Figma ‘SP font 예시’ 동작).<br>
+    <b>확정 규칙:</b> ① <b>+60초</b> — 도착완료 시점 남은 대기가 1분 미만/이미 지남이면 60초 추가(30초 남음 → 총 90초) 후 <b>다음 장소로 이동하기</b> 활성. 적용 = 출근 모든 도착완료(도착지 제외) / 퇴근 <b>출발지 도착완료만</b>. ② 지각 분기는 가이드 첫 항목이 <b>‘대기 시간 끝나면 출발’</b>로 교체. ③ 출근 = 탑승객이 없어도 정시 출발 / 만차 시에도 모든 정류장 경유, 퇴근 = 출발지 미리 대기(20분 전) / 마지막 탑승객 하차 시 운행 종료. ④ 퇴근 경유지는 대기 없이 <b>‘승객 하차 후 바로 출발’</b>. ⑤ 가이드 불릿은 텍스트 안 이모지(⚪·🟠)라 글자와 함께 커지고, <b>바디는 들여쓰기 없이</b> 좌측 24dp 정렬(실측).<br>
+    <b>더미·단순화:</b> 노선명 <code>[오후조] 독산</code>·85,000원·47km·6명은 Figma 콜 상세 값. 정류장 골격은 Figma 콜 상세의 5개인데, <b>승하차 지점이 붙는 근무지</b>가 필요해 목적지/출발지를 <b>쿠팡 인천 17·39센터</b>로 바꿔 ‘지점 있는 정류장 + 없는 정류장’이 섞이게 했습니다(PRD 문자 예시의 7층/3층/1층 그대로). 요청사항 본문도 안내 문자에서 <b>앱이 이미 담고 있는 항목을 뺀</b> 예시입니다. 지도는 스타일 플레이스홀더, 전체 경로 화면의 지도 썸네일·‘크게 보기’는 생략(이번 범위=바텀시트). 대기시간 프리셋은 데모용(실제는 다음 출발 시각 − 현재 시각).
+  </div>
+</div>
+
+<script>
+/* ── 데이터 ──
+   정류장 골격은 Figma 콜 상세(27661:6524)의 5개.
+   TADA-9474 용으로 목적지/출발지를 **근무지(쿠팡 센터)** 로 바꿔, 승하차 지점이 붙는 정류장과
+   붙지 않는 일반 정류장이 섞인 실제 케이스를 만든다.
+   ★ PRD 데이터 모델: 승하차 지점은 **근무지마다 승차지점/하차지점을 각각** 등록하고,
+     그 근무지에서 승차면 승차지점 · 하차면 하차지점을 노출 → site={board, alight}.
+     반대로 **운행 방법은 셔틀 단위 1건**(정류장마다 다르지 않음) = NOTICE.        */
+/* ★ 근무지 리스트 — 어드민이 근무지마다 승차/하차 지점을 각각 등록(PRD 예시 그대로) */
+const SITES={
+  '17센터': {work:true, board:'지상 1층', alight:'지상 7층'},
+  '39센터': {work:true, board:'지상 1층', alight:'지상 3층'},
+  '강남타워': {work:false, board:'지상 1층', alight:'지상 1층'}   /* 근무지 아님 = 일반 정류장 */
+};
+const TRIPS={
+  go:{
+    label:'출근 셔틀', route:'[오후조] 독산', fare:85000, dist:'47km', pax:6, start:'아침 10:00',
+    stops:[
+      {kind:'origin', name:'강남 타워 주차장',      addr:'서울 성동구 성수동1가 아크로포레스트', time:'10:20', site:SITES['강남타워']},
+      {kind:'via',    name:'강남 타워팰리스 주차장', addr:'서울 강남구 도곡동 467',              time:'10:45'},
+      {kind:'via',    name:'논현역',                addr:'서울 강남구 논현동 92',               time:'11:35'},
+      {kind:'via',    name:'쿠팡 인천 17센터',      addr:'인천 중구 흥륜길 89',                 time:'11:55', site:SITES['17센터']},
+      {kind:'dest',   name:'쿠팡 인천 39센터',      addr:'인천 중구 서해대로 12',               time:'12:35', site:SITES['39센터']}
+    ]
+  },
+  back:{
+    label:'퇴근 셔틀', route:'[오후조] 독산', fare:85000, dist:'47km', pax:6, start:'저녁 18:00',
+    stops:[
+      {kind:'origin', name:'쿠팡 인천 17센터',      addr:'인천 중구 흥륜길 89',                 time:'18:20', site:SITES['17센터']},
+      {kind:'via',    name:'쿠팡 인천 39센터',      addr:'인천 중구 서해대로 12',               time:'18:40', site:SITES['39센터']},
+      {kind:'via',    name:'논현역',                addr:'서울 강남구 논현동 92',               time:'19:20'},
+      {kind:'via',    name:'강남 타워팰리스 주차장', addr:'서울 강남구 도곡동 467',              time:'19:35'},
+      {kind:'dest',   name:'강남 타워 주차장',      addr:'서울 성동구 성수동1가 아크로포레스트', time:'20:00', site:SITES['강남타워']}
+    ]
+  }
+};
+/* ★ 요청사항(어드민 입력) — 안내 문자에서 '앱이 이미 담고 있는 항목'을 뺀 나머지 */
+const NOTICE={
+  none:'',
+  short:'출발지 주차대기 구역은 ‘B동 3번 게이트’입니다. 센터 진입 후 해당 구역에서 대기해주세요.',
+  long:`[운행 대기]
+· 출발지 주차대기 구역은 ‘B동 3번 게이트’입니다. 센터 진입 후 해당 구역에서 대기해주세요.
+
+[미운행]
+· 20분이 지나도 탑승객이 없으면 운행하지 마세요. (운행 시작을 누르지 마세요)
+· 드라이버앱 > 운행 중 메뉴 > 배차취소 요청을 진행해주세요.
+· 20분 이후 미운행 시 노쇼요금이 반영될 수 있습니다.
+· 17센터에 탑승객이 없으면 39센터로 이동하고, 39센터에도 탑승객이 없으면 최종 배차취소를 요청해주세요.
+
+[기타]
+· 탑승객이 차량을 알아볼 수 있도록 차량 앞유리에 노선명을 표시해주세요.`
+};
+/* 가이드 문구 — Figma 실측(불릿 이모지 + 공백 2칸까지 그대로) */
+const G={
+  onTime : {t:'⚪  탑승객이 없어도 정시 출발', b:'노선 셔틀은 탑승객이 없어도 정해진 시간에 다음 장소로 이동해주세요.'},
+  late   : {t:'⚪  대기 시간 끝나면 출발',      b:'대기 시간이 끝나면 다음 장소로 이동할 수 있어요.'},
+  full   : {t:'⚪  만차 시에도 모든 정류장 경유', b:'만차 시에도 모든 정류장에 들러 정해진 시간까지 대기해주세요. 기다리고 있던 승객에게는 ‘만차’임을 꼭 안내하세요.'},
+  preWait: {t:'⚪  출발지 미리 대기',           b:'셔틀 출발 시각 20분 전 부터 셔틀 출발지에서 대기해주세요.'},
+  endRide: {t:'⚪  마지막 탑승객 하차 시 운행 종료', b:'남은 코스 운행 없이, 바로 [도착완료 및 요금 결제]를 진행하시면 됩니다.'},
+  endRide2:{t:'⚪  마지막 탑승객 하차 시 운행 종료', b:'남은 코스 운행 없이 연속으로 [다음 장소로 이동하기] 와 [요금 결제] 버튼을 눌러주세요.'}
+};
+const ARRIVE={ample:600, tight:30, late:0};   // 도착완료 시점 '남은 대기시간'(초) — 데모 프리셋
+
+/* ── 상태 ──
+   rvMode: 'request'(콜 상세·수락 전) | 'route'(전체 경로·수락 후) | null(운행 중 화면)
+   phase : moving(가는 중) / waiting(도착완료·대기) / ready(대기 끝) / done(운행 종료)      */
+const state={dir:'go', idx:0, phase:'moving', arr:'ample', waitEnd:0, waitLate:false,
+             rvMode:'request', notice:'long', clip:true};
+const $=id=>document.getElementById(id);
+const trip=()=>TRIPS[state.dir];
+const stop=()=>trip().stops[state.idx];
+const isLast=()=>state.idx===trip().stops.length-1;
+const isFirst=()=>state.idx===0;
+const usesWait=()=>state.dir==='go' ? !isLast() : isFirst();   // 대기(+60초)를 쓰는 정류장
+/* 탑승 vs 도착 문구 — 승하차 지점이 등록된 근무지는 그 값이 진실(예: 출근 노선의 쿠팡 센터 경유 = 하차),
+   없으면 기존 규칙(출근=도착지만 도착 / 퇴근=출발지만 탑승) */
+const boarding=()=>{ const p=pointOf(stop()); if(p) return p.t==='승차';
+                     return state.dir==='go' ? !isLast() : isFirst(); };
+const remain=()=>Math.max(0, Math.ceil((state.waitEnd-Date.now())/1000));
+const mmss=s=>String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+const badgeOf=s=>s.kind==='origin'?'출발':s.kind==='via'?'경유':'도착';
+
+/* ★ 승하차 지점 1안 = 정류장(POI)에 붙임. 지점이 없는 일반 정류장은 줄 자체가 없음 */
+/* ★ 승차/하차 판정 = 정류장이 근무지(센터)인지 + 노선 방향.
+   출근: 근무지에서 하차·그 외 승차 / 퇴근: 근무지에서 승차·그 외 하차 (PRD 승차지점/하차지점 중 택1) */
+const pointOf=s=>{ if(!s.site) return null;
+  const t = ((state.dir==='go') === !!s.site.work) ? '하차' : '승차';
+  return {t, v: t==='승차' ? s.site.board : s.site.alight}; };
+const ptHTML=s=>{ const p=pointOf(s); return p?`<div class="pt"><span class="k${p.t==='하차'?' off':''}">${p.t}</span><span class="v">${p.v}</span></div>`:''; };
+/* 헤더 A: 이동 중 (28819:99734) — [뱃지+장소명 / 주소 / 내비] + [시각 | 승차 위치] 2칸 */
+function headMoving(){
+  const s=stop(), p=pointOf(s);
+  const facts = `<div class="fact"><b>${s.time}</b><span>${boarding()?'까지 고객 탑승':'까지 도착'}</span></div>`
+    + (p?`<div class="vdiv"></div><div class="fact"><b>${p.v}</b><span>${p.t} 위치</span></div>`:'');
+  return `<div class="shead" id="hd">
+    <div class="toprow">
+      <div class="adr">
+        <div class="nmrow"><span class="badge${s.kind==='dest'?' dest':''}">${badgeOf(s)}</span><span class="nm">${s.name}</span></div>
+        <div class="ad">${s.addr}</div>
+      </div>
+      <div class="navbtn" data-navi>➤</div>
+    </div>
+    <div class="facts">${facts}</div>
+  </div>`;
+}
+/* 헤더 B: 도착완료 후 (28819:100104) — [출발 시간 | 승차 위치] 2칸(라벨 위 / 값 아래) */
+function headTime(label,value){
+  const p=pointOf(stop());
+  return `<div class="thead" id="hd">
+    <div class="tcol">${label?`<div class="lb">${label}</div>`:''}<div class="vl">${value}</div></div>
+    ${p?`<div class="vdiv"></div><div class="tcol"><div class="lb">${p.t} 위치</div><div class="vl">${p.v}</div></div>`:''}
+  </div>`;
+}
+/* 가이드 블록 = [노선 + 승하차 지점 + 운행 방법 진입] + 기존 가이드 항목
+   ★ C안: 운행 방법 본문은 시트에 넣지 않고 전용 화면으로 — 시트엔 진입 버튼만(상단, 1탭)  */
+function guideHTML(items){
+  const s=stop(), txt=NOTICE[state.notice];
+  /* 수정안: 승하차 지점은 헤더로 올라갔고, 여기엔 [요청사항 ›] [전체 경로 ›] 두 버튼만 */
+  const tiles = (txt?'<div class="routebtn" data-methodfull>운행 방법 ›</div>':'')
+              + '<div class="routebtn" data-route>전체 경로 ›</div>';
+  return `<div class="guide">
+    <div class="g">
+      <div class="rl">노선 : ${trip().route}</div>
+      ${tiles?`<div class="tiles" style="margin-top:12px">${tiles}</div>`:''}
+    </div>
+    ${items.map(g=>`<div class="g"><div class="gt">${g.t}</div><div class="gb">${g.b}</div></div>`).join('')}
+  </div>`;
+}
+function guideSet(){
+  if(state.phase==='done') return state.dir==='go' ? [G.full] : [G.endRide2];
+  if(state.dir==='go')     return [ state.waitLate?G.late:G.onTime, G.full ];
+  if(isFirst())            return [ state.waitLate?G.late:G.preWait, G.endRide ];
+  return [G.endRide];                                   // 퇴근 경유지 = 바로 출발
+}
+function render(){
+  const s=stop(), t=trip();
+  $('pin').className='pin'+(s.kind==='dest'?' dest':'');
+  $('pin').querySelector('.lb').textContent=badgeOf(s);
+  const showChip = state.phase==='waiting' || (state.phase==='ready' && usesWait());
+  $('waitchip').classList.toggle('on', showChip);
+  if(showChip) $('waitval').textContent=mmss(state.phase==='ready'?0:remain());
+
+  let body='', cta='', dis=false;
+  if(state.phase==='moving'){ body=headMoving()+guideHTML(guideSet()); cta='✓ 도착완료'; }   /* 신안: 이동 중에도 가이드 블록 상시 */
+  else if(state.phase==='done'){ body=headTime('','도착 완료')+guideHTML(guideSet()); cta='ⓦ 요금 결제하기'; }
+  else if(!usesWait() && !isLast()){ body=headTime('승객 하차 후','바로 출발')+guideHTML(guideSet()); cta='➦ 다음 장소로 이동하기'; }
+  else{
+    body=headTime('출발 시간', s.time.replace(':','시 ')+'분')+guideHTML(guideSet());
+    if(state.phase==='waiting'){ cta='고객 탑승 대기중'; dis=true; } else cta='➦ 다음 장소로 이동하기';
+  }
+  $('sheetbody').innerHTML=body; $('sheetbody').scrollTop=0;
+  const c=$('cta'); c.textContent=cta; c.classList.toggle('dis',dis);
+  syncGrad();
+  const pn={moving:'가는 중', waiting:'도착 완료(대기)', ready: usesWait()?'대기시간 경과':'도착 완료(바로 출발)', done:'도착 완료 · 운행 종료'}[state.phase];
+  $('steps').textContent=`${t.label} · ${state.idx+1}/${t.stops.length} ${badgeOf(s)} ${s.name} · ${pn}${state.waitLate&&state.phase!=='moving'?' + 지각(+60초)':''}`;
+  updateDev();
+}
+function updateDev(){
+  const el=$('sheetbody'), sc=el.scrollHeight>el.clientHeight+1;
+  $('dev').textContent=`sp=${getComputedStyle($('scr')).getPropertyValue('--sp').trim()} · 스크롤영역 ${el.clientHeight}dp/${el.scrollHeight}dp ${sc?'(스크롤)':'(hug)'} · 대기 ${state.phase==='waiting'?mmss(remain()):'-'}`;
+}
+function syncGrad(){
+  const el=$('sheetbody'), can=el.scrollHeight>el.clientHeight+1;
+  $('gradt').classList.toggle('on', can && el.scrollTop>4);
+  $('gradb').classList.toggle('on', can && el.scrollTop < el.scrollHeight-el.clientHeight-4);
+}
+$('sheetbody').addEventListener('scroll',syncGrad);
+
+function onCTA(){
+  if(state.phase==='moving'){
+    if(!usesWait() && !isLast()) state.phase='ready';        // 퇴근 경유지: 대기 없음
+    else if(isLast()) state.phase='done';                     // 도착지: 운행 종료
+    else{
+      const base=ARRIVE[state.arr];
+      state.waitLate = base<60;                               // 1분 미만/이미 지남 = 지각 분기
+      state.waitEnd  = Date.now() + (base + (state.waitLate?60:0))*1000;   // +60초 규칙
+      state.phase='waiting';
+      if(state.waitLate) toast(`남은 대기 ${mmss(base)} (1분 미만) → 추가 60초 카운트`);
+    }
+  }else if(state.phase==='ready'){ state.idx++; state.phase='moving'; state.waitLate=false; }
+  else if(state.phase==='done') toast('요금 결제 화면으로 이동 (프로토 범위 밖)');
+  render();
+}
+$('cta').addEventListener('click',()=>{ if(!$('cta').classList.contains('dis')) onCTA(); });
+$('sheetbody').addEventListener('click',e=>{
+  if(e.target.closest('[data-route]')) openRoute();
+  else if(e.target.closest('[data-methodfull]')) openMethod();
+  else if(e.target.closest('[data-navi]')) toast('T맵 내비로 전환 (내비 화면 변경 없음)');
+});
+setInterval(()=>{
+  if(state.phase!=='waiting') return;
+  if(remain()<=0){ state.phase='ready'; render(); }
+  else{ $('waitval').textContent=mmss(remain()); updateDev(); }
+},250);
+
+/* 콜 상세(request) · 전체 경로(route) — Figma 27661:6573 / 27661:7297. 요청사항·승하차 지점은 두 화면 공통 */
+function renderRV(){
+  const t=trip(), m=state.rvMode;
+  if(!m){ $('rv').classList.remove('on'); return; }
+  const nav = m==='route' ? '<div class="navbtn">➤</div>' : '';
+  const txt = NOTICE[state.notice];
+  const req = txt ? `
+    <div class="req">
+      <div class="rqt">운행 방법</div>
+      <div class="rqb${state.clip?' clip':''}" id="reqbox">${txt}</div>
+      ${state.clip?'<button class="rqm" id="moreb">전체 보기 ›</button>':''}
+    </div>` : '';   /* 없으면 영역 자체를 비움 */
+  $('rvsc').innerHTML=`
+    <div class="rvd">오늘<span>|</span>8월 18일 (화)</div>
+    <div class="rvt">${t.start}</div>
+    <div class="rvchips"><i class="s">셔틀예약</i><i class="m">임박</i></div>
+    <div class="thumb">
+      <svg width="100%" height="100%" viewBox="0 0 320 150" preserveAspectRatio="xMidYMid slice">
+        <rect width="320" height="150" fill="#f2e6dd"/>
+        <g stroke="#f5c9a8" stroke-width="3" fill="none"><path d="M-10 40 L330 30"/><path d="M-10 95 L330 105"/><path d="M60 -10 L80 160"/><path d="M230 -10 L210 160"/></g>
+        <rect x="30" y="20" width="240" height="110" fill="#f0a98a" opacity=".45"/>
+      </svg>
+      <span class="big">크게 보기</span>
+      <span class="mk org" style="left:26%;bottom:22%">고객 탑승지</span>
+      <span class="mk" style="left:14%;top:46%">2</span><span class="mk" style="left:42%;top:28%">3</span>
+      <span class="mk" style="left:74%;top:38%">4</span><span class="mk" style="left:60%;top:24%">5</span>
+      <span class="mk dest" style="left:44%;top:8%">목적지</span>
+    </div>
+    ${t.stops.map((s,i)=>`<div class="stop">
+        <div class="tm">${s.time}</div>
+        <div class="kd">${s.kind==='origin'?'탑승지':s.kind==='dest'?'목적지':'경유 '+i}</div>
+        <div class="nm">${s.name}${ptHTML(s)}</div>${nav}</div>`).join('')}
+    <div class="hr"></div>
+    <div class="row"><span class="k">운행요금</span><span class="v">${t.fare.toLocaleString('ko-KR')}원</span></div>
+    <div class="note2">*통행료 포함</div>
+    <div class="row"><span class="k">운행거리</span><span class="v">${t.dist}</span></div>
+    <div class="row"><span class="k">전체 탑승 인원</span><span class="v">{${t.pax}}명</span></div>
+    <div class="note2">*운행 상황에 따라 탑승 인원이 변경될 수 있음</div>
+    ${req}
+    <h4>셔틀 운행 안내</h4>
+    <ul>
+      <li class="hl">셔틀 운행은 최대 ${t.pax}명이 탑승할 수 있습니다.</li>
+      <li>해당 운행건의 운행 요금은 통행료를 포함합니다.</li>
+      <li>셔틀 운행 시간표의 출발 시간을 준수해주시기 바랍니다.</li>
+      <li>콜 수락 후 취소 시, 최대 7일간 수락이 정지되고 최대 30,000원의 수수료가 부과될 수 있습니다.</li>
+    </ul>`;
+  $('rvok').textContent = m==='request' ? '✓ 셔틀예약 콜 수락' : '확인';
+  $('rv').classList.add('on');
+  $('rvsc').scrollTop=0;
+  const mb=$('moreb'), rb=$('reqbox');
+  if(mb){                                        // 6줄을 넘지 않으면 더보기 자체를 숨김(짧은 운행 방법)
+    if(rb.scrollHeight <= rb.clientHeight+1){ mb.remove(); rb.classList.remove('clip'); }
+    else mb.addEventListener('click',openMethod);   // ★ C안: 전문은 전용 화면에서 (여기서 펼치지 않음)
+  }
+  updateDev();
+}
+/* ★ 운행 방법 전용 화면 — 전문 그대로(클램프·더보기 없음). 현재 정류장의 승하차 지점도 같이 */
+function openMethod(){
+  const t=trip(), s=stop(), fromDrive=!state.rvMode;
+  $('mvsc').innerHTML=`
+    <div class="mvrt">🟠  노선 : ${t.route}</div>
+    ${(()=>{ const p=fromDrive?pointOf(s):null; return p?`<div class="pt mvpt"><span class="k${p.t==='하차'?' off':''}">${p.t}</span><span class="v">${s.name} · ${p.v}</span></div>`:'<div style="height:12px"></div>'; })()}
+    <div class="mvb">${NOTICE[state.notice]}</div>`;
+  $('mv').classList.add('on'); $('mvsc').scrollTop=0;
+}
+$('mvok').addEventListener('click',()=>$('mv').classList.remove('on'));
+$('mvbk').addEventListener('click',()=>$('mv').classList.remove('on'));
+function openRoute(){ state.rvMode='route'; renderRV(); }
+$('rvok').addEventListener('click',()=>{
+  if(state.rvMode==='request'){ state.rvMode=null; state.clip=true; renderRV(); toast('콜 수락 → 운행 중 화면'); }
+  else { state.rvMode=null; state.clip=true; renderRV(); }
+});
+$('rvbk').addEventListener('click',()=>{ if(state.rvMode==='route'){ state.rvMode=null; state.clip=true; renderRV(); } });
+
+function reset(){ state.idx=0; state.phase='moving'; state.waitLate=false; state.waitEnd=0; state.rvMode='request'; state.clip=true; render(); renderRV(); }
+document.querySelectorAll('[data-dir]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-dir]').forEach(x=>x.classList.toggle('on',x===b));
+  state.dir=b.dataset.dir; reset();
+}));
+document.querySelectorAll('[data-nt]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-nt]').forEach(x=>x.classList.toggle('on',x===b));
+  state.notice=b.dataset.nt; state.clip=true; renderRV();
+}));
+$('goDetail').addEventListener('click',()=>{ state.rvMode='request'; state.clip=true; renderRV(); });
+document.querySelectorAll('[data-arr]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-arr]').forEach(x=>x.classList.toggle('on',x===b));
+  state.arr=b.dataset.arr;
+  toast(`도착 시점: 남은 대기 ${mmss(ARRIVE[state.arr])}${ARRIVE[state.arr]<60?' → 도착완료 시 +60초':''}`);
+}));
+document.querySelectorAll('[data-sp]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-sp]').forEach(x=>x.classList.toggle('on',x===b));
+  $('scr').style.setProperty('--sp', b.dataset.sp);
+  syncGrad(); updateDev();
+}));
+$('skip').addEventListener('click',()=>{ if(state.phase==='waiting'){ state.waitEnd=Date.now(); state.phase='ready'; render(); } else toast('대기 중일 때만 사용합니다'); });
+$('reset').addEventListener('click',reset);
+
+let tt;
+function toast(m){ if(!m) return; const el=$('toast'); el.textContent=m; el.classList.add('on'); clearTimeout(tt); tt=setTimeout(()=>el.classList.remove('on'),2400); }
+
+render(); renderRV();
+</script>
+</body>
+</html>
