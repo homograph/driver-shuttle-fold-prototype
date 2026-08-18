@@ -126,7 +126,7 @@ body{margin:0;background:var(--page);color:#f9f9f9;font-family:var(--kr);line-he
 .fact span{font-size:calc(14px * var(--sp));color:var(--sub)}   /* 2026-08-18: #EFEFF1→#D5D7DC */
 .vdiv{width:1px;background:var(--guideln);align-self:stretch;flex:none}
 
-/* ★ C안: 관리자 요청사항 전용 전체화면 (상한 없는 텍스트를 시트에 밀어넣지 않음) */
+/* ★ C안: 운행 요청사항 전용 전체화면 (상한 없는 텍스트를 시트에 밀어넣지 않음) */
 .mv{position:absolute;inset:0;background:var(--screen);z-index:11;display:none;flex-direction:column}
 .mv.on{display:flex}
 .mv .mvsc{flex:1;overflow-y:auto;padding:20px;min-height:0}
@@ -217,7 +217,7 @@ body{margin:0;background:var(--page);color:#f9f9f9;font-family:var(--kr);line-he
     <button data-arr="tight">임박(0:30)</button>
     <button data-arr="late">이미 지남</button>
     <span class="sep"></span>
-    <span class="lbl">관리자 요청사항</span>
+    <span class="lbl">운행 요청사항</span>
     <button data-nt="long" class="on">길게</button>
     <button data-nt="short">짧게</button>
     <button data-nt="none">없음</button>
@@ -278,7 +278,7 @@ body{margin:0;background:var(--page);color:#f9f9f9;font-family:var(--kr);line-he
         <div class="cta" id="rvok">확인</div>
       </div>
       <div class="mv" id="mv">
-        <div class="rvbar"><span class="bk" id="mvbk">←</span><span class="tt">관리자 요청사항</span></div>
+        <div class="rvbar"><span class="bk" id="mvbk">←</span><span class="tt">운행 요청사항</span></div>
         <div class="mvsc" id="mvsc"></div>
         <div class="cta" id="mvok">확인</div>
       </div>
@@ -291,13 +291,15 @@ body{margin:0;background:var(--page);color:#f9f9f9;font-family:var(--kr);line-he
   <div class="note">
     <b style="color:#ffc700">★ TADA-9474 (셔틀 어드민 요청사항) 반영 — 요구사항 ‘드라이버 노출’</b><br>
     ① <b>승하차 지점 [1안: 정류장(POI)에 붙임]</b> — 근무지에서 승차면 <b>승차 지점</b>, 하차면 <b>하차 지점</b>을 정류장 바로 아래 <code>승차·지상 7층</code> 라벨+값으로. <b>콜 상세 · 전체 경로 · 운행 중(이동 중 헤더 · 도착완료 후 가이드 최상단) 4곳 모두</b> 같은 형태 — <b>운전자가 필요한 순간(운행 중)에 화면 안에서 바로 보이는 것이 핵심</b>. 지점이 없는 일반 정류장(역·아파트)은 줄 자체가 없음. <i>1안 근거: 승하차 지점은 정류장에 종속된 값이라 정류장 옆이 정보구조상 맞고 — 요청사항 본문에 섞으면 정류장 매핑이 깨지고, 지도 위는 핀과 겹쳐 층수를 못 읽음.</i> 지점이 등록된 정류장은 그 값이 <b>탑승/도착 문구의 기준</b>이 됨(출근 노선의 센터 경유 = ‘까지 도착’).<br>
-    ② <b>관리자 요청사항 — 기존 컴포넌트 재사용</b>: 드라이버앱 <b>‘요청사항 (통합)’</b>(03-2 예약콜 목록 › 로컬 컴포넌트 <code>24998:11821</code>) 실측 그대로 — <code>#19254D</code> 카드 + <b>#32A2FA 1px 보더</b> · r4 · pad15 · gap12 · 제목 16sp Bold와 본문 16sp Regular <code>#E6E9EF</code> · 하단 좌측 액션 16sp <code>#7282A6</code>(원본 보기 자리에 <b>더보기</b>). <b>제목을 <code>관리자 요청사항</code></b> 으로 달리해 승객이 남긴 <code>요청사항</code>과 구분(일반/맞춤 예약으로 확장돼 한 화면에 둘 다 와도 구분됨). <b>콜 상세(수락 전)</b> 부터 노출, <b>기존 ‘셔틀 운행 안내’ 4줄과 별도 영역</b>, 길면 <b>6줄 + 더보기</b>, <b>없으면 카드 전체 삭제</b>. 위치는 요금·거리·인원 <b>아래</b> / 셔틀 운행 안내 <b>위</b>(수락 판단 정보 → 상시 고정 문구보다 앞). 서식은 <b>줄바꿈만</b>(평문), 글자 수 상한 없음.<br>
-    ②-B <b>[최신 실측 · 28867:100946(이동 중) · 28865:100690(도착완료) · 2026-08-18]</b> — 시트가 <b>카드 2장 구조</b>로 재편됐습니다.
-    <b>카드1</b>(<code>Frame 2085666318</code> #19254D·stroke #293F71·pad[20,24]·gap20) = <code>탑승 마감 / 10시 20분</code> ｜ <code>승차 위치 / 지상 1층</code> — 라벨 14sp #D5D7DC 위·값 20sp 아래, <b>좌측 정렬</b>, 위치 값만 Regular. <b>카드2</b>(가이드) = <code>노선 이름 : {이름}</code>(16sp #FFF) + <code>[전체 경로][관리자 요청사항]</code>(fill 균등분할·pad[12,20], 전체경로 Regular/요청사항 Bold) + 안내 항목(16sp #EFEFF1, ⚪ 불릿 없음).
-    <b>헤더는 이동 중에만</b> — [뱃지] gap10 [[장소명 24sp / 주소 14sp <b>1줄 말줄임</b>] gap12 [내비 44dp]]. <b>도착완료 화면은 헤더가 없고 카드1부터 시작</b>합니다(<code>출발 시간</code> 라벨도 <code>탑승 마감</code>으로 통일). 상단 fixed 없는 풀 스크롤.
-    <b>전용 화면</b>(앱바 <code>← 관리자 요청사항</code> + 노선 + 현재 정류장 승하차 위치 + 전문 + CTA <code>확인</code>) 유지 — 카드2의 <code>관리자 요청사항</code> 버튼이 진입점. 콜 상세·전체 경로는 카드 6줄 + <code>전체 보기 ›</code>.<br>
+    ② <b>운행 요청사항 — 기존 컴포넌트 재사용</b>: 드라이버앱 <b>‘요청사항 (통합)’</b>(03-2 예약콜 목록 › 로컬 컴포넌트 <code>24998:11821</code>) 실측 그대로 — <code>#19254D</code> 카드 + <b>#32A2FA 1px 보더</b> · r4 · pad15 · gap12 · 제목 16sp Bold와 본문 16sp Regular <code>#E6E9EF</code> · 하단 좌측 액션 16sp <code>#7282A6</code>(원본 보기 자리에 <b>더보기</b>). <b>제목을 <code>운행 요청사항</code></b> 으로 달리해 승객이 남긴 <code>요청사항</code>과 구분(일반/맞춤 예약으로 확장돼 한 화면에 둘 다 와도 구분됨). <b>콜 상세(수락 전)</b> 부터 노출, <b>기존 ‘셔틀 운행 안내’ 4줄과 별도 영역</b>, 길면 <b>6줄 + 더보기</b>, <b>없으면 카드 전체 삭제</b>. 위치는 요금·거리·인원 <b>아래</b> / 셔틀 운행 안내 <b>위</b>(수락 판단 정보 → 상시 고정 문구보다 앞). 서식은 <b>줄바꿈만</b>(평문), 글자 수 상한 없음.<br>
+    ②-B <b>[최신 실측 · 28867:100946(이동 중) · 28865:100690(도착완료) · Design Spec 27661:7119 · 2026-08-18]</b> — 시트 <b>카드 2장</b> 구조.
+    <b>카드1</b>(<code>Frame 2085666318</code>) 첫 칸은 상태에 따라: 승차 정류장 <code>탑승 마감 / hh시 mm분</code> · 하차 정류장 <code>도착 마감 / hh시 mm분</code> · 퇴근 경유지 <code>승객 하차 후 / 바로 출발</code> · 도착지 완료 <code>도착지 / 도착 완료</code>. 둘째 칸은 <code>승차·하차 위치 / 지상 N층</code>(값만 Regular). 라벨 14sp #D5D7DC 위·값 20sp 아래, <b>좌측 정렬</b>.
+    <b>카드2</b>(가이드) = <code>노선 이름 : {이름}</code>(16sp #FFF) + <code>[전체 경로][운행 요청사항]</code>(fill 균등분할·pad[12,20], 전체경로 Regular/요청사항 Bold) + 안내 항목(16sp #EFEFF1, ⚪ 없음).
+    <b>헤더는 이동 중에만</b>([뱃지] gap10 [[장소명 24sp / 주소 14sp 1줄 말줄임] gap12 [내비 44dp]]) — <b>도착완료 화면은 헤더 없이 카드1부터</b>. 상단 fixed 없는 풀 스크롤.
+    <b>대기 규칙</b>: <b>승차가 있는 정류장이면 대기</b>(도착지 제외) — 2026-08-18 스펙에 <b>‘퇴근 셔틀 + 경유지 탑승 시’</b> 케이스가 추가돼, 퇴근 경유지라도 승차면 대기·<code>고객 탑승 대기중</code>이 뜬다.
+    <b>전용 화면</b>(앱바 <code>← 운행 요청사항</code> + 노선 + 현재 정류장 승하차 위치 + 전문 + CTA <code>확인</code>) 유지 — 카드2의 <code>운행 요청사항</code> 버튼이 진입점.<br>
     <b>남은 한계:</b> C도 <b>읽힘을 강제하진 못합니다</b>. 미운행·배차취소처럼 안 읽으면 사고 나는 내용은 <b>수락 시점 ‘확인했습니다’ 체크(B안)</b> 가 담당해야 하며, 기존 <code>요청사항 (통합)</code> 컴포넌트에 그 패턴(<code>✅ 고객 요청사항을 확인했습니다</code>)이 이미 있습니다.<br>
-    ③ 데모 컨트롤 <b>관리자 요청사항 길게/짧게/없음</b> · <b>📄 콜 상세로</b>. <b>변경 알림·‘변경됨’ 표시는 이번 프로토 범위 밖</b>. 콜 목록에는 표시하지 않음. 피크데이도 노선 셔틀에 포함.<br>
+    ③ 데모 컨트롤 <b>운행 요청사항 길게/짧게/없음</b> · <b>📄 콜 상세로</b>. <b>변경 알림·‘변경됨’ 표시는 이번 프로토 범위 밖</b>. 콜 목록에는 표시하지 않음. 피크데이도 노선 셔틀에 포함.<br>
     <b>조작:</b> <b>콜 상세(수락 전)</b> → [셔틀예약 콜 수락] → <b>운행 중</b> → 하단 CTA(<b>도착완료 → 고객 탑승 대기중(비활성) → 다음 장소로 이동하기 → … → 요금 결제하기</b>)로 노선 진행. 시트의 <b>[전체 경로 ›]</b> = 같은 콜 상세 + 주소 옆 내비 버튼, CTA <b>‘확인’</b>으로 복귀.<br>
     <b>고정 / 스크롤 (실측):</b> 상태바 36 · 앱바 56 · 지도(나머지 전부)는 <b>고정</b>. 바텀시트는 <b>[스크롤: 노선 정보 리스트 = 헤더 + 가이드 — 상단 fixed 없이 헤더까지 전부 스크롤]</b> + <b>[고정: CTA 80dp]</b> 2단. 스크롤 영역은 <code>max-height 340dp</code>(=지도 영역 668dp의 약 50%, 스펙 문구 ‘50vh’)까지만 늘고 그 미만은 hug, 넘치면 스크롤 + 상하 그라데이션(28dp) + 우측 스크롤 인디케이터. 실측: 도착완료 화면 12개가 모두 리스트 340dp에서 잘림(캡), 이동 중 288dp·짧은 가이드 258dp는 hug.<br>
     <b>SP / DP (실측):</b> <b>바텀시트 글자만 SP</b> — 장소명 24 · 주소 16 · 노선 16(가이드는 18) · 시각 18 · 전체경로 15 · 가이드 타이틀 18/바디 15 · CTA 20 · <b>대기시간 카운트 20</b>. <b>DP(안 커짐)</b> — 시트 <b>뱃지 18</b>(출발/경유/도착), <b>지도 핀 라벨 16</b>, <b>대기시간 라벨 16</b>(‘남은 대기시간’ — 카운트만 sp), <b>우측 버블 전체</b>(예약 20·카운트 16·경로변경 20·내비 20 — <code>27661:6791</code>), 그리고 모든 padding(28/20/24/25·8/10·3/6)·gap(12/16/8/20/4)·radius(10/6)·내비 원 40·시트 max 340·CTA 80. → 지도 위 오버레이는 크기 고정, 시트 콘텐츠만 sp로 커짐.<br>
@@ -314,7 +316,7 @@ body{margin:0;background:var(--page);color:#f9f9f9;font-family:var(--kr);line-he
    붙지 않는 일반 정류장이 섞인 실제 케이스를 만든다.
    ★ PRD 데이터 모델: 승하차 지점은 **근무지마다 승차지점/하차지점을 각각** 등록하고,
      그 근무지에서 승차면 승차지점 · 하차면 하차지점을 노출 → site={board, alight}.
-     반대로 **관리자 요청사항은 셔틀 단위 1건**(정류장마다 다르지 않음) = NOTICE.        */
+     반대로 **운행 요청사항은 셔틀 단위 1건**(정류장마다 다르지 않음) = NOTICE.        */
 /* ★ 근무지 리스트 — 어드민이 근무지마다 승차/하차 지점을 각각 등록(PRD 예시 그대로) */
 const SITES={
   '17센터': {work:true, board:'지상 1층', alight:'지상 7층'},
@@ -323,7 +325,7 @@ const SITES={
 };
 const TRIPS={
   go:{
-    label:'출근 셔틀', route:'[오후조] 독산', fare:85000, dist:'47km', pax:6, start:'아침 10:00',
+    label:'출근 셔틀', route:'[오후출근조] 독산', fare:85000, dist:'47km', pax:6, start:'아침 10:00',
     stops:[
       {kind:'origin', name:'강남 타워 주차장',      addr:'서울 성동구 성수동1가 아크로포레스트', time:'10:20', site:SITES['강남타워']},
       {kind:'via',    name:'강남 타워팰리스 주차장', addr:'서울 강남구 도곡동 467',              time:'10:45'},
@@ -333,7 +335,7 @@ const TRIPS={
     ]
   },
   back:{
-    label:'퇴근 셔틀', route:'[오후조] 독산', fare:85000, dist:'47km', pax:6, start:'저녁 18:00',
+    label:'퇴근 셔틀', route:'[오전퇴근조] 안양', fare:85000, dist:'47km', pax:6, start:'저녁 18:00',
     stops:[
       {kind:'origin', name:'쿠팡 인천 17센터',      addr:'인천 중구 흥륜길 89',                 time:'18:20', site:SITES['17센터']},
       {kind:'via',    name:'쿠팡 인천 39센터',      addr:'인천 중구 서해대로 12',               time:'18:40', site:SITES['39센터']},
@@ -380,7 +382,9 @@ const trip=()=>TRIPS[state.dir];
 const stop=()=>trip().stops[state.idx];
 const isLast=()=>state.idx===trip().stops.length-1;
 const isFirst=()=>state.idx===0;
-const usesWait=()=>state.dir==='go' ? !isLast() : isFirst();   // 대기(+60초)를 쓰는 정류장
+/* 대기(+60초)를 쓰는 정류장 = 승차가 있는 곳(도착지 제외).
+   2026-08-18 스펙에 '퇴근 셔틀 + 경유지 탑승 시' 케이스가 추가돼, 퇴근 경유지도 승차면 대기한다 */
+const usesWait=()=>!isLast() && boarding();
 /* 탑승 vs 도착 문구 — 승하차 지점이 등록된 근무지는 그 값이 진실(예: 출근 노선의 쿠팡 센터 경유 = 하차),
    없으면 기존 규칙(출근=도착지만 도착 / 퇴근=출발지만 탑승) */
 const boarding=()=>{ const p=pointOf(stop()); if(p) return p.t==='승차';
@@ -410,17 +414,23 @@ function headMoving(){   /* 헤더는 이동 중에만 — [뱃지] gap10 [[장�
 }
 function factsCard(){   /* 2칸 정보 카드 — 두 화면 공통(Frame 2085666318). 도착완료는 헤더 없이 이 카드부터 */
   const s=stop(), p=pointOf(s);
+  /* 첫 칸은 상태에 따라 달라진다(2026-08-18 스펙):
+     이동 중·대기 = 탑승/도착 마감 시각 · 퇴근 경유지 바로 출발 = '승객 하차 후 / 바로 출발' · 도착지 완료 = '도착지 / 도착 완료' */
+  let l, v, reg='';
+  if(state.phase==='done'){ l='도착지'; v='도착 완료'; }
+  else if(state.phase!=='moving' && !usesWait() && !isLast()){ l='승객 하차 후'; v='바로 출발'; }
+  else { l = boarding()?'탑승 마감':'도착 마감'; v = hhmm(s.time); }
   return `<div class="factscard"><div class="facts">
-    <div class="fact"><span>${boarding()?'탑승 마감':'도착 예정'}</span><b>${hhmm(s.time)}</b></div>
+    <div class="fact"><span>${l}</span><b>${v}</b></div>
     ${p?`<div class="fact"><span>${p.t} 위치</span><b class="reg">${p.v}</b></div>`:''}
   </div></div>`;
 }
 function guideHTML(items){
   const s=stop(), txt=NOTICE[state.notice];
   /* 수정안: 승하차 지점은 헤더로 올라갔고, 여기엔 [요청사항 ›] [전체 경로 ›] 두 버튼만 */
-  /* 2026-08-18: 순서 [전체 경로][관리자 요청사항] · 전체경로 Regular / 요청사항 Bold(이 콜에만 있는 정보 강조) */
+  /* 2026-08-18: 순서 [전체 경로][운행 요청사항] · 전체경로 Regular / 요청사항 Bold(이 콜에만 있는 정보 강조) */
   const tiles = '<div class="routebtn reg" data-route>전체 경로</div>'
-              + (txt?'<div class="routebtn" data-methodfull>관리자 요청사항</div>':'');
+              + (txt?'<div class="routebtn" data-methodfull>운행 요청사항</div>':'');
   return `<div class="guide">
     <div class="g">
       <div class="rl">노선 이름 : ${trip().route}</div>
@@ -504,7 +514,7 @@ function renderRV(){
   const txt = NOTICE[state.notice];
   const req = txt ? `
     <div class="req">
-      <div class="rqt">관리자 요청사항</div>
+      <div class="rqt">운행 요청사항</div>
       <div class="rqb${state.clip?' clip':''}" id="reqbox">${txt}</div>
       ${state.clip?'<button class="rqm" id="moreb">전체 보기 ›</button>':''}
     </div>` : '';   /* 없으면 영역 자체를 비움 */
@@ -546,13 +556,13 @@ function renderRV(){
   $('rv').classList.add('on');
   $('rvsc').scrollTop=0;
   const mb=$('moreb'), rb=$('reqbox');
-  if(mb){                                        // 6줄을 넘지 않으면 더보기 자체를 숨김(짧은 관리자 요청사항)
+  if(mb){                                        // 6줄을 넘지 않으면 더보기 자체를 숨김(짧은 운행 요청사항)
     if(rb.scrollHeight <= rb.clientHeight+1){ mb.remove(); rb.classList.remove('clip'); }
     else mb.addEventListener('click',openMethod);   // ★ C안: 전문은 전용 화면에서 (여기서 펼치지 않음)
   }
   updateDev();
 }
-/* ★ 관리자 요청사항 전용 화면 — 전문 그대로(클램프·더보기 없음). 현재 정류장의 승하차 지점도 같이 */
+/* ★ 운행 요청사항 전용 화면 — 전문 그대로(클램프·더보기 없음). 현재 정류장의 승하차 지점도 같이 */
 function openMethod(){
   const t=trip(), s=stop(), fromDrive=!state.rvMode;
   $('mvsc').innerHTML=`
