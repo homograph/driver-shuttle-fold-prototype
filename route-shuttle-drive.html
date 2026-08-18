@@ -93,32 +93,33 @@ body{margin:0;background:var(--page);color:#f9f9f9;font-family:var(--kr);line-he
 
 /* 최종안(28819): 상단 fixed 영역 없음 — 헤더도 같이 스크롤되는 풀 스크롤 */
 /* 헤더 A: 이동 중 (28819:99734) — col gap20 · pad[28,20,28,20] */
-.shead{display:flex;flex-direction:column;gap:28px;padding:28px 20px 20px}   /* 2026-08-17: gap20→28 · pad-bottom 28→20 */
+.shead{display:flex;flex-direction:column;padding:28px 20px 20px}   /* Address Container row gap10, 자식 1개 */   /* 2026-08-17: gap20→28 · pad-bottom 28→20 */
 .shead .toprow{display:flex;gap:10px;align-items:flex-start}          /* Frame 2085666319 row gap10 */
 .shead .addrbox{flex:1;min-width:0;display:flex;gap:12px;align-items:flex-start}   /* Address Container row gap12 */
-.badge{flex:none;align-self:flex-start;border-radius:6px;padding:3px 6px;background:var(--blue);color:#fff;font-size:18px;font-weight:700}   /* DP 고정 */
+.badge{flex:none;align-self:flex-start;border-radius:4px;padding:2px 8px;background:var(--blue);color:#fff;font-size:18px;font-weight:700}   /* DP 고정 */
 .badge.dest{background:var(--red)}
 .shead .adr{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
 .shead .nm{font-size:calc(24px * var(--sp));font-weight:700;color:var(--txt);word-break:keep-all}
 .shead .ad{font-size:calc(14px * var(--sp));color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}   /* 2026-08-18: 1줄 말줄임 */   /* 14sp · 2026-08-17 색 #EFEFF1→#D5D7DC */
 .navbtn{flex:none;width:44px;height:44px;border-radius:50%;background:#e3e4e8;color:#101a3d;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer}   /* 아이콘=DP */
 /* Detailed Info Button (28819 수정안 실측: #293F71 · stroke #384F85/1 · r6 · pad[10,16] · 15sp w700) */
-.routebtn{align-self:flex-start;display:inline-flex;align-items:center;gap:10px;background:var(--btn2);border:1px solid var(--btn2ln);border-radius:6px;padding:12px 20px;font-size:calc(15px * var(--sp));font-weight:700;color:var(--txt);cursor:pointer}
+.routebtn{align-self:flex-start;display:inline-flex;align-items:center;gap:10px;background:var(--btn2);border:1px solid var(--btn2ln);border-radius:4px;padding:12px;font-size:calc(15px * var(--sp));font-weight:700;color:var(--txt);cursor:pointer}
 
 
 /* 가이드 (call_block/board_warning) — pad[20,24,28,24] · gap20 · 안쪽 gap8
    ⚪/🟠 는 텍스트 안의 이모지(=SP로 같이 커짐) · 바디는 들여쓰기 없음(실측 좌측 24dp 정렬) */
-.guide{background:var(--guide);border:1px solid var(--guideln);display:flex;flex-direction:column;gap:20px;padding:20px 24px 28px}   /* Figma: stroke 4면 */
+.guide{background:var(--guide);border-top:1px solid var(--guideln);display:flex;flex-direction:column;gap:16px;padding:16px 24px 40px}   /* 2026-08-18: 보더 상단만 · gap20→16 · pad[16,24,40,24] */   /* Figma: stroke 4면 */
 .guide .g{display:flex;flex-direction:column;gap:8px}
-.guide .gt{font-size:calc(16px * var(--sp));color:var(--txt);word-break:keep-all}   /* 2026-08-18: #FFF→#EFEFF1 */   /* 수정안: 18→16sp */
+.guide .gt{font-size:calc(15px * var(--sp));color:var(--txt);word-break:keep-all}   /* 2026-08-18: 16→15sp */   /* 2026-08-18: #FFF→#EFEFF1 */   /* 수정안: 18→16sp */
 .guide .gt.route{color:var(--honey)}
 .guide .gb{font-size:calc(15px * var(--sp));color:var(--sub2);word-break:keep-all}
 .guide .rl{font-size:calc(16px * var(--sp));color:#fff}   /* 2026-08-18: 18→16sp · #EFEFF1→#FFF */   /* 노선 라인 — 🟠 불릿 없음 */
 .tiles{display:flex;gap:10px}                                   /* 버튼 행 (Frame 2085666316) */
 .tiles .routebtn{flex:1;justify-content:center;align-self:auto}
-.tiles .routebtn.reg{font-weight:400}   /* 2026-08-18: 전체 경로만 Regular */  /* Figma 실측: 각 151dp = 균등 분할(fill) */
+.tiles .routebtn{font-weight:400}                     /* 2026-08-18: 둘 다 Regular */
+.tiles .routebtn:not(.reg){border-color:#32a2fa}      /* 운행 요청사항만 파란 보더로 구분 */   /* 2026-08-18: 전체 경로만 Regular */  /* Figma 실측: 각 151dp = 균등 분할(fill) */
 /* ★ 28819 수정안: 승하차 지점이 가이드 타일 → 헤더의 2칸 정보로 올라감 (세로 구분선으로 분리) */
-.factscard{background:var(--guide);border:1px solid var(--guideln);display:flex;flex-direction:column;gap:20px;padding:20px 24px}   /* 2026-08-18: 2칸 정보가 별도 카드로(Frame 2085666318) */
+.factscard{background:var(--sheet);border-top:1px solid var(--guideln);display:flex;flex-direction:column;gap:20px;padding:20px 24px}   /* 2026-08-18: 보더 상단만 · 배경은 시트색 #101A3D */   /* 2026-08-18: 2칸 정보가 별도 카드로(Frame 2085666318) */
 .facts{display:flex;gap:10px;align-items:center}
 .fact{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}   /* grow1 균등분할 · 2026-08-18 좌측 정렬(중앙정렬 폐기) */
 .fact b{font-size:calc(20px * var(--sp));font-weight:700;color:var(--txt)}   /* 2026-08-18: 18→20sp, 도착완료와 통일 */
@@ -293,8 +294,8 @@ body{margin:0;background:var(--page);color:#f9f9f9;font-family:var(--kr);line-he
     ① <b>승하차 지점 [1안: 정류장(POI)에 붙임]</b> — 근무지에서 승차면 <b>승차 지점</b>, 하차면 <b>하차 지점</b>을 정류장 바로 아래 <code>승차·지상 7층</code> 라벨+값으로. <b>콜 상세 · 전체 경로 · 운행 중(이동 중 헤더 · 도착완료 후 가이드 최상단) 4곳 모두</b> 같은 형태 — <b>운전자가 필요한 순간(운행 중)에 화면 안에서 바로 보이는 것이 핵심</b>. 지점이 없는 일반 정류장(역·아파트)은 줄 자체가 없음. <i>1안 근거: 승하차 지점은 정류장에 종속된 값이라 정류장 옆이 정보구조상 맞고 — 요청사항 본문에 섞으면 정류장 매핑이 깨지고, 지도 위는 핀과 겹쳐 층수를 못 읽음.</i> 지점이 등록된 정류장은 그 값이 <b>탑승/도착 문구의 기준</b>이 됨(출근 노선의 센터 경유 = ‘까지 도착’).<br>
     ② <b>운행 요청사항 — 기존 컴포넌트 재사용</b>: 드라이버앱 <b>‘요청사항 (통합)’</b>(03-2 예약콜 목록 › 로컬 컴포넌트 <code>24998:11821</code>) 실측 그대로 — <code>#19254D</code> 카드 + <b>#32A2FA 1px 보더</b> · r4 · pad15 · gap12 · 제목 16sp Bold와 본문 16sp Regular <code>#E6E9EF</code> · 하단 좌측 액션 16sp <code>#7282A6</code>(원본 보기 자리에 <b>더보기</b>). <b>제목을 <code>운행 요청사항</code></b> 으로 달리해 승객이 남긴 <code>요청사항</code>과 구분(일반/맞춤 예약으로 확장돼 한 화면에 둘 다 와도 구분됨). <b>콜 상세(수락 전)</b> 부터 노출, <b>기존 ‘셔틀 운행 안내’ 4줄과 별도 영역</b>, 길면 <b>6줄 + 더보기</b>, <b>없으면 카드 전체 삭제</b>. 위치는 요금·거리·인원 <b>아래</b> / 셔틀 운행 안내 <b>위</b>(수락 판단 정보 → 상시 고정 문구보다 앞). 서식은 <b>줄바꿈만</b>(평문), 글자 수 상한 없음.<br>
     ②-B <b>[최신 실측 · 28867:100946(이동 중) · 28865:100690(도착완료) · Design Spec 27661:7119 · 2026-08-18]</b> — 시트 <b>카드 2장</b> 구조.
-    <b>카드1</b>(<code>Frame 2085666318</code>) 첫 칸은 상태에 따라: 승차 정류장 <code>탑승 마감 / hh시 mm분</code> · 하차 정류장 <code>도착 마감 / hh시 mm분</code> · 퇴근 경유지 <code>승객 하차 후 / 바로 출발</code> · 도착지 완료 <code>도착지 / 도착 완료</code>. 둘째 칸은 <code>승차·하차 위치 / 지상 N층</code>(값만 Regular). 라벨 14sp #D5D7DC 위·값 20sp 아래, <b>좌측 정렬</b>.
-    <b>카드2</b>(가이드) = <code>노선 이름 : {이름}</code>(16sp #FFF) + <code>[전체 경로][운행 요청사항]</code>(fill 균등분할·pad[12,20], 전체경로 Regular/요청사항 Bold) + 안내 항목(16sp #EFEFF1, ⚪ 없음).
+    <b>카드1</b>(<code>address info container</code> — 배경은 시트색 #101A3D, <b>보더는 상단만</b>) 첫 칸은 상태에 따라: 승차 정류장 <code>탑승 마감 / hh시 mm분</code> · 하차 정류장 <code>도착 마감 / hh시 mm분</code> · 퇴근 경유지 <code>승객 하차 후 / 바로 출발</code> · 도착지 완료 <code>도착지 / 도착 완료</code>. 둘째 칸은 <code>승차·하차 위치 / 지상 N층</code>(값만 Regular). 라벨 14sp #D5D7DC 위·값 20sp 아래, <b>좌측 정렬</b>.
+    <b>카드2</b>(<code>call_block</code> #19254D, <b>보더 상단만</b>, gap16·pad[16,24,40,24]) = <code>노선 이름 : {이름}</code>(16sp #FFF) + <code>[전체 경로][운행 요청사항]</code>(fill 균등분할·r4·pad12, 둘 다 Regular — <b>운행 요청사항만 보더 #32A2FA</b>로 구분) + 안내 항목(16sp #EFEFF1, ⚪ 없음).
     <b>헤더는 이동 중에만</b>([뱃지] gap10 [[장소명 24sp / 주소 14sp 1줄 말줄임] gap12 [내비 44dp]]) — <b>도착완료 화면은 헤더 없이 카드1부터</b>. 상단 fixed 없는 풀 스크롤.
     <b>대기 규칙</b>: <b>승차가 있는 정류장이면 대기</b>(도착지 제외) — 2026-08-18 스펙에 <b>‘퇴근 셔틀 + 경유지 탑승 시’</b> 케이스가 추가돼, 퇴근 경유지라도 승차면 대기·<code>고객 탑승 대기중</code>이 뜬다.
     <b>전용 화면</b>(앱바 <code>← 운행 요청사항</code> + 노선 + 현재 정류장 승하차 위치 + 전문 + CTA <code>확인</code>) 유지 — 카드2의 <code>운행 요청사항</code> 버튼이 진입점.<br>
