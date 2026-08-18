@@ -107,27 +107,27 @@ body{margin:0;background:var(--page);color:#f9f9f9;font-family:var(--kr);line-he
 
 /* 헤더 B: 도착완료 후 (28819:100104) — row gap12 · pad[28,24,20,24] · 라벨 위 / 값 아래 · 세로 구분선 */
 .thead{display:flex;align-items:center;gap:10px;padding:28px 24px 20px}   /* 2026-08-17: gap12→10 · 교차축 center */
-.thead .tcol{flex:1;min-width:0;display:flex;flex-direction:column;text-align:center}   /* grow1 균등분할 · 2026-08-17 가운데 정렬 */
-.thead .lb{font-size:calc(15px * var(--sp));color:var(--txt)}                       /* 2026-08-16 수정: 16→15sp */
+.thead .tcol{flex:1;min-width:0;display:flex;flex-direction:column}   /* grow1 균등분할 · 2026-08-18 좌측 정렬(중앙정렬 폐기) */
+.thead .lb{font-size:calc(15px * var(--sp));color:var(--sub)}                       /* 2026-08-16 수정: 16→15sp */
 .thead .vl{font-size:calc(20px * var(--sp));font-weight:700;color:var(--txt)}      /* 2026-08-16 수정: 24→20sp */
 
 /* 가이드 (call_block/board_warning) — pad[20,24,28,24] · gap20 · 안쪽 gap8
    ⚪/🟠 는 텍스트 안의 이모지(=SP로 같이 커짐) · 바디는 들여쓰기 없음(실측 좌측 24dp 정렬) */
 .guide{background:var(--guide);border:1px solid var(--guideln);display:flex;flex-direction:column;gap:20px;padding:20px 24px 28px}   /* Figma: stroke 4면 */
 .guide .g{display:flex;flex-direction:column;gap:8px}
-.guide .gt{font-size:calc(16px * var(--sp));color:#fff;word-break:keep-all}   /* 수정안: 18→16sp */
+.guide .gt{font-size:calc(16px * var(--sp));color:var(--txt);word-break:keep-all}   /* 2026-08-18: #FFF→#EFEFF1 */   /* 수정안: 18→16sp */
 .guide .gt.route{color:var(--honey)}
 .guide .gb{font-size:calc(15px * var(--sp));color:var(--sub2);word-break:keep-all}
-.guide .rl{font-size:calc(18px * var(--sp));color:var(--txt)}   /* 노선 라인 — 🟠 불릿 없음 */
+.guide .rl{font-size:calc(16px * var(--sp));color:#fff}   /* 2026-08-18: 18→16sp · #EFEFF1→#FFF */   /* 노선 라인 — 🟠 불릿 없음 */
 .tiles{display:flex;gap:10px}                                   /* 버튼 행 (Frame 2085666316) */
 .tiles .routebtn{flex:1;justify-content:center;align-self:auto}
 .tiles .routebtn.reg{font-weight:400}   /* 2026-08-18: 전체 경로만 Regular */  /* Figma 실측: 각 151dp = 균등 분할(fill) */
 /* ★ 28819 수정안: 승하차 지점이 가이드 타일 → 헤더의 2칸 정보로 올라감 (세로 구분선으로 분리) */
 .facts{display:flex;gap:10px;align-items:center}   /* 2026-08-17: gap16→10 · 교차축 center */
-.fact{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0;text-align:center}   /* grow1 균등분할 · 2026-08-17 가운데 정렬 */
-.fact b{font-size:calc(18px * var(--sp));font-weight:700;color:var(--txt)}
+.fact{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}   /* grow1 균등분할 · 2026-08-18 좌측 정렬(중앙정렬 폐기) */
+.fact b{font-size:calc(20px * var(--sp));font-weight:700;color:var(--txt)}   /* 2026-08-18: 18→20sp, 도착완료와 통일 */
 .fact b.reg,.thead .vl.reg{font-weight:400}   /* 2026-08-18: 승하차 위치 값은 Regular(시각이 주, 위치가 부) */
-.fact span{font-size:calc(14px * var(--sp));color:var(--txt)}
+.fact span{font-size:calc(14px * var(--sp));color:var(--sub)}   /* 2026-08-18: #EFEFF1→#D5D7DC */
 .vdiv{width:1px;background:var(--guideln);align-self:stretch;flex:none}
 
 /* ★ C안: 관리자 요청사항 전용 전체화면 (상한 없는 텍스트를 시트에 밀어넣지 않음) */
@@ -436,7 +436,7 @@ function guideHTML(items){
               + (txt?'<div class="routebtn" data-methodfull>관리자 요청사항</div>':'');
   return `<div class="guide">
     <div class="g">
-      <div class="rl">노선 : ${trip().route}</div>
+      <div class="rl">노선 이름 : ${trip().route}</div>
       ${tiles?`<div class="tiles" style="margin-top:12px">${tiles}</div>`:''}
     </div>
     ${items.map(g=>`<div class="g"><div class="gt">${g.t}</div><div class="gb">${g.b}</div></div>`).join('')}
