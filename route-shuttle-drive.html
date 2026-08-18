@@ -142,7 +142,6 @@ body{margin:0;background:var(--page);color:#f9f9f9;font-family:var(--kr);line-he
 .mv .mvb{font-size:calc(16px * var(--sp));color:var(--txt);line-height:1.7;white-space:pre-wrap;word-break:keep-all}
 .mv .btnarea{flex:none;padding:15px}                                   /* Button Area pad15 */
 .mv .btnarea .cta{border-radius:4px;padding:15px 10px;min-height:0}     /* Button(Dark Mode) r4 pad[15,10] */
-.mv .bk.hide{visibility:hidden}
 
 /* CTA — 고정(스크롤 밖). pad[25,20] + 20sp = 80dp */
 .cta{flex:none;display:flex;align-items:center;justify-content:center;gap:10px;min-height:80px;padding:25px 20px;font-size:calc(20px * var(--sp));font-weight:700;color:#fff;background:var(--honey);cursor:pointer}
@@ -308,7 +307,7 @@ body{margin:0;background:var(--page);color:#f9f9f9;font-family:var(--kr);line-he
     <b>헤더는 이동 중에만</b>([뱃지] gap10 [[장소명 24sp / 주소 14sp 1줄 말줄임] gap12 [내비 44dp]]) — <b>도착완료 화면은 헤더 없이 카드1부터</b>. 상단 fixed 없는 풀 스크롤.
     <b>대기 규칙</b>: <b>승차가 있는 정류장이면 대기</b>(도착지 제외) — 2026-08-18 스펙에 <b>‘퇴근 셔틀 + 경유지 탑승 시’</b> 케이스가 추가돼, 퇴근 경유지라도 승차면 대기·<code>고객 탑승 대기중</code>이 뜬다.
     <b>운행 요청사항 모달</b>(<code>28880:143342/143390</code>) — 전체화면 <code>✕ 운행 요청사항</code> 앱바 + 본문(제목 24sp · <code>노선명 : {이름}</code> 16sp honey · 전문 16sp, col gap32 pad24) + <code>확인 완료</code>(#FF9400 r4 pad[15,10] 20sp, Button Area pad15).
-    <b>노출 조건(확정)</b>: <b>첫 정류장 도착 시 강제 1회</b> — 자동으로 뜨고 <b>닫기(✕) 없이 ‘확인 완료’만</b>. 이후에는 카드2의 <code>운행 요청사항</code> 버튼으로만 열리며 이때는 ✕로 닫을 수 있습니다. 요청사항이 없으면 강제 모달도 뜨지 않습니다. <i>수락 시점에는 읽힘을 강제하지 않습니다 — 반복 노선에서 확인이 형해화되는 걸 막기 위함(별도 합의).</i><br>
+    <b>노출 조건(확정)</b>: <b>첫 정류장 도착 시 자동 팝업 1회</b>(강제가 아니라 자동 노출 — <b>✕는 항상 있음</b>). 이후에는 카드2의 <code>운행 요청사항</code> 버튼으로 언제든 다시 열 수 있습니다. 요청사항이 없으면 강제 모달도 뜨지 않습니다. <i>수락 시점에는 읽힘을 강제하지 않습니다 — 반복 노선에서 확인이 형해화되는 걸 막기 위함(별도 합의).</i><br>
     <b>남은 한계:</b> C도 <b>읽힘을 강제하진 못합니다</b>. 미운행·배차취소처럼 안 읽으면 사고 나는 내용은 <b>수락 시점 ‘확인했습니다’ 체크(B안)</b> 가 담당해야 하며, 기존 <code>요청사항 (통합)</code> 컴포넌트에 그 패턴(<code>✅ 고객 요청사항을 확인했습니다</code>)이 이미 있습니다.<br>
     ③ 데모 컨트롤 <b>운행 요청사항 길게/짧게/없음</b> · <b>📄 콜 상세로</b>. <b>변경 알림·‘변경됨’ 표시는 이번 프로토 범위 밖</b>. 콜 목록에는 표시하지 않음. 피크데이도 노선 셔틀에 포함.<br>
     <b>조작:</b> <b>콜 상세(수락 전)</b> → [셔틀예약 콜 수락] → <b>운행 중</b> → 하단 CTA(<b>도착완료 → 고객 탑승 대기중(비활성) → 다음 장소로 이동하기 → … → 요금 결제하기</b>)로 노선 진행. 시트의 <b>[전체 경로 ›]</b> = 같은 콜 상세 + 주소 옆 내비 버튼, CTA <b>‘확인’</b>으로 복귀.<br>
@@ -509,8 +508,8 @@ $('cta').addEventListener('click',()=>{
   if($('cta').classList.contains('dis')) return;
   const first = state.idx===0 && state.phase==='moving';   // 첫 정류장 도착완료 시점
   onCTA();
-  /* ★ 첫 정류장 도착 시 운행 요청사항 강제 모달(1회). 이후엔 시트 버튼으로만 */
-  if(first && !state.methodAck && NOTICE[state.notice]) openMethod(true);
+  /* ★ 첫 정류장 도착 시 운행 요청사항 자동 팝업(1회). 이후엔 시트 버튼으로만 */
+  if(first && !state.methodAck && NOTICE[state.notice]) openMethod();
 });
 $('sheetbody').addEventListener('click',e=>{
   if(e.target.closest('[data-route]')) openRoute();
@@ -580,16 +579,16 @@ function renderRV(){
   updateDev();
 }
 /* ★ 운행 요청사항 전용 화면 — 전문 그대로(클램프·더보기 없음). 현재 정류장의 승하차 지점도 같이 */
-/* 운행 요청사항 모달 (28880:143342) — 첫 정류장 도착 시 강제 1회, 이후엔 버튼으로 */
-function openMethod(force){
+/* 운행 요청사항 모달 (28880:143342) — 첫 정류장 도착 시 자동 팝업 1회, 이후엔 버튼으로.
+   ✕는 언제나 노출한다(빠져나갈 길을 막지 않음 — '강제'가 아니라 '자동 팝업') */
+function openMethod(){
   $('mvsc').innerHTML=`
     <div class="mvhd"><h3>운행 요청사항</h3><div class="mvrt">노선명 : ${trip().route}</div></div>
     <div class="mvb">${NOTICE[state.notice]}</div>`;
-  $('mvbk').classList.toggle('hide', !!force);   /* 강제 모달은 닫기 없이 '확인 완료'만 */
   $('mv').classList.add('on'); $('mvsc').scrollTop=0;
 }
 $('mvok').addEventListener('click',()=>{ state.methodAck=true; $('mv').classList.remove('on'); });
-$('mvbk').addEventListener('click',()=>$('mv').classList.remove('on'));
+$('mvbk').addEventListener('click',()=>{ state.methodAck=true; $('mv').classList.remove('on'); });
 function openRoute(){ state.rvMode='route'; renderRV(); }
 $('rvok').addEventListener('click',()=>{
   if(state.rvMode==='request'){ state.rvMode=null; state.clip=true; renderRV(); toast('콜 수락 → 운행 중 화면'); }
