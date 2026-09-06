@@ -476,16 +476,18 @@ val sheetMaxFraction = <span class="v">0.66f</span> + (fs - 1f) * <span class="v
     </div>
 
     <h3>스크롤 inset — 반드시 contentPadding으로</h3>
-    <p class="sdesc">스크롤 콘텐츠에 <b>상단 24dp · 하단 32dp</b> 여유를 준다. 콘텐츠 영역(행 패딩 등)은 그대로 두고 <b>스크롤 끝단에만</b> 붙는 값이다. <b class="warn">Compose 함정</b> — 이름과 달리 <code class="k">contentPadding</code>이 inset처럼 동작(콘텐츠와 함께 스크롤)하고, <code class="k">Modifier.padding</code>은 컨테이너를 줄여 <b>콘텐츠가 잘린다</b>. 반드시 <code class="k">LazyColumn(contentPadding = …)</code>으로 넣을 것.</p>
+    <p class="sdesc">스크롤 콘텐츠 <b>하단에만 32dp</b> 여유를 준다(상단 inset은 두지 않는다). 콘텐츠 영역(행 패딩 등)은 그대로 두고 <b>스크롤 끝단에만</b> 붙는 값이다. <b>목록이 있는 화면에만</b> — 카드 하나뿐인 01 pickup-go·03 pickup-arrived는 스크롤이 없어 제외한다. <b class="warn">Compose 함정</b> — 이름과 달리 <code class="k">contentPadding</code>이 inset처럼 동작(콘텐츠와 함께 스크롤)하고, <code class="k">Modifier.padding</code>은 컨테이너를 줄여 <b>콘텐츠가 잘린다</b>. 반드시 <code class="k">LazyColumn(contentPadding = …)</code>으로 넣을 것.</p>
     <div class="code">
       <div class="bar"><span class="dot"></span><b>RouteList.kt</b><span class="tag">Compose</span></div>
 <pre><code>LazyColumn(
-  contentPadding = PaddingValues(top = <span class="v">24</span>.dp, bottom = <span class="v">32</span>.dp)   <span class="cm">// ✅ 스크롤 끝단 inset</span>
-  <span class="cm">// modifier = Modifier.padding(vertical = 24.dp)                  ❌ 콘텐츠가 잘린다</span>
+  contentPadding = PaddingValues(bottom = <span class="v">32</span>.dp)          <span class="cm">// ✅ 스크롤 끝단 inset</span>
+  <span class="cm">// modifier = Modifier.padding(bottom = 32.dp)              ❌ 콘텐츠가 잘린다</span>
 ) { … }
 
-<span class="cm">// 예외: RouteHeader가 없는 화면(01 pickup-go)은 top = 0.dp</span>
-<span class="cm">//       헤더가 없으면 상단 inset이 곧 '시트 상단↔카드 여백'이 되어 카드가 떠 보인다.</span></code></pre>
+<span class="cm">// 상단 inset은 전 단계 0. 헤더가 없는 화면(01 pickup-go)에서는 상단 inset이 곧</span>
+<span class="cm">// '시트 상단↔카드 여백'이 되고, 카드가 첫 요소인 화면에서는 카드 상단 보더가</span>
+<span class="cm">// 헤더 구분선 역할을 잃는다.</span>
+<span class="cm">// 카드 하나뿐인 01·03 은 스크롤이 없어 inset 자체를 두지 않는다(top·bottom 모두 0).</span></code></pre>
     </div>
     <h3>지도 / 바텀시트 높이 = 스크린 비율</h3>
     <p class="sdesc">지도는 화면 전체를 채우고(뒤에 깔림), 바텀시트가 하단을 <code class="k">sheetMaxFraction</code>까지 덮는다. 가시 지도영역 = 화면 − 시트. (프로토 <code class="k">--sheet-max: calc(66% + (fs-1)×22%)</code>)</p>
