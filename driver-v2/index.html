@@ -22,11 +22,20 @@ html,body{margin:0;padding:0;height:100%;background:#101A3D;font-family:var(--fo
 @media (min-width:600px){
   html,body{background:#0a0d12;}
   body{display:flex;align-items:center;justify-content:center;}
-  #ph{position:relative;inset:auto;flex:none;width:min(392px,96vw);height:min(848px,94dvh);border:9px solid #05070c;border-radius:44px;box-shadow:0 26px 72px rgba(0,0,0,.6);}
-  /* ⚙ 조정버튼·패널을 뷰포트가 아닌 가운데 폰 프레임 우하단에 앵커 */
-  body .devbtn{left:calc(50% - 174px);top:calc(50% - min(424px,47dvh) + 96px);right:auto;bottom:auto;}
-  body .devpanel{left:calc(50% - 174px);top:calc(50% - min(424px,47dvh) + 148px);right:auto;bottom:auto;}
+  /* 폰 프레임 = 기준 기기 392 × 848 (1:2.163 · iPhone 14/15 Pro 계열).
+     레이아웃은 항상 392px 폭으로 두고 창이 작으면 프레임을 '통째로 축소'한다.
+     (가로·세로를 따로 클램프하면 낮은 창에서 세로만 줄어 뭉툭해지고,
+      폭만 줄이면 실기기에 없는 줄바꿈이 생겨 시안을 오해하게 된다.)
+     배율 --ph-k 는 스크립트가 계산 — CSS는 길이÷길이로 무단위 배율을 못 만든다. */
+  body #stage{display:block;position:relative;flex:none;width:392px;height:848px;
+         transform:scale(var(--ph-k,1));transform-origin:center center;}
+  #ph{position:relative;inset:auto;width:100%;height:100%;border:9px solid #05070c;border-radius:44px;box-shadow:0 26px 72px rgba(0,0,0,.6);}
+  /* dev UI는 #stage(=transform 컨테이닝 블록) 기준이라 프레임에 붙어 같이 축소된다 */
+  body .devbtn{left:22px;top:96px;right:auto;bottom:auto;}
+  body .devpanel{left:22px;top:148px;right:auto;bottom:auto;}
 }
+/* 모바일에선 #stage가 박스를 만들지 않게 해 기존 전체화면 동작을 그대로 둔다 */
+#stage{display:contents}
 /* ===== 프로토타입 설정(햄버거) ===== */
 .devbtn{position:fixed;left:14px;top:calc(env(safe-area-inset-top,0px) + 88px);width:44px;height:44px;border-radius:50%;background:rgba(16,26,45,.72);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);color:#dfe6f2;display:flex;align-items:center;justify-content:center;font-size:21px;z-index:120;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.45);user-select:none;}
 .devbtn:active{filter:brightness(1.18)}
@@ -164,6 +173,7 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
 </head>
 <body>
 <h2 class="sr-only">타다 드라이버앱 v2 프로토타입 — 운행중 화면. 모바일에서 화면 전체에 반응형으로 표시되고, 프로토타입 설정(경유 개수·글씨 크기)은 우하단 톱니 버튼에 숨겨져 있습니다.</h2>
+<div id="stage">
 <div id="ph" style="--fs:1"><div id="app"></div></div>
 <button class="devbtn" id="devbtn" aria-label="프로토타입 설정 열기">⚙</button>
 <div class="devscrim" id="devscrim"></div>
@@ -174,6 +184,7 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
   <div class="ctl"><span class="lbl">자동 복귀 데모</span><span class="fb" onclick="P.simEvent()">🔔 알림 수신 시뮬레이션</span></div>
   <div class="ctl"><span class="lbl">화면</span><span class="fb" onclick="P.reset()">↺ 처음부터</span></div>
 </div>
+</div><!-- /#stage -->
 <script>
 (function(){
   var IC={
@@ -391,6 +402,23 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
 </script>
 <script>
 (function(){var p=document.getElementById('devpanel'),s=document.getElementById('devscrim');function t(){var o=!p.classList.contains('open');p.classList.toggle('open',o);s.classList.toggle('open',o);}document.getElementById('devbtn').addEventListener('click',t);document.getElementById('devx').addEventListener('click',t);s.addEventListener('click',t);})();
+/* 폰 프레임 축소 배율: 기준 392×848 을 창에 맞춰 통째로 줄인다(레이아웃은 392px 유지).
+   resize·ResizeObserver는 임베드/뷰포트 에뮬레이션에서 누락되는 경우가 있어(값이 굳어버림)
+   이벤트 대신 rAF로 뷰포트를 보고 '바뀔 때만' 쓴다. 뷰포트를 못 읽으면(0) 건너뛴다 —
+   scale(0)이 되면 프레임이 사라지기 때문. */
+(function(){
+  var W=392,H=848,de=document.documentElement,lw=0,lh=0;
+  function tick(){
+    var vw=window.innerWidth||de.clientWidth||0,vh=window.innerHeight||de.clientHeight||0;
+    if(vw>0&&vh>0&&(vw!==lw||vh!==lh)){
+      lw=vw;lh=vh;
+      var k=Math.min(1,vh*0.94/H,vw*0.96/W);
+      if(k>0)document.body.style.setProperty('--ph-k',k.toFixed(4));
+    }
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
 </script>
 </body>
 </html>
