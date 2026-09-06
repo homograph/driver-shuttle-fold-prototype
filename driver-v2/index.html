@@ -267,38 +267,51 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
   function done(){return sb()+'<div class="donew"><div class="dok">✓ 결제 완료</div><div class="dbig">운행 완료</div><div class="dsub">8초 뒤 콜 수신이 자동 진행됩니다.</div><div class="dcirc">콜 바로<br>수신하기</div><div class="drest" onclick="P.reset()">↺ 처음부터 다시</div></div>'}
   function html(){return S.screen==='pickup'?pickup():S.screen==='ptmap'?ptmap():S.screen==='preview'?preview():S.screen==='drive'?drive():S.screen==='full'?full():S.screen==='tmapsel'?tmapsel():S.screen==='tmap'?tmap():S.screen==='pay'?pay():done()}
   function render(){var h=html();var app=document.getElementById('app');var ph=document.getElementById('ph');var ch=(S._last!==S.screen);if(ch){S.collapsed=false;if(ph)ph.classList.remove('mf')}app.innerHTML=h;if(ch){app.style.transition='none';app.style.opacity='0';void app.offsetWidth;app.style.transition='opacity .2s ease';app.style.opacity='1'}S._last=S.screen;if(S.screen==='tmapsel'){startNavCd()}else{clearNavCd()}fitMarkers(false)}
+  /* 경유지 도착 완료 → 다음 목적지 승격 모프.
+     ① 새 카드 보더를 var(--bd)(#E3E4E8=흰색)로 페이드인해 흰 선이 번쩍였다 →
+        삽입 직후 실제 색을 읽어 그 값으로 페이드인한다(상태별 #384f85/#31487d 자동 대응).
+     ② 카드는 .plist 직계인데 oldRow.parentNode(=.remaining) 안에 넣고 있었다 →
+        .remaining '앞'에 넣어 8px 간격과 위계를 유지.
+     ③ '이전 카드 페이드(70ms) → 350ms 대기 → 높이 모프' 3단계라 툭툭 끊겼다 →
+        수축과 확장을 같은 이징·같은 구간에서 동시에 돌린다.
+     ④ max-height 대신 실제 height를 애니메이션(실높이와 어긋나 생기던 급가속 제거).
+     ⑤ rAF 없이 강제 리플로우로 시작 — 페이지가 숨겨져도 멈추지 않는다. */
   function advance(cur){
     var app=document.getElementById('app');var plist=app.querySelector('.plist');
-    var oldCard=plist?plist.querySelector('.crd'):null;var oldRow=plist?plist.querySelector('.irow'):null;
-    if(!plist||!oldCard||!oldRow){if(S.done.indexOf(cur)<0)S.done.push(cur);S.lastAt=cur;S.phase='go';render();S.busy=false;return}
-    var E='cubic-bezier(.65,0,.35,1)';
+    var oldCard=plist?plist.querySelector('.crd'):null;
+    var rem=plist?plist.querySelector('.remaining'):null;
+    var oldRow=plist?plist.querySelector('.irow'):null;
+    var finish=function(){if(finish.done)return;finish.done=true;render();S.busy=false};
+    if(!plist||!oldCard||!oldRow){if(S.done.indexOf(cur)<0)S.done.push(cur);S.lastAt=cur;S.phase='go';finish();return}
+    var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var E='cubic-bezier(.4,0,.2,1)',D=380;
     var obtn=oldCard.querySelector('.cbtn');if(obtn){obtn.className='cbtn ok';obtn.textContent='✓ 경유지 도착 완료'}
-    oldCard.style.overflow='hidden';oldCard.style.maxHeight=oldCard.offsetHeight+'px';
-    setTimeout(function(){
-      oldCard.style.transition='opacity .32s ease,transform .38s '+E;oldCard.style.opacity='0';oldCard.style.transform='translateY(-14px)';
-    },70);
+    if(reduce){setTimeout(function(){if(S.done.indexOf(cur)<0)S.done.push(cur);S.lastAt=cur;S.phase='go';finish()},260);return}
     setTimeout(function(){
       if(S.done.indexOf(cur)<0)S.done.push(cur);S.lastAt=cur;S.phase='go';
       var ncur=nextArmed();
       var holder=document.createElement('div');holder.innerHTML=goCard(ncur);var nextCard=holder.firstChild;
-      oldRow.parentNode.insertBefore(nextCard,oldRow);
-      var H_full=nextCard.offsetHeight;var H_row=oldRow.offsetHeight;
-      nextCard.style.overflow='hidden';nextCard.style.maxHeight=H_row+'px';nextCard.style.borderColor='transparent';
+      plist.insertBefore(nextCard,rem||oldRow);
+      var natural=getComputedStyle(nextCard).borderTopColor;
+      var gap=parseFloat(getComputedStyle(plist).rowGap)||0;
+      var H_full=nextCard.offsetHeight,H_row=oldRow.offsetHeight,H_old=oldCard.offsetHeight;
+      nextCard.style.overflow='hidden';nextCard.style.height=H_row+'px';nextCard.style.borderColor='transparent';
       var nm=nextCard.querySelector('.cname');if(nm){nm.style.transformOrigin='left center';nm.style.transform='scale(.769)';nm.style.color='var(--dim)'}
       var ad=nextCard.querySelector('.caddr');if(ad)ad.style.opacity='0';
       var btn=nextCard.querySelector('.cbtn');if(btn)btn.style.opacity='0';
       oldRow.style.display='none';
+      oldCard.style.overflow='hidden';oldCard.style.height=H_old+'px';
       var cel=app.querySelector('.rhd .t');if(cel)cel.textContent='남은 경로 '+(stops.length-ncur)+'개';
-      void app.offsetWidth;
-      requestAnimationFrame(function(){requestAnimationFrame(function(){
-        oldCard.style.transition='max-height .46s '+E+',margin-bottom .46s '+E;oldCard.style.maxHeight='0px';oldCard.style.marginBottom='-2px';
-        nextCard.style.transition='max-height .46s '+E+',border-color .4s ease .05s';nextCard.style.maxHeight=H_full+'px';nextCard.style.borderColor='var(--bd)';
-        if(nm){nm.style.transition='transform .44s '+E+',color .4s ease';nm.style.transform='scale(1)';nm.style.color='#fff'}
-        if(ad){ad.style.transition='opacity .32s ease .12s';ad.style.opacity='1'}
-        if(btn){btn.style.transition='opacity .34s ease .22s';btn.style.opacity='1'}
-        setTimeout(function(){render();S.busy=false},500);
-      })});
-    },350);
+      void plist.offsetHeight;
+      oldCard.style.transition='height '+D+'ms '+E+',opacity '+Math.round(D*0.55)+'ms ease,margin-bottom '+D+'ms '+E;
+      oldCard.style.height='0px';oldCard.style.opacity='0';oldCard.style.marginBottom=(-gap)+'px';
+      nextCard.style.transition='height '+D+'ms '+E+',border-color '+Math.round(D*0.7)+'ms ease';
+      nextCard.style.height=H_full+'px';nextCard.style.borderColor=natural;
+      if(nm){nm.style.transition='transform '+D+'ms '+E+',color '+Math.round(D*0.7)+'ms ease';nm.style.transform='scale(1)';nm.style.color='#fff'}
+      if(ad){ad.style.transition='opacity '+Math.round(D*0.5)+'ms ease '+Math.round(D*0.25)+'ms';ad.style.opacity='1'}
+      if(btn){btn.style.transition='opacity '+Math.round(D*0.5)+'ms ease '+Math.round(D*0.35)+'ms';btn.style.opacity='1'}
+      setTimeout(finish,D+80);
+    },180);
   }
   function startMorph(){
     if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){S.phase='go';S.screen='drive';render();S.busy=false;return}
@@ -313,6 +326,7 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
     var holder=document.createElement('div');holder.innerHTML=goCard(cur);var newCard=holder.firstChild;
     curRow.parentNode.insertBefore(newCard,curRow);
     var H_full=newCard.offsetHeight,H_row=curRow.offsetHeight;
+    var natural=getComputedStyle(newCard).borderTopColor;   /* var(--bd)=#E3E4E8(흰색)로 페이드인하던 버그 */
     newCard.style.overflow='hidden';newCard.style.maxHeight=H_row+'px';newCard.style.borderColor='transparent';
     var nm=newCard.querySelector('.cname');if(nm){nm.style.transformOrigin='left center';nm.style.transform='scale(.769)';nm.style.color='var(--dim)'}
     var ad=newCard.querySelector('.caddr');if(ad)ad.style.opacity='0';
@@ -336,19 +350,22 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
       bottom.style.maxHeight=H0+'px';
     }
     void app.offsetWidth;
-    requestAnimationFrame(function(){requestAnimationFrame(function(){
+    /* rAF로 감싸면 페이지가 숨겨졌을 때 모프가 시작도 못 하고
+       끝의 render()까지 예약되지 않아 화면이 중간 상태로 멈춘다.
+       위에서 이미 강제 리플로우를 했으므로 바로 실행해도 트랜지션이 걸린다. */
+    (function(){
       if(bottom&&H1&&H1<H0){bottom.style.transition='max-height .5s '+E;bottom.style.maxHeight=H1+'px'}
       if(barfull){barfull.style.transition='opacity .3s ease,transform .34s '+E+',max-height .42s '+E+' .05s,margin .42s '+E+' .05s,padding .42s '+E+' .05s';barfull.style.opacity='0';barfull.style.transform='translateY(18px)';barfull.style.maxHeight='0px';barfull.style.marginTop='-8px';barfull.style.marginBottom='0';barfull.style.paddingTop='0';barfull.style.paddingBottom='0'}
       if(preq){preq.style.transition='max-height .4s '+E+',opacity .26s ease,margin-top .4s '+E+',padding .4s '+E;preq.style.maxHeight='0px';preq.style.opacity='0';preq.style.marginTop='-10px';preq.style.paddingTop='0';preq.style.paddingBottom='0'}
       startRow.style.transition='max-height .44s '+E+',opacity .3s ease,transform .36s '+E+',margin-bottom .44s '+E;startRow.style.opacity='0';startRow.style.transform='translateY(-12px)';startRow.style.maxHeight='0px';startRow.style.marginBottom='-2px';
-      newCard.style.transition='max-height .5s '+E+',border-color .42s ease .06s';newCard.style.maxHeight=H_full+'px';newCard.style.borderColor='var(--bd)';
+      newCard.style.transition='max-height .5s '+E+',border-color .42s ease .06s';newCard.style.maxHeight=H_full+'px';newCard.style.borderColor=natural;
       if(nm){nm.style.transition='transform .48s '+E+',color .42s ease';nm.style.transform='scale(1)';nm.style.color='#fff'}
       if(ad){ad.style.transition='opacity .34s ease .16s';ad.style.opacity='1'}
       if(btn){btn.style.transition='opacity .36s ease .26s';btn.style.opacity='1'}
       if(see){see.style.transition='opacity .3s ease .3s';see.style.opacity='1'}
       if(pb){pb.style.transition='opacity .34s ease .22s';pb.style.opacity='1'}
       setTimeout(function(){S.phase='go';S.screen='drive';S._last='drive';render();S.busy=false},580);
-    })});
+    })();
   }
   function screenLayer(html){var d=document.createElement('div');d.style.cssText='position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden;background:var(--navy);will-change:transform';d.innerHTML=html;return d}
   function appOpen(foreHtml,after){
