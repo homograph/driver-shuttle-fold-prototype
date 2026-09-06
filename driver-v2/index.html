@@ -28,8 +28,14 @@ html,body{margin:0;padding:0;height:100%;background:#101A3D;font-family:var(--fo
       폭만 줄이면 실기기에 없는 줄바꿈이 생겨 시안을 오해하게 된다.)
      배율 --ph-k 는 스크립트가 계산 — CSS는 길이÷길이로 무단위 배율을 못 만든다. */
   body #stage{display:block;position:relative;flex:none;width:392px;height:848px;
-         transform:scale(var(--ph-k,1));transform-origin:center center;}
-  #ph{position:relative;inset:auto;width:100%;height:100%;border:9px solid #05070c;border-radius:44px;box-shadow:0 26px 72px rgba(0,0,0,.6);}
+         transform:translate(var(--ph-dx,0px),var(--ph-dy,0px)) scale(var(--ph-k,1));transform-origin:center center;}
+  /* 베젤을 border가 아니라 box-shadow spread로 그린다.
+     border는 배율을 받아 9*k*dpr 이 소수가 되고(크롬은 border-width를 정수 CSS px로 반올림해
+     미세조정도 안 먹는다), 그만큼 패딩 박스 경계가 어긋나 시트 좌·우·하단에 1px 선이 생겼다.
+     border를 없애면 #ph 패딩 박스 = #stage 박스라 내용 경계가 stage와 함께 정수로 떨어진다.
+     덤으로 화면 폭이 374 → 392 가 되어 기준 기기(392dp)와 정확히 일치한다.
+     시각적 외곽(반경 44 = 35+9)은 그대로. */
+  #ph{position:relative;inset:auto;width:100%;height:100%;border:0;border-radius:35px;box-shadow:0 0 0 9px #05070c,0 26px 72px rgba(0,0,0,.6);}
   /* dev UI는 #stage(=transform 컨테이닝 블록) 기준이라 프레임에 붙어 같이 축소된다 */
   body .devbtn{left:22px;top:96px;right:auto;bottom:auto;}
   body .devpanel{left:22px;top:148px;right:auto;bottom:auto;}
@@ -79,7 +85,7 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
 .bub.grad{background:var(--navy700)}.bub.chg{background:var(--navy700)}.bub.nav{background:var(--blue700)}
 .toast{position:absolute;left:50%;bottom:16%;transform:translate(-50%,10px);max-width:90%;white-space:nowrap;background:rgba(13,20,44,.96);color:#fff;font-size:calc(15px * var(--fs,1));font-weight:600;line-height:1.35;text-align:center;padding:calc(11px * var(--fs,1)) 22px;border-radius:24px;box-shadow:0 12px 32px rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1);z-index:45;opacity:0;transition:opacity .2s ease,transform .24s ease;pointer-events:none}
 .toast.on{opacity:1;transform:translate(-50%,0)}
-.bottom{position:absolute;left:-1px;right:-1px;bottom:-1px;max-height:var(--sheet-max);/* 좌·우·하단 -1px: 축소 배율(--ph-k)에서 시트 경계가 정수 디바이스 픽셀에 안 떨어져,
+.bottom{position:absolute;left:0;right:0;bottom:0;max-height:var(--sheet-max);/* 좌·우·하단 -1px: 축소 배율(--ph-k)에서 시트 경계가 정수 디바이스 픽셀에 안 떨어져,
    그 픽셀에 뒤의 밝은 지도(#E7ECF0)가 비쳐 밝은 선으로 보였다.
    고정색 링으로 덮으면 카드 그라데이션(#101a3d→#293f71)과 색이 어긋나 되레 선이 생긴다.
    시트를 1px 밖으로 내밀어 '카드 자신의 배경'이 경계 픽셀을 칠하게 하고,
@@ -435,22 +441,43 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
 </script>
 <script>
 (function(){var p=document.getElementById('devpanel'),s=document.getElementById('devscrim');function t(){var o=!p.classList.contains('open');p.classList.toggle('open',o);s.classList.toggle('open',o);}document.getElementById('devbtn').addEventListener('click',t);document.getElementById('devx').addEventListener('click',t);s.addEventListener('click',t);})();
-/* 폰 프레임 축소 배율: 기준 392×848 을 창에 맞춰 통째로 줄인다(레이아웃은 392px 유지).
-   resize·ResizeObserver는 임베드/뷰포트 에뮬레이션에서 누락되는 경우가 있어(값이 굳어버림)
-   이벤트 대신 rAF로 뷰포트를 보고 '바뀔 때만' 쓴다. 뷰포트를 못 읽으면(0) 건너뛴다 —
-   scale(0)이 되면 프레임이 사라지기 때문. */
+/* 폰 프레임 축소 배율 — 기준 392×848 을 창에 맞춰 통째로 줄인다(레이아웃은 392px 유지).
+
+   ★ 배율을 정수 기기픽셀로 스냅한다.
+   소수 배율이면 프레임의 패딩 박스 경계가 정수 기기픽셀에 안 떨어지고, 그 경계 픽셀에서
+   내용(지도·바텀시트)이 안티에일리어싱되며 #ph 배경이 ~9% 비친다. 바텀시트의 좌·우·하단은
+   곧 이 패딩 박스 경계라서, 시트 테두리에 1px 선이 생겼다(디자인이 아니라 목업 프레임 문제).
+   k = j/(8*dpr) 로 두면 392*k*dpr = 49j, 848*k*dpr = 106j 로 가로·세로 모두 정수가 된다.
+   dpr이 소수(브라우저 확대)여도 성립. 눈금은 dpr=2에서 6.25%.
+
+   위치도 스냅한다. 크기가 정수여도 flex 중앙정렬이 반픽셀에 놓으면 같은 문제가 생기므로,
+   translate를 먼저 0으로 두고 실제 위치를 재서 정수로 밀어 준다.
+
+   rAF·resize 이벤트는 페이지가 숨겨지면 멈추므로 쓰지 않고, 값이 바뀔 때만 쓰는 폴링. */
 (function(){
-  var W=392,H=848,de=document.documentElement,lw=0,lh=0;
-  function tick(){
+  var W=392,H=848,de=document.documentElement,lw=0,lh=0,lk=0;
+  function fit(){
     var vw=window.innerWidth||de.clientWidth||0,vh=window.innerHeight||de.clientHeight||0;
-    if(vw>0&&vh>0&&(vw!==lw||vh!==lh)){
-      lw=vw;lh=vh;
-      var k=Math.min(1,vh*0.94/H,vw*0.96/W);
-      if(k>0)document.body.style.setProperty('--ph-k',k.toFixed(4));
+    if(vw<=0||vh<=0)return;
+    var dpr=window.devicePixelRatio||1,q=8*dpr;
+    var k0=Math.min(1,vh*0.94/H,vw*0.96/W);
+    var k=Math.floor(k0*q)/q; if(!(k>0))k=1/q;
+    var st=document.getElementById('stage');
+    if(vw!==lw||vh!==lh||k!==lk){
+      lw=vw;lh=vh;lk=k;
+      document.body.style.setProperty('--ph-k',k.toFixed(6));
+      if(st){
+        st.style.setProperty('--ph-dx','0px');st.style.setProperty('--ph-dy','0px');
+        var r=st.getBoundingClientRect();
+        var dx=(Math.round(r.left*dpr)-r.left*dpr)/dpr,dy=(Math.round(r.top*dpr)-r.top*dpr)/dpr;
+        st.style.setProperty('--ph-dx',dx.toFixed(4)+'px');st.style.setProperty('--ph-dy',dy.toFixed(4)+'px');
+      }
     }
-    requestAnimationFrame(tick);
   }
-  tick();
+  /* 보일 때는 rAF로 즉각 반응, 숨겨져 rAF가 멈추면 인터벌이 이어받는다(중복 호출은 무해 — 값이 같으면 아무것도 안 함). */
+  function loop(){fit();requestAnimationFrame(loop)}
+  fit();loop();
+  setInterval(fit,500);
 })();
 </script>
 </body>
