@@ -90,7 +90,7 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
    고정색 링으로 덮으면 카드 그라데이션(#101a3d→#293f71)과 색이 어긋나 되레 선이 생긴다.
    시트를 1px 밖으로 내밀어 '카드 자신의 배경'이 경계 픽셀을 칠하게 하고,
    넘친 1px은 .body{overflow:hidden}이 잘라낸다 — 색이 정확히 이어지고 레이아웃은 그대로. */display:flex;flex-direction:column;z-index:3;min-height:0}
-.pinfo{flex:0 0 auto;padding:15px}
+.pinfo{flex:0 0 auto;padding:0 15px 15px}   /* Figma 실제 화면 pad[0,15,15,15] — 상단 0 */
 .pcard{background:var(--navy);border-radius:10px;padding:10px;box-shadow:0 6px 30px 5px rgba(0,0,0,.12),0 16px 24px 2px rgba(0,0,0,.14),0 8px 10px -5px rgba(0,0,0,.2);display:flex;flex-direction:column;gap:10px}
 .prow{display:flex;align-items:center;gap:10px;padding:0 6px}
 .pav{width:28px;height:28px;flex:0 0 auto}.pav svg{width:100%;height:100%;display:block}
