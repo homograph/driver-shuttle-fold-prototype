@@ -359,7 +359,12 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
     var scr=document.createElement('div');scr.style.cssText='position:absolute;inset:0;background:#000;opacity:0;z-index:2;pointer-events:none';bw.appendChild(scr);
     var fore=screenLayer(foreHtml);fore.style.transform='translateX(100%)';fore.style.zIndex='3';fore.style.boxShadow='-16px 0 46px rgba(0,0,0,.55)';
     sw.appendChild(bw);sw.appendChild(fore);ph.appendChild(sw);
-    requestAnimationFrame(function(){requestAnimationFrame(function(){var E='cubic-bezier(.2,0,0,1)';bw.style.transition='transform .42s '+E+',border-radius .42s '+E;bw.style.transform='translateX(-16%) scale(.9)';bw.style.borderRadius='24px';scr.style.transition='opacity .42s';scr.style.opacity='.46';fore.style.transition='transform .42s '+E;fore.style.transform='translateX(0)';setTimeout(function(){if(after)after();if(sw.parentNode)sw.parentNode.removeChild(sw);S.busy=false},440)})});
+    /* 정리는 rAF 밖에서 예약한다 — 페이지가 숨겨지면(탭 전환·T맵으로 이동·화면 꺼짐)
+       rAF가 멈춰 전환이 시작조차 못 하고, 오버레이가 화면에 영구히 남는다.
+       after()가 던져도 제거는 되도록 try/finally. */
+    var fin=function(){if(fin.done)return;fin.done=true;try{if(after)after()}finally{if(sw.parentNode)sw.parentNode.removeChild(sw);S.busy=false}};
+    setTimeout(fin,480);
+    requestAnimationFrame(function(){requestAnimationFrame(function(){if(fin.done)return;var E='cubic-bezier(.2,0,0,1)';bw.style.transition='transform .42s '+E+',border-radius .42s '+E;bw.style.transform='translateX(-16%) scale(.9)';bw.style.borderRadius='24px';scr.style.transition='opacity .42s';scr.style.opacity='.46';fore.style.transition='transform .42s '+E;fore.style.transform='translateX(0)'})});
   }
   function appClose(backHtml,after){
     S.busy=true;var ph=document.getElementById('ph'),app=document.getElementById('app');
@@ -369,7 +374,9 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
     var scr=document.createElement('div');scr.style.cssText='position:absolute;inset:0;background:#000;opacity:.46;z-index:2;pointer-events:none';bw.appendChild(scr);
     var fore=screenLayer(app.innerHTML);fore.style.transform='translateX(0)';fore.style.zIndex='3';fore.style.boxShadow='-16px 0 46px rgba(0,0,0,.55)';
     sw.appendChild(bw);sw.appendChild(fore);ph.appendChild(sw);
-    requestAnimationFrame(function(){requestAnimationFrame(function(){var E='cubic-bezier(.2,0,0,1)';bw.style.transition='transform .44s '+E+',border-radius .44s '+E;bw.style.transform='translateX(0) scale(1)';bw.style.borderRadius='0px';scr.style.transition='opacity .44s';scr.style.opacity='0';fore.style.transition='transform .44s '+E;fore.style.transform='translateX(100%)';setTimeout(function(){if(after)after();if(sw.parentNode)sw.parentNode.removeChild(sw);S.busy=false},460)})});
+    var fin=function(){if(fin.done)return;fin.done=true;try{if(after)after()}finally{if(sw.parentNode)sw.parentNode.removeChild(sw);S.busy=false}};
+    setTimeout(fin,500);
+    requestAnimationFrame(function(){requestAnimationFrame(function(){if(fin.done)return;var E='cubic-bezier(.2,0,0,1)';bw.style.transition='transform .44s '+E+',border-radius .44s '+E;bw.style.transform='translateX(0) scale(1)';bw.style.borderRadius='0px';scr.style.transition='opacity .44s';scr.style.opacity='0';fore.style.transition='transform .44s '+E;fore.style.transform='translateX(100%)'})});
   }
   window.P={
     setFont:function(v,el){var ph=document.getElementById('ph');ph.style.setProperty('--fs',v);ph.classList.toggle('tight',v>=1.25);var b=el.parentNode.querySelectorAll('.fb');for(var i=0;i<b.length;i++)b[i].classList.remove('on');el.classList.add('on')},
