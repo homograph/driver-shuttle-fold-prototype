@@ -462,16 +462,30 @@ LaunchedEffect(within200mDest) {
 
   <section id="responsive">
     <span class="snum">Responsive · 큰 글씨 대응</span>
-    <h2>반응형 (sp/dp 댐핑)</h2>
-    <p class="sdesc">콘텐츠 텍스트는 <b>sp</b>(base 18sp), OS·외부(T맵)는 dp. 큰 글씨 접근성 설정에서 레이아웃이 깨지지 않도록, 내부 패딩·갭은 폰트배율을 <b>완만히(댐핑)</b> 따라가고 요소 간 마진은 dp로 고정한다. <b>전 플로우 공통</b> — 실시간·예약·현장결제가 동일 컴포넌트를 써 스펙 동일.</p>
+    <h2>반응형 (DP 전환 · CTA만 SP)</h2>
+    <p class="sdesc"><b>2026-09 변경</b> — 기존 sp 댐핑 체계를 걷어내고 <b>전부 dp 고정</b>으로 간다. 예외는 <b>CTA 텍스트만 sp</b>(큰 글씨 설정에 반응). Figma 텍스트 스타일 이름이 <code class="k">SP/…</code> <code class="k">DP/…</code>로 명시돼 있으니 그대로 따르면 된다. 패딩·갭·아이콘 크기는 더 이상 폰트배율을 따라가지 않는다.</p>
     <div class="code">
       <div class="bar"><span class="dot"></span><b>Scaling.kt</b><span class="tag">Compose</span></div>
-<pre><code><span class="cm">// 콘텐츠 = sp. 내부 패딩·갭은 폰트배율 '댐핑', 요소 간 마진은 dp 고정.</span>
-val fs  = LocalConfiguration.current.fontScale     <span class="cm">// 1.0 = 기본</span>
-val fsx = 1f + (fs - 1f) * <span class="v">0.4f</span>                     <span class="cm">// 패딩·갭 댐핑 계수</span>
-val innerPadding     = (<span class="v">16</span> * fsx).dp                 <span class="cm">// 내부 패딩: sp 비례로 완만히</span>
-val elementMargin    = <span class="v">12</span>.dp                          <span class="cm">// 요소 간 마진: 고정 dp</span>
-val sheetMaxFraction = <span class="v">0.66f</span> + (fs - 1f) * <span class="v">0.22f</span>    <span class="cm">// 바텀시트 상한(글씨 클수록 ↑)</span></code></pre>
+<pre><code><span class="cm">// CTA 텍스트만 sp. 그 외 텍스트·패딩·갭·아이콘은 전부 dp 고정.</span>
+<span class="cm">// SP: 카드 CTA·운행 시작하기(20sp) · 전체경로 헤더(20sp)·카운트 숫자(24sp)/라벨(14sp)·확인(20sp)</span>
+<span class="cm">// DP: 카드 이름 26 · 주소 16 · 목록 이름 20 · 배지 16 · 승객 이름 22 · 헤더 16 · 요청사항 18</span>
+Text(label, fontSize = <span class="v">20</span>.sp)                        <span class="cm">// CTA — 배율 반응</span>
+Text(name,  fontSize = <span class="v">20</span>.dp.toSp())                 <span class="cm">// 그 외 — 고정</span>
+val innerPadding     = <span class="v">20</span>.dp                          <span class="cm">// 패딩·갭: 고정 dp (댐핑 제거)</span>
+val sheetMaxFraction = <span class="v">0.66f</span> + (fs - 1f) * <span class="v">0.22f</span>    <span class="cm">// 시트 상한은 유지 — CTA가 sp라 여전히 커진다</span></code></pre>
+    </div>
+
+    <h3>스크롤 inset — 반드시 contentPadding으로</h3>
+    <p class="sdesc">스크롤 콘텐츠에 <b>상단 24dp · 하단 32dp</b> 여유를 준다. 콘텐츠 영역(행 패딩 등)은 그대로 두고 <b>스크롤 끝단에만</b> 붙는 값이다. <b class="warn">Compose 함정</b> — 이름과 달리 <code class="k">contentPadding</code>이 inset처럼 동작(콘텐츠와 함께 스크롤)하고, <code class="k">Modifier.padding</code>은 컨테이너를 줄여 <b>콘텐츠가 잘린다</b>. 반드시 <code class="k">LazyColumn(contentPadding = …)</code>으로 넣을 것.</p>
+    <div class="code">
+      <div class="bar"><span class="dot"></span><b>RouteList.kt</b><span class="tag">Compose</span></div>
+<pre><code>LazyColumn(
+  contentPadding = PaddingValues(top = <span class="v">24</span>.dp, bottom = <span class="v">32</span>.dp)   <span class="cm">// ✅ 스크롤 끝단 inset</span>
+  <span class="cm">// modifier = Modifier.padding(vertical = 24.dp)                  ❌ 콘텐츠가 잘린다</span>
+) { … }
+
+<span class="cm">// 예외: RouteHeader가 없는 화면(01 pickup-go)은 top = 0.dp</span>
+<span class="cm">//       헤더가 없으면 상단 inset이 곧 '시트 상단↔카드 여백'이 되어 카드가 떠 보인다.</span></code></pre>
     </div>
     <h3>지도 / 바텀시트 높이 = 스크린 비율</h3>
     <p class="sdesc">지도는 화면 전체를 채우고(뒤에 깔림), 바텀시트가 하단을 <code class="k">sheetMaxFraction</code>까지 덮는다. 가시 지도영역 = 화면 − 시트. (프로토 <code class="k">--sheet-max: calc(66% + (fs-1)×22%)</code>)</p>

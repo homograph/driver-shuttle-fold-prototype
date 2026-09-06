@@ -103,7 +103,19 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
 .rhd{flex:0 0 auto;display:flex;align-items:center;gap:12px;padding:16px 20px}
 .rhd .t{font-size:16px;font-weight:400;color:var(--dim);white-space:nowrap}
 .rhd .see{margin-left:auto;color:var(--b300);font-size:16px;white-space:nowrap;cursor:pointer}
-.plist{flex:1 1 auto;display:flex;flex-direction:column;gap:0;overflow-y:auto;min-height:0}
+.plist{flex:1 1 auto;display:flex;flex-direction:column;gap:0;overflow-y:auto;min-height:0;padding:24px 0 32px}
+/* 스크롤 콘텐츠 inset — 상단 24 / 하단 32. 스크롤 컨테이너의 padding은 콘텐츠와 함께 스크롤되어
+   '스크롤 끝단에만 여유'가 되므로 Compose LazyColumn의 contentPadding과 같은 동작이다.
+   ※ Modifier.padding(= 컨테이너 바깥 여백)으로 옮기면 콘텐츠가 잘린다. 핸드오프에 명시할 것. */
+/* 예외: 01 pickup-go 는 RouteHeader가 없어 .plist가 시트의 첫 요소다. 이때 상단 inset은
+   '시트 상단↔카드 여백'이 되어 버려(예전에 걷어낸 .route.lead 6px과 같은 문제) 0으로 둔다. */
+.route > .plist:first-child{padding-top:0}
+/* 스크롤 끝단 여유: 마지막 행이 시트 하단에 붙어 잘린 것처럼 보이던 문제.
+   행이 있는(=스크롤되는) 목록에만 준다 — 카드만 있는 픽업 화면은 스크롤이 없어 제외. */
+.plist:has(.irow){padding-bottom:32px}
+/* 상단 24는 목록이 첫 요소일 때만. 카드가 첫 요소면 카드 상단 보더가 헤더 구분선
+   역할을 하는데, 여기에 inset을 주면 그 선이 헤더에서 떨어져 혼자 떠 보인다. */
+.plist:has(.irow):not(:has(> .crd:first-child)){padding-top:24px}
 .remaining{display:flex;flex-direction:column}
 .badge{width:52px;padding:4px 6px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex:0 0 auto;white-space:nowrap}
 .badge.org{background:var(--blue700)}.badge.way{background:var(--navy700)}.badge.dest{background:var(--red)}
