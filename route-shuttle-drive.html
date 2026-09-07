@@ -792,7 +792,7 @@ function submitPax(){
   /* ★ 앱이 요구하는 건 ‘0명 입력’까지다. 0명이라고 이동을 막거나(PRD의 서버 에러) 배차취소를 강제하지 않는다.
      대신 다음 단계 판단에 필요한 안내만 시트 가이드에 비차단으로 띄운다. */
   state.pax[state.idx]=n; closePax(); render();
-  toast(`탑승 인원 ${n}명 제출 · 노선 누적 ${paxSum()}명`);
+  toast(`탑승 인원 ${n}명 제출`);
 }
 $('pkbody').addEventListener('click',e=>{
   const b=e.target.closest('[data-n]'); if(!b) return;
