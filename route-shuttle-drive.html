@@ -331,6 +331,10 @@ body{margin:0;background:var(--page);color:#f9f9f9;font-family:var(--kr);line-he
     <button data-pk="1" class="on">ON</button>
     <button data-pk="0">OFF</button>
     <span class="sep"></span>
+    <span class="lbl">퇴근 승차 정류장</span>
+    <button data-bn="1" class="on">1곳(기본)</button>
+    <button data-bn="2">2곳(예외)</button>
+    <span class="sep"></span>
     <button id="goDetail">📄 콜 상세로</button>
     <button id="skip">⏩ 대기시간 건너뛰기</button>
     <button id="reset">↺ 처음으로</button>
@@ -440,11 +444,11 @@ body{margin:0;background:var(--page);color:#f9f9f9;font-family:var(--kr);line-he
     <b>상태:</b> 프로토는 기획대로 <b>수락 후 상태에서 시작</b>합니다 — 콜 상세의 CTA는 <code>➤ 탑승지로 이동</code>이고, 누르면 운행 중 화면으로 넘어갑니다. Figma에서 <code>고객 요청사항 + ‘확인했습니다’ 체크</code>와 <code>콜 취소하기</code>는 이 프레임에서 <b>숨김 처리</b>돼 있어 프로토에도 넣지 않았습니다. 정류장별 내비 버튼은 <b>전체 경로에만</b> 붙습니다(수락 후 콜 상세엔 없음 — 실측 그대로).<br>
     <br><b style="color:#ffc700">★ TADA-9655 (피크데이 셔틀 탑승 인원 수집) 반영 — 시안 없음, 기존 화면 언어로 구성</b><br>
     ① <b>수집 시점 = ‘다음 장소로 이동하기’ 직전</b>. 도착완료 시점엔 아직 아무도 타지 않았고, 이 버튼을 누르는 순간이 곧 <b>‘이 정류장 탑승 종료’ 선언</b>이라 값이 확정됩니다. 그래서 CTA를 가로채 <b>탑승 인원 입력 시트</b>를 띄우고, 제출해야 이동합니다(✕로 빠져나가면 이동도 취소 — 잘못 누른 경우).<br>
-    ② <b>승차 정류장에서만</b> 수집합니다(하차 정류장은 PRD 원문 취소선 = 불필요). 출근은 승차 3곳, <b>퇴근은 17·39센터 2곳</b>(‘퇴근 셔틀에 승차 정류장 N개’ 케이스)에서 각각 물어봅니다.<br>
+    ② <b>수집 대상 = 근무지(센터)에서 승차하는 정류장</b> — 그래서 사실상 <b>퇴근 셔틀에서만</b> 일어납니다. 출근 셔틀에서 센터는 ‘하차’ 정류장이고, 아파트·역은 승차지만 승하차 지점이 없는 일반 정류장이라 수집이 없습니다(하차 정류장은 PRD 원문 취소선 = 불필요). <b>화면상 구별법도 같습니다 — 상단 카드에 <code>승차 위치 / 지상 1층</code>처럼 층수가 함께 뜨는 승차 정류장</b>이 곧 수집 대상입니다. 퇴근 승차 정류장은 <b>첫 정류장 1곳이 기본</b>이고 <b>예외로 2번째까지</b> 승차일 수 있어(‘주요 변경 2. 퇴근 셔틀에 승차 정류장 N개’), 데모 컨트롤 <b>퇴근 승차 정류장 1곳/2곳</b>으로 둘 다 볼 수 있습니다. 1곳 모드에서는 두 번째 센터를 노선에서 뺐습니다 — 태우지 않으면 들를 이유가 없습니다.<br>
     ③ <b>0~6인 큰 버튼 그리드</b>(64dp·4열) — 운전 직후 한 손 조작이라 스테퍼(−/+)보다 <b>한 번에 값 하나</b>가 빠르고 오조작이 적습니다. <b>검증 없음</b>: 0명도, 정류장마다 6명(합 12)도 통과.<br>
     ④ <b>제출 전 확인 단계</b>를 둡니다 — 값이 <b>드라이버앱·어드민 모두에서 수정 불가</b>이기 때문. 2단계에서 <code>{N}명</code>과 <b>제출 후 노선 누적</b>을 크게 보여주고 <code>다시 선택</code>으로 되돌릴 수 있습니다.<br>
     ⑤ <b>유일한 예외(서버 에러)</b> — 누적 0명인 채로 <b>마지막 승차 정류장</b>에서도 0명을 제출하면 <code>누적 탑승 인원이 0명입니다. / 셔틀 탑승객이 없을 경우, 배차 취소를 요청해 주세요.</code> 다이얼로그가 뜨고 이동이 막힙니다(퇴근 셔틀에서 0 → 0으로 재현).<br>
-    ⑥ 제출값은 <b>전체 경로 화면의 해당 정류장에 <code>탑승 N명</code> 배지</b>로만 되비칩니다 — 확정값이라 회색(수정 불가). 데모 컨트롤 <b>피크데이 ON/OFF</b>로 <b>쿠팡 피크데이 조직 한정</b> 동작을 껐다 켤 수 있고, OFF면 기존 흐름 그대로입니다.<br>
+    ⑥ 제출값은 <b>전체 경로 화면의 해당 정류장에 <code>탑승 N명</code> 배지</b>로만 되비칩니다 — 확정값이라 회색(수정 불가). 데모 컨트롤 <b>피크데이 ON/OFF</b>로 <b>쿠팡 피크데이 조직 한정</b> 동작을 껐다 켤 수 있고, OFF면 기존 흐름 그대로입니다. 상태줄에 <code>수집 대상(센터 승차) · 누적 N명(x/y 제출)</code>이 찍혀 어느 정류장이 대상인지 바로 보입니다.<br>
     <b>더미·단순화:</b> 노선명 <code>[오후조] 독산</code>·85,000원·47km·6명은 Figma 콜 상세 값. 정류장 골격은 Figma 콜 상세의 5개인데, <b>승하차 지점이 붙는 근무지</b>가 필요해 목적지/출발지를 <b>쿠팡 인천 17·39센터</b>로 바꿔 ‘지점 있는 정류장 + 없는 정류장’이 섞이게 했습니다(PRD 문자 예시의 7층/3층/1층 그대로). 요청사항 본문도 안내 문자에서 <b>앱이 이미 담고 있는 항목을 뺀</b> 예시입니다. 지도는 스타일 플레이스홀더, 전체 경로 화면의 지도 썸네일·‘크게 보기’는 생략(이번 범위=바텀시트). 대기시간 프리셋은 데모용(실제는 다음 출발 시각 − 현재 시각).
   </div>
 </div>
@@ -555,10 +559,15 @@ const state={dir:'go', idx:0, phase:'moving', arr:'ample', waitEnd:0, waitLate:f
              rvMode:'detail', notice:'long', clip:true, methodAck:false,
              /* ★ TADA-9655 — peak: 쿠팡 피크데이 조직 여부(데모 토글) · pax: 정류장 index→제출 인원(수정 불가)
                 pkStep: 1 선택 / 2 확인 · pkSel: 선택 중인 값 */
-             peak:true, pax:{}, pkStep:1, pkSel:null,
+             peak:true, boardN:1, pax:{}, pkStep:1, pkSel:null,
              nav:{idx:0, screen:'sel'}};   /* ★ T맵 내비 — idx=안내 목적지 정류장, screen: sel(경로 선택) | guide(안내 중) */
 const $=id=>document.getElementById(id);
-const trip=()=>TRIPS[state.dir];
+/* ★ 퇴근 셔틀의 승차 정류장 수 — 실제로는 **첫 정류장 1곳**이 보통이고, 예외로 2번째까지 승차인 경우가 있다.
+   (Figma 메모 ‘주요 변경 2. 퇴근 셔틀에 승차 정류장 N개일 경우’) → 데모 컨트롤로 1곳/2곳을 전환한다.
+   1곳 모드에서는 두 번째 센터(39센터)를 노선에서 뺀다 — 센터에서 태우지 않으면 들를 이유가 없다. */
+const trip=()=>{ const t=TRIPS[state.dir];
+  if(state.dir!=='back' || state.boardN===2) return t;
+  return {...t, stops: t.stops.filter(x=>x.name!=='쿠팡 인천 39센터')}; };
 const stop=()=>trip().stops[state.idx];
 const isLast=()=>state.idx===trip().stops.length-1;
 const isFirst=()=>state.idx===0;
@@ -649,7 +658,8 @@ function render(){
   const c=$('cta'); c.textContent=cta; c.classList.toggle('dis',dis);
   syncGrad();
   const pn={moving:'가는 중', waiting:'도착 완료(대기)', ready: usesWait()?'대기시간 경과':'도착 완료(바로 출발)', done:'도착 완료 · 운행 종료'}[state.phase];
-  const pkinfo = state.peak ? ` · 피크데이 ${boarding()?'승차':'하차'} 정류장 · 누적 ${paxSum()}명(${Object.keys(state.pax).length}/${boardIdxs().length} 제출)` : '';
+  const nC = collectIdxs().length;
+  const pkinfo = state.peak ? ` · 피크데이 ${collectAt(state.idx)?'수집 대상(센터 승차)':'수집 없음'} · 누적 ${paxSum()}명(${Object.keys(state.pax).length}/${nC} 제출)` : '';
   $('steps').textContent=`${t.label} · ${state.idx+1}/${t.stops.length} ${badgeOf(s)} ${s.name} · ${pn}${state.waitLate&&state.phase!=='moving'?' + 지각(+60초)':''}${pkinfo}`;
   updateDev();
 }
@@ -742,10 +752,14 @@ $('tmap').addEventListener('click',e=>{
    이 버튼을 누르는 순간이 곧 '이 정류장 탑승 종료' 선언이라 값이 확정된다.
    하차 정류장은 수집하지 않는다(PRD 원문 취소선). 검증 없음 — 0명도, 정류장마다 6명도 허용. */
 const PAXMAX=6;
-const boardIdxs=()=>trip().stops.map((_,i)=>i).filter(boardingAt);
-const lastBoardIdx=()=>boardIdxs().slice(-1)[0];
+/* ★ 수집 대상 = **근무지(센터)에서 승차하는 정류장**. 그래서 사실상 퇴근 셔틀에서만 일어난다 —
+   출근 셔틀에서 센터는 ‘하차’ 정류장이고, 아파트·역은 승차지만 승하차 지점(층수)이 없는 일반 정류장이다.
+   화면상 구별법도 같다: **층수가 상단(카드1 ‘승차 위치’)에 함께 표시되는 승차 정류장**만 수집한다. */
+const collectAt=i=>{ const s=trip().stops[i]; return state.peak && !!(s.site&&s.site.work) && boardingAt(i); };
+const collectIdxs=()=>trip().stops.map((_,i)=>i).filter(collectAt);
+const lastCollectIdx=()=>collectIdxs().slice(-1)[0];
 const paxSum=()=>Object.values(state.pax).reduce((a,b)=>a+b,0);
-const collectHere=()=>state.peak && boarding() && state.pax[state.idx]===undefined;
+const collectHere=()=>collectAt(state.idx) && state.pax[state.idx]===undefined;
 
 function openPax(){ state.pkStep=1; state.pkSel=null; renderPax();
   $('pkdim').classList.add('on'); $('pk').classList.add('on'); }
@@ -774,7 +788,7 @@ function renderPax(){
 function submitPax(){
   const n=state.pkSel;
   /* 유일한 예외: 누적 0명인 채로 마지막 승차 정류장까지 0명 → 서버 에러(이동 불가) */
-  if(n===0 && paxSum()===0 && state.idx===lastBoardIdx()){
+  if(n===0 && paxSum()===0 && state.idx===lastCollectIdx()){
     showDlg('누적 탑승 인원이 0명입니다.','셔틀 탑승객이 없을 경우, 배차 취소를 요청해 주세요.');
     state.pkStep=1; renderPax(); return;
   }
@@ -895,6 +909,12 @@ $('rvbk').addEventListener('click',()=>{ if(state.rvMode==='route'){ state.rvMod
 function reset(){ state.idx=0; state.phase='moving'; state.waitLate=false; state.waitEnd=0; state.methodAck=false; $('mv').classList.remove('on'); state.rvMode='detail'; state.clip=true;
   state.pax={}; state.pkSel=null; state.pkStep=1; closePax(); $('dlg').classList.remove('on'); closeNav();
   render(); renderRV(); }
+document.querySelectorAll('[data-bn]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-bn]').forEach(x=>x.classList.toggle('on',x===b));
+  state.boardN=+b.dataset.bn;
+  toast(state.boardN===1?'퇴근 승차 정류장 1곳 — 17센터에서만 인원 수집':'퇴근 승차 정류장 2곳 — 17·39센터에서 각각 수집');
+  reset();
+}));
 document.querySelectorAll('[data-pk]').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('[data-pk]').forEach(x=>x.classList.toggle('on',x===b));
   state.peak=b.dataset.pk==='1';
