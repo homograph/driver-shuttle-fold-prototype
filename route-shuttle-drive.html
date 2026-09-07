@@ -395,7 +395,7 @@ body{margin:0;background:var(--page);color:#f9f9f9;font-family:var(--kr);line-he
       <!-- ★ TADA-9655 탑승 인원 입력 시트 (2단계: 선택 → 확인) -->
       <div class="pkdim" id="pkdim"></div>
       <div class="pk" id="pk">
-        <div class="pkbar"><span class="tt" id="pktt">탑승 인원 입력</span><span class="bk" id="pkx">✕</span></div>
+        <div class="pkbar"><span class="tt" id="pktt">탑승 인원 입력</span></div>
         <div class="pkbody" id="pkbody"></div>
         <div class="pkfoot" id="pkfoot"></div>
       </div>
@@ -433,7 +433,7 @@ body{margin:0;background:var(--page);color:#f9f9f9;font-family:var(--kr);line-he
     <b>경로 행</b>은 <code>[시각 44dp] gap10 [구분 60dp] gap15 [장소 fill]</code>(모두 16sp, 시각·구분 <code>#99A5C0</code>, 장소 <code>#FFF</code>), 행 간격 <b>16</b>. <b>구분선 2개</b>(<code>#293F71</code>) — 경로↓, 요금 블록↓ 모두. <b>요금 블록</b>은 gap20, 값 20sp인데 <b>운행요금만 Bold</b>·거리/인원은 Regular, 주석은 <b>DP/14 <code>#FF9400</code></b>(sp 확대 안 함, 우측 정렬, 위 gap5). <b>헤더</b>는 날짜 <b>20sp Bold</b>(구분자는 <code>|</code> 글자가 아니라 <code>#556895</code> 세로 바)·시각 <b>18sp Regular #FFF</b>·칩 r16 pad[1,6,3,6] gap5. <b>지도</b> r8·보더 <code>#D5D7DC</code>·위 20, <code>크게 보기</code>는 r2·pad[10,12]·14dp Bold <code>#19254D</code>·보더 <code>#556895</code>. <b>유의사항</b> 타이틀 <code>#99A5C0</code>·목록 gap8·불릿 <code>•</code> 16sp(첫 항목만 주황). <b>앱바 타이틀은 DP/18 Bold</b>(sp 확대 안 함). <b>CTA</b>는 컨테이너 pad15 + 버튼 r4 pad[15,10], 상단 보더 <code>#1E2D59</code>. 화면 패딩 <code>[30,20,30,20]</code>.<br>
     <b>상태:</b> 프로토는 기획대로 <b>수락 후 상태에서 시작</b>합니다 — 콜 상세의 CTA는 <code>➤ 탑승지로 이동</code>이고, 누르면 운행 중 화면으로 넘어갑니다. Figma에서 <code>고객 요청사항 + ‘확인했습니다’ 체크</code>와 <code>콜 취소하기</code>는 이 프레임에서 <b>숨김 처리</b>돼 있어 프로토에도 넣지 않았습니다. 정류장별 내비 버튼은 <b>전체 경로에만</b> 붙습니다(수락 후 콜 상세엔 없음 — 실측 그대로).<br>
     <br><b style="color:#ffc700">★ TADA-9655 (피크데이 셔틀 탑승 인원 수집) 반영 — 시안 없음, 기존 화면 언어로 구성</b><br>
-    ① <b>수집은 대기가 끝나는 순간, 입력 뷰가 바로 뜹니다</b> — 수집 대상 정류장에서 대기 시간이 끝나면(<code>고객 탑승 대기중</code> 종료) 버튼을 거치지 않고 <b>탑승 인원 입력 시트가 자동으로 올라옵니다</b>. 제출하면 뒤의 CTA가 <code>➦ 다음 장소로 이동하기</code>가 됩니다. <code>✕</code>로 닫았을 때만 CTA가 <code>👥 탑승 인원 입력</code>으로 남아 다시 열 수 있습니다(막다른 길을 만들지 않기 위함). <i>처음에는 [다음 장소로 이동하기]를 누를 때 입력을 띄웠는데, <b>아무도 안 탔으면 그 버튼을 누를 이유가 없어</b> 정작 0명이 수집되지 않습니다. 수집을 이동 버튼에 매달지 않고 <b>독립된 한 단계</b>로 떼어내면 0명이든 5명이든 반드시 같은 자리를 지납니다.</i> 대기 종료 = 탑승 마감이라 값이 확정되는 시점이기도 합니다. 제출 뒤 이동은 <b>드라이버가 따로 누릅니다</b> — 0명이면 이동하지 않을 수도 있으니 결정권을 남겨둡니다.<br>
+    ① <b>수집은 대기가 끝나는 순간, 입력 뷰가 바로 뜹니다</b> — 수집 대상 정류장에서 대기 시간이 끝나면(<code>고객 탑승 대기중</code> 종료) 버튼을 거치지 않고 <b>탑승 인원 입력 시트가 자동으로 올라옵니다</b>. <b>입력은 필수라 <code>✕</code>가 없습니다</b> — 제출해야만 시트가 닫히고 그제서야 뒤의 <code>➦ 다음 장소로 이동하기</code>에 닿습니다. 0명도 값이므로 빠져나갈 이유가 없고, 닫을 수 있게 두면 <b>정작 0명이 수집되지 않습니다</b>. <i>처음에는 [다음 장소로 이동하기]를 누를 때 입력을 띄웠는데, <b>아무도 안 탔으면 그 버튼을 누를 이유가 없어</b> 정작 0명이 수집되지 않습니다. 수집을 이동 버튼에 매달지 않고 <b>독립된 한 단계</b>로 떼어내면 0명이든 5명이든 반드시 같은 자리를 지납니다.</i> 대기 종료 = 탑승 마감이라 값이 확정되는 시점이기도 합니다. 제출 뒤 이동은 <b>드라이버가 따로 누릅니다</b> — 0명이면 이동하지 않을 수도 있으니 결정권을 남겨둡니다.<br>
     ② <b>수집 대상 = 근무지(센터)에서 승차하는 정류장</b> — 그래서 사실상 <b>퇴근 셔틀에서만</b> 일어납니다. 출근 셔틀에서 센터는 ‘하차’ 정류장이고, 아파트·역은 승차지만 승하차 지점이 없는 일반 정류장이라 수집이 없습니다(하차 정류장은 PRD 원문 취소선 = 불필요). <b>화면상 구별법도 같습니다 — 상단 카드에 <code>승차 위치 / 지상 1층</code>처럼 층수가 함께 뜨는 승차 정류장</b>이 곧 수집 대상입니다. 퇴근 승차 정류장은 <b>첫 정류장 1곳이 기본</b>이고 <b>예외로 2번째까지</b> 승차일 수 있어(‘주요 변경 2. 퇴근 셔틀에 승차 정류장 N개’), 데모 컨트롤 <b>퇴근 승차 정류장 1곳/2곳</b>으로 둘 다 볼 수 있습니다. 1곳 모드에서는 두 번째 센터를 노선에서 뺐습니다 — 태우지 않으면 들를 이유가 없습니다.<br>
     ③ <b>0~6인 큰 버튼 그리드</b>(64dp·4열) — 운전 직후 한 손 조작이라 스테퍼(−/+)보다 <b>한 번에 값 하나</b>가 빠르고 오조작이 적습니다. <b>검증 없음</b>: 0명도, 정류장마다 6명(합 12)도 통과.<br>
     ④ 제출값은 시트 가이드 카드에 <code>탑승 인원 : N명 · 제출 완료 · 수정 불가</code>로 남습니다. <b>제출 전 확인 단계</b>를 둡니다 — 값이 <b>드라이버앱·어드민 모두에서 수정 불가</b>이기 때문. 2단계는 <code>{N}명</code>만 크게 보여주고 <code>{N}명 제출하기</code> · <code>다시 선택</code>입니다(누적은 드라이버가 지금 판단할 값이 아니라 뺐습니다).<br>
@@ -653,9 +653,6 @@ function render(){
   else if(!usesWait() && !isLast()){ body=rest; cta='➦ 다음 장소로 이동하기'; }
   else{ body=rest;
     if(state.phase==='waiting'){ cta='고객 탑승 대기중'; dis=true; }
-    /* ★ 0명이면 [다음 장소로 이동하기]를 누를 이유가 없다 → 수집 대상 정류장에서는
-       대기가 끝나면 CTA 자체가 ‘탑승 인원 입력’이 된다. 제출해야 이동 버튼으로 넘어간다. */
-    else if(collectHere()) cta='👥 탑승 인원 입력';
     else cta='➦ 다음 장소로 이동하기'; }
   $('sheetbody').innerHTML=body; $('sheetbody').scrollTop=0;
   const c=$('cta'); c.textContent=cta; c.classList.toggle('dis',dis);
@@ -803,7 +800,6 @@ $('pkfoot').addEventListener('click',e=>{
   else if(e.target.closest('#pkback')){ state.pkStep=1; renderPax(); }
   else if(e.target.closest('#pksubmit')) submitPax();
 });
-$('pkx').addEventListener('click',closePax);          // 잘못 눌렀을 수 있으니 빠져나갈 길은 둔다(이동 안 함)
 
 $('cta').addEventListener('click',()=>{
   if($('cta').classList.contains('dis')) return;
@@ -818,7 +814,7 @@ $('sheetbody').addEventListener('click',e=>{
 });
 document.querySelector('.bub.navi').addEventListener('click',()=>openNav(state.idx));   // 지도 우측 [내비] 버블
 /* ★ 대기 종료 = 탑승 마감. 수집 대상 정류장이면 버튼을 거치지 않고 **입력 뷰가 바로 뜬다**.
-   (CTA는 ✕로 닫았을 때 다시 여는 길로만 남는다) */
+   ✕가 없다 — 인원 입력은 필수라 제출해야만 닫히고, 그제서야 뒤의 [다음 장소로 이동하기]에 닿는다. */
 function toReady(){ state.phase='ready'; render(); if(collectHere()) openPax(); }
 setInterval(()=>{
   if(state.phase!=='waiting') return;
