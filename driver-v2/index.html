@@ -113,6 +113,10 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
 /* 전체 경로(FullDashboard)는 Figma에서 Content(scroll) 패딩이 없다 —
    하단에 '확인' Button Area(pad 16)가 따로 있어 inset이 필요 없다. */
 .full .plist{padding-bottom:0}
+/* 04 preview 의 Content(scroll): 상단 6 + 헤더 아래 1px 구분선.
+   Figma 노드 값은 4면 stroke(INSIDE)지만 렌더에는 상단 1줄만 나온다 — 좌·우·하단은 없다.
+   대상은 목록만 있는 시트(= 카드가 없는 .plist). drive-go(카드+목록)와 전체 경로는 제외. */
+.route > .plist:not(:has(> .crd)){padding-top:6px;border-top:1px solid var(--navy700)}
 .remaining{display:flex;flex-direction:column}
 .badge{width:52px;padding:4px 6px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex:0 0 auto;white-space:nowrap}
 .badge.org{background:var(--blue700)}.badge.way{background:var(--navy700)}.badge.dest{background:var(--red)}
@@ -129,6 +133,9 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
 /* 이름 dim = '완료된 정류장'(active off). 내비 가능 여부와는 별개 축이다 —
    아이콘 투명도(.rnav)가 내비 가능/불가를 담당한다. */
 .irow.done .nm{color:#7282a6}
+/* 전체 경로 화면: 아직 안 지난 정류장 행에 #19254D 블록 배경. 완료 행은 시트색 그대로.
+   바텀시트 목록(04 preview·05 drive-go)의 행 배경은 바뀌지 않았다 — 전체 경로에만 적용. */
+.full .irow:not(.done){background:var(--navy2)}
 .irow.nav .rnav svg{opacity:.9}
 .crd{flex:0 0 auto;border:1px solid var(--navy700);border-left-width:0;border-right-width:0;border-radius:0;overflow:hidden;display:flex;flex-direction:column;margin:0;background:var(--navy2);will-change:transform,opacity,max-height}
 /* 카드가 시트의 마지막 요소면(픽업 화면들) 하단 보더가 시트 맨 아래 edge에 붙어,
@@ -182,7 +189,7 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
 .full{flex:1;display:flex;flex-direction:column;background:var(--navy);min-height:0}
 .fhd{flex:none;display:flex;align-items:center;justify-content:space-between;padding:calc(16px + env(safe-area-inset-top,0px)) 14px 12px;color:#fff;font-size:calc(20px * var(--fs,1));font-weight:700}
 .fsum{display:flex;gap:8px;padding:12px 16px}
-.fsc{flex:1;background:var(--navy2);border-radius:8px;padding:10px;text-align:center}.fsc .n{font-size:calc(24px * var(--fs,1));font-weight:700;color:#fff}.fsc .l{font-size:calc(14px * var(--fs,1));color:var(--dim);margin-top:2px}
+.fsc{flex:1;background:var(--navy2);border-radius:4px;padding:10px;text-align:center}.fsc .n{font-size:calc(24px * var(--fs,1));font-weight:700;color:#fff}.fsc .l{font-size:calc(14px * var(--fs,1));color:var(--dim);margin-top:2px}
 .fsc.done .n{color:var(--green)}
 .fbtnarea{flex:none;display:flex;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
 .fconfirm{flex:1;display:flex;align-items:center;justify-content:center;padding:15px 10px;background:#31487d;border-radius:4px;color:var(--ef);font-size:calc(20px * var(--fs,1));font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none;transition:filter .12s ease}
