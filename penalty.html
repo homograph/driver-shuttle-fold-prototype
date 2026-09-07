@@ -3,311 +3,366 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>패널티 안내 프로토타입 · TADA-9314</title>
+<title>패널티 현황 프로토타입 · TADA-9314</title>
 <style>
 :root{
-  --page:#0c1526; --nv:#101a3d; --card:#1e2d59; --line:#293f71; --txt:#f2f6ff; --sub:#99a5c0;
-  --blue:#298dff; --btn:#26324f; --btnln:#5b93ff;
-  --red:#ff7c7c; --redbg:rgba(255,124,124,.12); --redln:rgba(255,124,124,.4);
-  --amber:#ffba4c; --amberbg:rgba(255,186,76,.12); --amberln:rgba(255,186,76,.4);
-  --green:#7ee081;
+  --page:#0c1526; --bg:#101a3d; --card:#1e2d59; --notice:#233565; --sheet:#19254d;
+  --line:#293f71; --title:#e6e9ef; --body:#c0c8d9; --label:#99a5c0; --white:#ffffff;
+  --accent:#32a2fa; --green:#3ccb41; --btnDark:#31487d; --btnTx:#efeff1; --muted:#60667a;
   --mono:ui-monospace,SFMono-Regular,Menlo,monospace;
-  --kr:"Apple SD Gothic Neo","Pretendard",-apple-system,BlinkMacSystemFont,"Malgun Gothic",sans-serif;
+  --kr:"Noto Sans KR","Apple SD Gothic Neo","Pretendard",-apple-system,BlinkMacSystemFont,sans-serif;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--page);color:var(--txt);font-family:var(--kr);line-height:1.5}
-.app{max-width:920px;margin:0 auto;padding:18px 16px 40px}
+body{margin:0;background:var(--page);color:#f2f6ff;font-family:var(--kr);line-height:1.5}
+.app{max-width:980px;margin:0 auto;padding:18px 16px 48px}
 .head h1{font-size:18px;margin:0 0 3px;letter-spacing:-.02em}
-.head p{margin:0;color:var(--sub);font-size:12.5px}
-.ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0 16px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#0e1c38}
+.head p{margin:0;color:var(--label);font-size:12.5px}
+.ctrl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0 10px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#0e1c38}
 .ctrl .grp{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.ctrl .lbl{font-size:11px;color:var(--sub);font-family:var(--mono);margin-right:2px}
-.ctrl button{font-family:var(--kr);font-size:12px;color:var(--sub);background:transparent;border:1px solid var(--line);border-radius:999px;padding:5px 11px;cursor:pointer}
-.ctrl button.on{color:#fff;background:var(--btn);border-color:var(--btnln)}
+.ctrl .lbl{font-size:11px;color:var(--label);font-family:var(--mono);margin-right:2px}
+.ctrl button{font-family:var(--kr);font-size:12px;color:var(--label);background:transparent;border:1px solid var(--line);border-radius:999px;padding:5px 11px;cursor:pointer}
+.ctrl button.on{color:#fff;background:#26324f;border-color:#5b93ff}
+.ctrl button:disabled{opacity:.35;cursor:not-allowed}
 .ctrl .sep{width:1px;height:20px;background:var(--line);margin:0 4px}
+.explain{font-size:12.5px;color:var(--body);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:16px;background:#0b1730}
+.explain code{font-family:var(--mono);font-size:11.5px;color:var(--accent)}
 
 .stage{display:flex;justify-content:center}
-.phone{width:100%;max-width:390px;background:#0a1428;border:1px solid var(--line);border-radius:26px;padding:8px;box-shadow:0 18px 50px rgba(0,0,0,.4)}
-.scr{background:var(--nv);border:1px solid var(--line);border-radius:19px;overflow:hidden;display:flex;flex-direction:column;height:730px;font-size:14px;position:relative}
-.scr.big{font-size:17px}
-.sb{height:1.4em;background:#0b1730;flex:none}
+.phone{background:#0a1428;border:1px solid var(--line);border-radius:26px;padding:8px;box-shadow:0 18px 50px rgba(0,0,0,.4)}
+.scr{width:360px;height:760px;background:var(--bg);border:1px solid var(--line);border-radius:19px;overflow:hidden;
+     display:flex;flex-direction:column;position:relative;font-size:16px}
+.scr.big{font-size:19px}
+.sb{height:24px;background:#000;flex:none;display:flex;align-items:center;justify-content:flex-end;padding:0 10px;color:#fff;font-size:.8125em}
 .screen{flex:1;display:flex;flex-direction:column;min-height:0}
 
 /* app bar */
-.ab{padding:.75em .85em;font-weight:800;display:flex;align-items:center;gap:.5em;border-bottom:1px solid var(--line);flex:none}
+.ab{flex:none;display:flex;align-items:center;gap:10px;padding:14px 16px;color:var(--white);font-weight:700;font-size:1.125em}
+.ab .back{color:var(--title);font-weight:400;font-size:1.375em;cursor:pointer;line-height:1}
 .ab .sp{flex:1}
-.ab .i{color:var(--sub);font-weight:600;font-size:.82em}
-.ab .ic{cursor:pointer;color:var(--txt)}
+.ab .i{font-size:.875em;font-weight:400;color:var(--label)}
 
-/* tabs */
-.tabs{display:flex;font-size:.92em;border-bottom:1px solid var(--line);flex:none}
-.tabs div{flex:1;text-align:center;padding:.8em 0;color:var(--sub);cursor:pointer}
-.tabs .on{color:var(--txt);font-weight:800;box-shadow:inset 0 -3px 0 var(--blue)}
+.scroll{flex:1;overflow-y:auto;min-height:0}
+.scroll::-webkit-scrollbar{width:0}
 
-.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:0;display:flex;flex-direction:column}
+/* ---------- 패널티 현황 ---------- */
+.stack{display:flex;flex-direction:column;gap:20px;padding:10px 20px 24px}
+.pcard{background:var(--card);border-radius:8px;padding:10px;display:flex;flex-direction:column;gap:20px;align-items:center}
+.lamp{display:flex;gap:8px;align-items:center;background:var(--bg);border-radius:22px;padding:6px 8px;box-shadow:inset 0 0 4px rgba(0,0,0,.5)}
+.lamp i{width:14px;height:14px;border-radius:50%;background:rgba(0,0,0,.3);border:1px solid #000;display:block}
+.lamp i.r.on{background:#d30700;box-shadow:0 0 4px 1px rgba(217,7,0,.6)}
+.lamp i.g.on{background:#3ccb41;box-shadow:0 0 4px 1px rgba(60,203,65,.6)}
+.phead{width:100%;display:flex;flex-direction:column;gap:16px}
+.ptitle{font-size:1.5em;font-weight:700;color:var(--title);text-align:center}
+.pnotice{display:flex;gap:10px;align-items:center;background:var(--notice);border-radius:8px;padding:16px}
+.pnotice .ico{flex:none;width:18px;height:18px;border-radius:50%;background:var(--title);color:var(--notice);
+  font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.pnotice p{margin:0;font-size:.9375em;color:var(--body)}
+.pdetails{width:100%;display:flex;flex-direction:column;gap:16px;padding:10px}
+.prow{display:flex;flex-direction:column;gap:4px}
+.prow .l{font-size:1em;color:var(--label)}
+.prow .v{font-size:1.125em;font-weight:700;color:var(--title)}
+.prow .v.money{color:var(--white)}
+.prow .s{font-size:1.125em;color:var(--accent)}
+.prow .s.done{color:var(--green)}
+.prow .s.holder{color:var(--label)}
+.pdiv{height:1px;background:var(--line)}
+.pbtns{width:100%;display:flex;flex-direction:column;gap:10px}
+.btn{border-radius:4px;padding:15px 10px;text-align:center;font-size:1.25em;font-weight:700;cursor:pointer;user-select:none}
+.btn.primary{background:var(--accent);color:var(--white)}
+.btn.dark{background:var(--btnDark);color:var(--btnTx)}
+.appeal{display:flex;flex-direction:column;gap:10px;align-items:center;padding:0 0 8px}
+.appeal p{margin:0;font-size:.9375em;color:var(--muted);text-align:center}
+.appeal .link{padding:10px 20px;font-size:1.25em;font-weight:700;color:#d5d7dc;cursor:pointer}
 
-/* 예약콜 목록 — 빈 상태 */
-.emptycall{flex:1;display:flex;align-items:center;justify-content:center;color:var(--sub);font-size:.95em;text-align:center;padding:2em}
+/* ---------- 예약콜 목록 (진입점) ---------- */
+.tabs{flex:none;display:flex;padding:0 20px 12px;gap:8px}
+.tabs div{flex:1;text-align:center;padding:10px 0;font-size:.9375em;color:var(--label);border-bottom:2px solid var(--line);cursor:pointer}
+.tabs div.on{color:var(--white);font-weight:700;border-bottom-color:var(--accent)}
+.empty{padding:80px 20px;text-align:center;color:var(--label);font-size:.9375em}
+.banner{flex:none;margin:0 20px 20px;background:var(--card);border-radius:8px;padding:20px;display:flex;flex-direction:column;gap:16px;align-items:center;cursor:pointer}
+.banner .bt{font-size:1.125em;color:var(--white);text-align:center;line-height:1.5}
+.banner .btn{width:100%}
 
-/* 정상 콜 카드 */
-.list{padding:.6em;display:flex;flex-direction:column;gap:.55em}
-.sortrow{display:flex;gap:.4em;font-size:.82em;margin-bottom:.1em}
-.sortrow .c{border:1px solid var(--line);border-radius:999px;padding:.3em .7em;color:var(--sub);background:transparent;font-family:var(--kr);cursor:pointer}
-.sortrow .c.act{color:#fff;border-color:var(--btnln)}
-.sortrow .f{margin-left:auto}
-.call{background:var(--card);border-radius:.75em;padding:.72em;display:flex;gap:.6em;cursor:pointer;border:1px solid transparent}
-.call:active{border-color:var(--btnln)}
-.call .lft{width:4.6em;flex:none}
-.call .lft b{font-weight:800}.call .lft span{display:block;font-size:.78em;color:var(--sub)}
-.call .rgt{flex:1;min-width:0}
-.call .route{font-size:.92em}
-.call .bd{display:flex;flex-wrap:wrap;gap:.3em;margin:.38em 0}
-.call .bd i{font-style:normal;font-size:.72em;background:#334870;color:#cdd9f2;border-radius:.4em;padding:.17em .5em}
-.call .bd i.type{font-weight:700}
-.call .foot{display:flex;justify-content:flex-end;margin-top:.3em}
-.call .pr{text-align:right;font-weight:800}
+/* ---------- 바텀시트 ---------- */
+.dim{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:flex-end;z-index:5}
+.sheet{width:100%;max-height:80%;background:var(--sheet);border-radius:12px 12px 0 0;padding:20px;
+       display:flex;flex-direction:column;gap:20px}
+.shead{display:flex;flex-direction:column;gap:4px;align-items:center;flex:none}
+.shead .cap{font-size:1em;color:var(--label)}
+.shead .ttl{font-size:1.25em;font-weight:700;color:var(--white);text-align:center}
+.sdiv{height:1px;background:var(--line);flex:none}
+.ssum{display:flex;flex-direction:column;gap:4px;flex:none}
+.srow{display:flex;gap:16px;font-size:1em}
+.srow .l{color:var(--label);white-space:nowrap}
+.srow .v{flex:1;text-align:right;color:#d5d7dc}
+.slist{display:flex;flex-direction:column;gap:12px;overflow-y:auto;min-height:0}
+.slist::-webkit-scrollbar{width:0}
+.slist .cap{font-size:1em;color:var(--label);flex:none}
+.sitem{display:flex;flex-direction:column;gap:2px}
+.sitem .r1{display:flex;gap:16px;font-size:1em;color:#d5d7dc}
+.sitem .r1 .a{flex:1}
+.sitem .r2{display:flex;gap:16px;font-size:.9375em;color:var(--label)}
+.sitem .r2 .a{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-/* 하단 도킹 정지 배너 (컨텍스트) */
-.blockban{flex:none;margin:.2em .7em .8em;border:1px solid var(--line);border-radius:.85em;padding:1em .9em;background:#16223d}
-.blockban .bd{text-align:center;font-weight:800;color:var(--red);font-size:1.02em;line-height:1.35}
-.blockban.ok .bd{color:var(--green)}
-.blockban .bp{text-align:center;font-weight:700;color:var(--txt);margin-top:.15em}
-.blockban .bbtn{margin-top:.85em;text-align:center;font-weight:800;background:var(--btn);border:1px solid var(--line);border-radius:.6em;padding:.8em;cursor:pointer;color:#fff}
-.blockban .bbtn:active{border-color:var(--btnln)}
-
-/* ===== 패널티 현황 상세 (v3 · board + 정보패널) ===== */
-.detail{padding:.85em .8em 1.4em;display:flex;flex-direction:column;gap:.85em}
-.pcard2{background:var(--card);border-radius:.85em;padding:1.15em 1.05em;display:flex;flex-direction:column;gap:.85em}
-.p-badgewrap{text-align:center}
-.badge2{display:inline-flex;align-items:center;gap:.45em;background:#0f1c37;border:1px solid var(--line);border-radius:999px;padding:.4em .95em;font-size:.82em;font-weight:800;color:#e6e9ef}
-.badge2 .dot{width:.62em;height:.62em;border-radius:50%}
-.badge2.act .dot{background:var(--red);box-shadow:0 0 .5em rgba(255,124,124,.9)}
-.badge2.soon .dot{background:var(--amber);box-shadow:0 0 .5em rgba(255,186,76,.9)}
-.badge2.ok .dot{background:var(--green);box-shadow:0 0 .5em rgba(126,224,129,.9)}
-.traffic{display:inline-flex;gap:.55em;align-items:center;background:#0f1c37;border:1px solid var(--line);border-radius:999px;padding:.5em .85em}
-.traffic .d{width:.72em;height:.72em;border-radius:50%;opacity:.28}
-.traffic .d.r{background:var(--red)} .traffic .d.a{background:var(--amber)} .traffic .d.g{background:var(--green)}
-.traffic .d.on{opacity:1}
-.traffic .d.r.on{box-shadow:0 0 .55em rgba(255,124,124,.95)}
-.traffic .d.g.on{box-shadow:0 0 .55em rgba(126,224,129,.95)}
-.p-head{text-align:center;font-size:1.55em;font-weight:800;line-height:1.22;letter-spacing:-.01em}
-.p-restrict{text-align:center;color:var(--sub);font-size:.92em;line-height:1.4}
-.p-when{text-align:center;font-weight:800;font-size:1em;line-height:1.5}
-.p-when.act{color:var(--red)} .p-when.soon{color:var(--amber)}
-.p-panel{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:.95em 0;display:flex;flex-direction:column;gap:.7em}
-.inforow2{display:flex;gap:1.1em;font-size:.92em;align-items:baseline}
-.inforow2 .l{color:var(--sub);width:2.6em;flex:none}
-.inforow2 .v{color:var(--txt);flex:1}
-.p-note{font-size:.82em;color:var(--sub);line-height:1.55}
-.p-detail-row{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--line);margin-top:.1em;padding-top:.85em;font-size:.92em;color:#e6e9ef;cursor:pointer}
-.p-detail-row .cv{color:var(--sub)}
-.p-empty{text-align:center;color:var(--sub);font-size:.9em;line-height:1.6;padding:.4em 0 .2em}
-
-.appeal-info{display:flex;gap:.45em;font-size:.82em;color:var(--sub);line-height:1.55;padding:.2em .15em}
-.appeal-btn{display:flex;align-items:center;justify-content:center;border:1px solid var(--line);background:var(--blue);border-radius:.7em;padding:.9em;font-size:.95em;font-weight:800;color:#fff;cursor:pointer}
-
-.toast{position:absolute;left:50%;bottom:1.4em;transform:translateX(-50%) translateY(1em);opacity:0;transition:.2s;pointer-events:none;background:#0b1830;border:1px solid var(--line);color:var(--txt);font-size:.82em;padding:.55em .9em;border-radius:999px;white-space:nowrap;z-index:5}
-.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
-.note{margin-top:12px;color:var(--sub);font-size:12px;border:1px dashed var(--line);border-radius:10px;padding:10px 12px}
-.note b{color:var(--txt)}
-.note code{font-family:var(--mono);color:#bcd3ff;font-size:.92em}
+/* toast */
+.toast{position:absolute;left:50%;bottom:96px;transform:translateX(-50%);z-index:9;
+  background:rgba(72,80,96,.94);color:#fff;font-size:.875em;padding:10px 16px;border-radius:20px;
+  opacity:0;transition:opacity .18s;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1}
 </style>
 </head>
 <body>
 <div class="app">
-  <p style="margin:0 0 10px"><a href="index.html" style="color:#5b93ff;font-size:13px;text-decoration:none">← 셔틀 프로토타입 허브</a></p>
   <div class="head">
-    <h1>⚠️ 드라이버앱 패널티 안내 <span style="font-family:var(--mono);font-size:11px;color:var(--btnln)">TADA-9314</span></h1>
-    <p>확정 플로우 — <b>예약콜 목록(빈 리스트 + 하단 정지 배너)</b> → <b>자세히 보기</b> → <b>패널티 현황 상세</b>. 시나리오를 바꿔가며 배너·상세를 눌러보세요. (실데이터 아님)</p>
+    <h1>패널티 현황 프로토타입 · TADA-9314</h1>
+    <p>Figma 신규 시안(콜 정지 화면 14946:116293) 그대로 + ‘자세히’ 바텀시트만 A안(합산 → 패널티 사유)으로 재구조화</p>
   </div>
 
   <div class="ctrl">
-    <div class="grp"><span class="lbl">시나리오</span>
-      <button data-sc="reservation" class="on">예약 정지</button>
-      <button data-sc="shuttle">셔틀 정지</button>
-      <button data-sc="realtime">실시간·예약 정지</button>
+    <div class="grp"><span class="lbl">CASE</span>
+      <button data-sc="res1" class="on">예약 · 단건</button>
+      <button data-sc="res2">예약 · 다건 누적</button>
       <button data-sc="dagon">다건(예약+셔틀)</button>
-      <button data-sc="none">해제됨</button>
+      <button data-sc="shuttle">셔틀</button>
+      <button data-sc="realtime">실시간 · 예약</button>
+      <button data-sc="winumi">위약금 3회 누적 미납</button>
     </div>
-    <div class="sep"></div>
-    <div class="grp"><span class="lbl">글씨</span>
+    <span class="sep"></span>
+    <div class="grp"><span class="lbl">위약금</span>
+      <button data-paid="0" class="on">미납</button>
+      <button data-paid="1">납입 완료</button>
+    </div>
+    <span class="sep"></span>
+    <div class="grp"><span class="lbl">기간</span>
+      <button data-elapsed="0" class="on">남음</button>
+      <button data-elapsed="1">충족</button>
+    </div>
+    <span class="sep"></span>
+    <div class="grp"><span class="lbl">글자</span>
       <button data-fs="0" class="on">기본</button>
-      <button data-fs="1">크게(sp)</button>
+      <button data-fs="1">크게</button>
     </div>
   </div>
+
+  <div class="explain" id="explain"></div>
 
   <div class="stage">
-    <div class="phone"><div class="scr" id="scr">
-      <div class="sb"></div>
-      <div class="screen" id="screen"></div>
-      <div class="toast" id="toast"></div>
-    </div></div>
+    <div class="phone">
+      <div class="scr" id="scr">
+        <div class="sb">12:30</div>
+        <div class="screen" id="screen"></div>
+        <div id="overlay"></div>
+        <div class="toast" id="toast"></div>
+      </div>
+    </div>
   </div>
-
-  <div class="note" id="explain"></div>
-  <p style="margin-top:10px;text-align:center;color:var(--sub);font-size:12px">‘정지 예정’ 상태는 PRD 미정의라 보류 · 기존 셔틀 프로토타입은 그대로 · <a href="index.html" style="color:var(--btnln)">허브 →</a></p>
 </div>
 
 <script>
-/* ---------- data ----------
- 확정 플로우: 콜 목록(빈 리스트 + 하단 컨텍스트 배너) → 자세히 보기 → 패널티 현황 상세(v3 카드)
- · 정지 = 조회+수락 정지 → 콜 목록에 아무것도 안 보임(빈 리스트). 하단 배너로 사유·기간 안내.
- · 상세 카드: 배지(적용중) · [상품] 콜 패널티 · 큰 날짜(까지) · 대상/기간/사유 · 위약금 연장.
- · 다건 = 상품별 카드 2개. 실시간콜 초과 = 실시간+예약 묶음 1건.
- · 날짜/기간은 데모용 예시(실서버는 재계산된 유효 종료 시각). '노쇼(driver_no_show)'는 내부 코드라 표시 사유는 '예약 불이행'. */
-const won = n => n.toLocaleString('ko-KR')+'원';
+/* =========================================================================
+   TADA-9314 패널티 현황
+   · 화면/카드 = Figma 신규 시안(14946:116293) 실측 그대로
+       카드 = 신호등 → 패널티 이름(24) → Notice → 정보행(패널티 기간/위약금/납입 가상 계좌) → 버튼
+       생애주기 = 기간(남음/충족) × 납입(미납/완료) 4상태 + 위누미(무기한)
+   · ‘자세히’ 시트 = A안(재구조화): 합산 요약 → "패널티 사유 N건" 구성 리스트
+       (위누미만 캡션 예외 = 통일 계좌를 구성하는 미납 N건)
+   · 사유 라벨 = PRD 정본(예약 수락 후 취소 / 예약 노쇼 / 셔틀 노쇼 / 지각 /
+       월간 실시간 콜 수락 후 취소 기준 초과 / 위약금 3회 누적 미납)
+   · 날짜·금액·계좌는 데모값. 실서버는 재계산된 유효 종료 시각.
+   ========================================================================= */
+const won = n => n.toLocaleString('ko-KR') + '원';
+const ACC = {bank:'신한은행 749-462-898720', holder:'(주)브이씨엔씨'};
+const ACC2 = {bank:'신한은행 123-456-987654', holder:'(주)브이씨엔씨'};
+const ACC_UNI = {bank:'신한은행 555-902-114377', holder:'(주)브이씨엔씨'};
 
-const SCEN = {
-  reservation:{
-    tab:'예약', bannerProd:'예약 콜', until:'8월 15일 24:00',
-    cards:[{head:'예약 콜', target:'일반 예약 · 시간대절 예약', when:'8월 15일 24:00', period:'8월 13일 (수) 00:00 ~ 8월 15일 (금) 24:00', reason:'예약 수락 후 취소'}]
-  },
-  shuttle:{
-    tab:'셔틀', bannerProd:'셔틀 콜', until:'7월 28일 24:00',
-    cards:[{head:'셔틀 콜', target:'셔틀 예약', when:'7월 28일 24:00', period:'7월 26일 (토) 24:00 ~ 7월 28일 (월) 24:00', reason:'예약 수락 후 취소'}]
-  },
-  realtime:{
-    tab:'실시간', bannerProd:'실시간·예약 콜', until:'8월 10일 24:00',
-    cards:[{head:'실시간·예약 콜', target:'실시간 콜 · 일반 예약 · 시간대절 예약', when:'8월 10일 24:00', period:'8월 8일 (금) 24:00 ~ 8월 10일 (일) 24:00', reason:'다건의 실시간 콜 수락 후 취소'}]
-  },
-  dagon:{
-    tab:'다건', bannerProd:'예약·셔틀 콜', until:'8월 15일 24:00',
-    cards:[
-      {head:'예약 콜', target:'일반 예약 · 시간대절 예약', when:'8월 15일 24:00', period:'8월 13일 (수) 00:00 ~ 8월 15일 (금) 24:00', reason:'예약 수락 후 취소'},
-      {head:'셔틀 콜', target:'셔틀 예약', when:'7월 28일 24:00', period:'7월 26일 (토) 24:00 ~ 7월 28일 (월) 24:00', reason:'예약 수락 후 취소'}
-    ]
-  },
-  none:{ tab:'해제됨', bannerProd:null, cards:[], releasedAt:'8월 15일 24:00' }
+const CARD = {
+  res1:{ product:'예약 콜', target:'일반 예약 · 시간대절 예약', kind:'term',
+    period:'12시간', until:'26년 9월 15일 14:00', account:ACC,
+    items:[{status:'적용 중', reason:'예약 수락 후 취소', when:'9월 5일 아침 11:20', route:'성수동1가 → 인천공항', hours:'12시간', fine:30000}] },
+  res2:{ product:'예약 콜', target:'일반 예약 · 시간대절 예약', kind:'term',
+    period:'24시간', until:'26년 9월 16일 02:00', account:ACC,
+    items:[
+      {status:'적용 중', reason:'예약 수락 후 취소', when:'9월 5일 아침 11:20', route:'성수동1가 → 인천공항', hours:'12시간', fine:30000},
+      {status:'예정',    reason:'예약 노쇼',        when:'9월 7일 낮 13:40',  route:'강남구 역삼동 → 김포공항', hours:'12시간', fine:30000}] },
+  shuttle:{ product:'셔틀 콜', target:'셔틀 예약', kind:'term',
+    period:'12시간', until:'26년 9월 15일 14:00', account:ACC2,
+    items:[{status:'적용 중', reason:'셔틀 노쇼', when:'9월 5일 아침 06:30', route:'판교 셔틀 A노선', hours:'12시간', fine:30000}] },
+  realtime:{ product:'실시간 · 예약 콜', target:'실시간 콜 · 일반 예약 · 시간대절 예약', kind:'term',
+    period:'24시간', until:'26년 9월 16일 10:00', account:ACC,
+    items:[{status:'적용 중', reason:'월간 실시간 콜 수락 후 취소 기준 초과', when:'9월 누적 5회', route:'기준 3회 초과', hours:'24시간', fine:30000}] },
+  winumi:{ product:'예약 콜', target:'일반 예약 · 시간대절 예약', kind:'indef',
+    period:'무기한', until:null, account:ACC_UNI, caption:'통일 계좌를 구성하는 미납',
+    items:[
+      {status:'미납', reason:'셔틀 노쇼', when:'8월 20일 아침 06:30', route:'판교 셔틀 A노선', hours:null, fine:30000},
+      {status:'미납', reason:'지각',      when:'8월 27일 낮 13:40',  route:'강남구 역삼동 → 김포공항', hours:null, fine:10000},
+      {status:'미납', reason:'지각',      when:'9월 2일 저녁 19:10', route:'성수동1가 → 인천공항', hours:null, fine:10000}] }
 };
 
-/* 정상 시나리오용 콜 카드 */
-const CALLS = [
-  {date:'오늘',           time:'아침 11:20', type:'셔틀예약', route:'성동구 성수동1가 → 인천국제공항', price:25000, badges:['임박']},
-  {date:'내일',           time:'아침 11:20', type:'일반예약', route:'성동구 성수동1가 → 인천국제공항', price:47500, badges:['단골','추천']},
-  {date:'8월 19일 (화)',  time:'아침 11:40', type:'시간대절', route:'동대문구 답십리1동 → 인천국제공항', price:81400, badges:['카시트']},
-];
+const SCEN = {
+  res1:    {label:'예약 · 단건',        banner:'예약 콜',        cards:['res1']},
+  res2:    {label:'예약 · 다건 누적',   banner:'예약 콜',        cards:['res2']},
+  dagon:   {label:'다건(예약+셔틀)',    banner:'예약 · 셔틀 콜', cards:['res1','shuttle']},
+  shuttle: {label:'셔틀',               banner:'셔틀 콜',        cards:['shuttle']},
+  realtime:{label:'실시간 · 예약',      banner:'실시간 · 예약 콜',cards:['realtime']},
+  winumi:  {label:'위약금 3회 누적 미납',banner:'예약 콜',        cards:['winumi']}
+};
 
-/* ---------- state ---------- */
-const state = { scenario:'reservation', screen:'list', big:false };
-const scr=document.getElementById('scr'), screen=document.getElementById('screen');
+const state = {scenario:'res1', paid:false, elapsed:false, screen:'list', sheet:null, big:false};
+const scr = document.getElementById('scr'), screen = document.getElementById('screen'), overlay = document.getElementById('overlay');
 const sc = () => SCEN[state.scenario];
-const blocked = () => sc().cards.length>0;
+const cardsOf = () => sc().cards.map(k => CARD[k]);
+const totalFine = c => c.items.reduce((s,i)=>s+i.fine,0);
+const isReleased = c => c.kind === 'indef' ? state.paid : (state.paid && state.elapsed);
 
-/* ---------- 예약콜 목록 ---------- */
-function callCard(c){
-  const rest=(c.badges||[]).map(b=>`<i>${b}</i>`).join('');
-  return `<div class="call" data-toast="콜 상세로 이동 (프로토타입)">
-    <div class="lft"><b>${c.date}</b><span>${c.time}</span></div>
-    <div class="rgt"><div class="route">${c.route}</div>
-      <div class="bd"><i class="type">${c.type}</i>${rest}</div>
-      <div class="foot"><div class="pr">${won(c.price)}</div></div>
-    </div></div>`;
+/* ---------- 카드 ---------- */
+function noticeOf(c){
+  if(isReleased(c))                     return {ico:'✓', text:'위약금 입금이 확인되었습니다.'};
+  if(c.kind === 'indef')                return {ico:'!', text:'위약금을 납입하기 전까지 콜 정지가 실행됩니다.'};
+  if(state.paid)                        return {ico:'!', text:'위약금 입금이 확인되었습니다. 남은 시간이 지나면 콜 정지가 해제됩니다.'};
+  if(state.elapsed)                     return {ico:'!', text:'위약금을 납입하기 전까지 콜 정지가 실행됩니다.'};
+  return {ico:'!', text:'위약금 입금이 지연되면 패널티 기간이 연장됩니다.'};
 }
-function renderList(){
-  const s=sc();
-  const appbar=`<div class="ab"><span class="ic" data-toast="뒤로 (프로토타입)">←</span> 예약콜 목록 <span class="sp"></span><span class="i">⇅ 추천순</span></div>
-    <div class="tabs"><div class="on">수락가능 콜</div><div data-toast="내 예약 (프로토타입)">내 예약(8)</div></div>`;
-  if(!blocked()){
-    // 해제됨 — 콜 복귀 + 하단 해제 안내 배너
-    return `${appbar}
-      <div class="scroll"><div class="list">
-      <div class="sortrow"><button class="f c" data-toast="공항콜만 보기 (프로토타입)">✈ 공항콜만 보기</button><button class="c act" data-toast="정렬 (프로토타입)">↕ 추천순</button></div>
-      ${CALLS.map(callCard).join('')}
-    </div></div>
-    <div class="blockban ok" data-go="detail">
-      <div class="bd">패널티가 해제되었어요</div>
-      <div class="bp">이제 콜을 다시 받을 수 있어요</div>
-      <div class="bbtn">확인</div>
-    </div>`;
-  }
-  // 정지 — 빈 리스트 + 하단 컨텍스트 배너
-  return `${appbar}
-    <div class="scroll"><div class="emptycall">수락 가능한 콜이 없습니다.</div></div>
-    <div class="blockban" data-go="detail">
-      <div class="bd">${s.until}까지</div>
-      <div class="bp">${s.bannerProd} 정지</div>
-      <div class="bbtn">자세히 보기</div>
-    </div>`;
+function periodSub(c){
+  if(c.kind === 'indef') return '위약금 납입 시 해제';
+  if(isReleased(c))      return '기간 충족';
+  if(state.elapsed && !state.paid) return '위약금 미납으로 무기한 연장됨';
+  return c.until + ' 까지';
 }
-
-/* ---------- 패널티 현황 상세 (v3) ---------- */
-function pcard(c){
-  return `<div class="pcard2">
-    <div class="p-badgewrap"><div class="traffic"><span class="d r on"></span><span class="d a"></span><span class="d g"></span></div></div>
-    <div class="p-head">${c.head} 정지</div>
-    <div class="p-restrict">조회·수락 불가</div>
-    <div class="p-when act">${c.when} 까지</div>
-    <div class="p-panel">
-      <div class="inforow2"><span class="l">대상</span><span class="v">${c.target}</span></div>
-      <div class="inforow2"><span class="l">기간</span><span class="v">${c.period}</span></div>
-      <div class="inforow2"><span class="l">사유</span><span class="v">${c.reason}</span></div>
+function penaltyCard(c, idx){
+  const released = isReleased(c), fine = totalFine(c);
+  const n = noticeOf(c);
+  const showPeriod = !(c.kind === 'indef' && released);
+  const showAccount = !state.paid;
+  return `<div class="pcard">
+    <div class="lamp"><i class="r ${released?'':'on'}"></i><i class="a"></i><i class="g ${released?'on':''}"></i></div>
+    <div class="phead">
+      <div class="ptitle">${c.product} 정지${released?' 해제':''}</div>
+      <div class="pnotice"><span class="ico">${n.ico}</span><p>${n.text}</p></div>
     </div>
-    <div class="p-note">위약금 입금이 지연되면 패널티 기간이 연장돼요.</div>
+    <div class="pdetails">
+      ${showPeriod ? `<div class="prow"><span class="l">패널티 기간</span><span class="v">${c.period}</span><span class="s">${periodSub(c)}</span></div><div class="pdiv"></div>` : ''}
+      <div class="prow"><span class="l">위약금</span><span class="v money">${won(fine)}</span>
+        <span class="s ${state.paid?'done':''}">${state.paid?'납입 완료':'납입 필요'}</span></div>
+      ${showAccount ? `<div class="pdiv"></div>
+      <div class="prow"><span class="l">납입 가상 계좌</span><span class="v">${c.account.bank}</span><span class="s holder">${c.account.holder}</span></div>` : ''}
+    </div>
+    <div class="pbtns">
+      ${showAccount ? `<div class="btn primary" data-copy="1">계좌번호 복사하기</div>` : ''}
+      <div class="btn dark" data-sheet="${idx}">자세히</div>
+    </div>
   </div>`;
 }
-function renderDetail(){
-  const s=sc();
-  const appbar=`<div class="ab"><span class="ic" data-go="back">←</span> 패널티 현황 <span class="sp"></span></div>`;
-  if(!blocked()){
-    return `${appbar}<div class="scroll"><div class="detail">
-      <div class="pcard2">
-        <div class="p-badgewrap"><div class="traffic"><span class="d r"></span><span class="d a"></span><span class="d g on"></span></div></div>
-        <div class="p-head">패널티 해제됨</div>
-        <div class="p-restrict">조회·수락 가능</div>
-        <div class="p-panel">
-          <div class="inforow2"><span class="l">해제</span><span class="v">${s.releasedAt}</span></div>
-        </div>
-        <div class="p-note">현재 적용 중인 패널티가 없습니다.</div>
-      </div>
-      <div class="appeal-btn" data-go="list">콜 보러가기</div>
-    </div></div>`;
+
+/* ---------- 화면 ---------- */
+function renderList(){
+  const s = sc(), c = cardsOf()[0], released = cardsOf().every(isReleased);
+  const bar = `<div class="ab"><span class="back" data-toast="뒤로 (프로토타입)">←</span> 예약콜 목록 <span class="sp"></span><span class="i">⇅ 추천순</span></div>
+    <div class="tabs"><div class="on">수락가능 콜</div><div data-toast="내 예약 (프로토타입)">내 예약(8)</div></div>`;
+  if(released){
+    return `${bar}<div class="scroll"><div class="empty">지금 받을 수 있는 콜을 모두 확인했습니다</div></div>
+      <div class="banner" data-go="status"><div class="bt">패널티가 해제되었습니다</div><div class="btn dark">패널티 현황 보기</div></div>`;
   }
-  return `${appbar}<div class="scroll"><div class="detail">
-    ${s.cards.map(pcard).join('')}
-    <div class="appeal-info">패널티 사유에 대한 이의제기는 타다 드라이버 콜센터(1800-9198) 또는 게시판으로 접수 가능합니다.</div>
-    <div class="appeal-btn" data-toast="이의제기 접수 (프로토타입 · 콜센터 1800-9198)">이의 제기</div>
+  const until = c.kind === 'indef' ? '위약금 납입 시까지' : c.until + ' 까지';
+  return `${bar}<div class="scroll"><div class="empty">수락 가능한 콜이 없습니다.</div></div>
+    <div class="banner" data-go="status"><div class="bt">${until}<br>${s.banner} 정지</div><div class="btn dark">자세히 보기</div></div>`;
+}
+function renderStatus(){
+  return `<div class="ab"><span class="back" data-go="list">←</span> 패널티 현황</div>
+    <div class="scroll"><div class="stack">
+      ${cardsOf().map(penaltyCard).join('')}
+      <div class="appeal">
+        <p>패널티 사유에 대한 이의제기는<br>타다 드라이버 고객센터로 접수 가능합니다.</p>
+        <div class="link" data-toast="이의제기 접수 (프로토타입)">이의제기</div>
+      </div>
+    </div></div>`;
+}
+
+/* ---------- 자세히 시트 (A안) ---------- */
+function sheetRows(c){
+  const multi = c.items.length > 1, released = isReleased(c), fine = totalFine(c);
+  const rows = [['정지 대상', c.target]];
+  if(!(c.kind === 'indef' && released))
+    rows.push([multi ? '총 정지 기간' : '정지 기간', c.period + (released && c.kind === 'term' ? ' · 기간 충족' : '')]);
+  if(c.kind === 'indef') rows.push(['해제 조건', released ? '위약금 납입 완료' : '위약금 납입 시 해제']);
+  else                   rows.push([released ? '해제' : '해제 예정', c.until]);
+  rows.push([multi ? '총 위약금' : '위약금', won(fine) + ' · ' + (state.paid ? '납입 완료' : '납입 필요')]);
+  return rows;
+}
+function renderSheet(){
+  if(state.sheet === null) return '';
+  const c = cardsOf()[state.sheet];
+  const cap = (c.caption || '패널티 사유') + ' ' + c.items.length + '건';
+  return `<div class="dim" data-close="1"><div class="sheet" data-stop="1">
+    <div class="shead"><span class="cap">패널티 상세</span><span class="ttl">${c.product} 정지${isReleased(c)?' 해제':''}</span></div>
+    <div class="sdiv"></div>
+    <div class="ssum">${sheetRows(c).map(([l,v])=>`<div class="srow"><span class="l">${l}</span><span class="v">${v}</span></div>`).join('')}</div>
+    <div class="sdiv"></div>
+    <div class="slist"><span class="cap">${cap}</span>
+      ${c.items.map(i=>`<div class="sitem">
+        <div class="r1"><span class="a">${c.kind==='indef' ? i.reason : statusOf(i,c)+' · '+i.reason}</span><span>${i.hours || statusOf(i,c)}</span></div>
+        <div class="r2"><span class="a">${i.when}${i.route?' · '+i.route:''}</span><span>${won(i.fine)}</span></div>
+      </div>`).join('')}
+    </div>
+    <div class="btn dark" data-close="1">닫기</div>
   </div></div>`;
+}
+function statusOf(i, c){
+  if(c.kind === 'indef') return state.paid ? '납입 완료' : '미납';
+  if(isReleased(c)) return '종료';
+  return i.status;
 }
 
 /* ---------- render / nav ---------- */
 function render(){
   scr.classList.toggle('big', state.big);
-  screen.innerHTML = (state.screen==='detail'?renderDetail:renderList)();
+  screen.innerHTML = (state.screen === 'status' ? renderStatus : renderList)();
+  overlay.innerHTML = renderSheet();
+  document.querySelectorAll('[data-elapsed]').forEach(b => b.disabled = cardsOf().every(c => c.kind === 'indef'));
   explain();
 }
-function go(target){
-  if(target==='back') state.screen='list';
-  else state.screen=target;
-  render();
+function toast(m){
+  const t = document.getElementById('toast');
+  t.textContent = m; t.classList.add('on');
+  clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('on'), 1500);
 }
-function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('on'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('on'),1400); }
-
-scr.addEventListener('click', e=>{
-  const g=e.target.closest('[data-go]'); if(g){ go(g.dataset.go); return; }
-  const t=e.target.closest('[data-toast]'); if(t){ toast(t.dataset.toast); return; }
+scr.addEventListener('click', e => {
+  if(e.target.closest('[data-stop]') && !e.target.closest('[data-close]')) return;
+  const close = e.target.closest('[data-close]'); if(close){ state.sheet = null; render(); return; }
+  const sh = e.target.closest('[data-sheet]'); if(sh){ state.sheet = +sh.dataset.sheet; render(); return; }
+  const go = e.target.closest('[data-go]'); if(go){ state.screen = go.dataset.go; state.sheet = null; render(); return; }
+  if(e.target.closest('[data-copy]')){ toast('계좌번호가 복사되었습니다.'); return; }
+  const t = e.target.closest('[data-toast]'); if(t){ toast(t.dataset.toast); }
 });
 
 function explain(){
-  const s=sc();
-  let desc;
-  if(state.scenario==='none') desc='패널티 해제됨 — 콜 복귀 + 하단 “해제되었어요” 배너 → 확인 → 해제 카드(초록 신호등·“콜 보러가기”로 목록 복귀).';
-  else if(state.scenario==='dagon') desc='예약+셔틀 <b>서로 다른 두 패널티</b> 동시 — 배너는 “예약·셔틀 콜 정지”, 상세는 <b>상품별 카드 2개</b>.';
-  else if(state.scenario==='realtime') desc='월간 실시간콜 초과 — <b>실시간+예약(일반·시간대절) 묶음</b> 1건 정지. (사유 수 1개이므로 단건 카드)';
-  else desc=`${s.tab} 취소 → <b>조회+수락 정지</b>라 콜 목록이 <b>빈 리스트</b>. 하단 배너 → 자세히 보기 → 상세 카드.`;
+  const c = cardsOf()[0], released = isReleased(c);
+  let life;
+  if(c.kind === 'indef') life = released
+    ? '위누미 <b>납입 완료 → 해제</b> — 기간 행 자체가 사라지고 초록 신호등.'
+    : '위누미 = <b>무기한 · 위약금 납입 시 해제</b>. 통일 계좌 1개로 합산 금액 납입.';
+  else if(released) life = '<b>기간 충족 + 납입 완료 → 해제</b> — 제목 “○○ 콜 정지 해제”, 기간 서브 “기간 충족”.';
+  else if(state.paid) life = '<b>기간 남음 + 납입 완료</b> — 계좌·복사 버튼이 사라지고 <code>자세히</code>만 남음.';
+  else if(state.elapsed) life = '<b>기간 충족 + 미납</b> — 기간 서브가 “위약금 미납으로 무기한 연장됨”으로 바뀜.';
+  else life = '<b>기간 남음 + 미납</b> — 기본 상태(계좌 + 복사 버튼 + 자세히).';
   document.getElementById('explain').innerHTML =
-    `<b>시나리오: ${s.tab}</b> — ${desc}<br>
-     <span style="color:var(--sub)">플로우: <code>예약콜 목록(빈+배너)</code> → <code>자세히 보기</code> → <code>패널티 현황 상세</code>. 상세 카드 = 신호등 · <b style="color:var(--txt)">[상품] 콜 정지</b> · 조회·수락 불가(중립) · 큰 날짜(빨강) · 대상/기간/사유 · 위약금 연장. ‘정지 예정’은 PRD 미정의라 보류.</span>`;
+    `<b>케이스: ${sc().label}</b> — ${life}<br>
+     <span style="color:var(--label)">플로우: <code>예약콜 목록(빈 리스트 + 배너)</code> → <code>자세히 보기</code> → <code>패널티 현황</code> → <code>자세히</code> → 바텀시트.
+     시트 = 합산 요약(정지 대상 / 정지 기간 / 해제 예정 / 위약금) + <b>패널티 사유 N건</b> 구성 리스트. 위누미만 캡션이 “통일 계좌를 구성하는 미납 N건”.</span>`;
 }
 
 /* ---------- controls ---------- */
-document.querySelectorAll('.ctrl [data-sc]').forEach(b=>b.addEventListener('click',()=>{
-  document.querySelectorAll('.ctrl [data-sc]').forEach(x=>x.classList.remove('on')); b.classList.add('on');
-  state.scenario=b.dataset.sc; state.screen='list'; render();
-}));
-document.querySelectorAll('.ctrl [data-fs]').forEach(b=>b.addEventListener('click',()=>{
-  document.querySelectorAll('.ctrl [data-fs]').forEach(x=>x.classList.remove('on')); b.classList.add('on');
-  state.big=b.dataset.fs==='1'; render();
-}));
+function bind(attr, fn){
+  document.querySelectorAll('.ctrl [data-'+attr+']').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.ctrl [data-'+attr+']').forEach(x => x.classList.remove('on'));
+    b.classList.add('on'); fn(b.dataset[attr]); render();
+  }));
+}
+bind('sc', v => { state.scenario = v; state.screen = 'list'; state.sheet = null; state.paid = false; state.elapsed = false;
+  document.querySelectorAll('.ctrl [data-paid]').forEach((x,i) => x.classList.toggle('on', i === 0));
+  document.querySelectorAll('.ctrl [data-elapsed]').forEach((x,i) => x.classList.toggle('on', i === 0)); });
+bind('paid',    v => state.paid = v === '1');
+bind('elapsed', v => state.elapsed = v === '1');
+bind('fs',      v => state.big = v === '1');
 
 render();
 </script>
