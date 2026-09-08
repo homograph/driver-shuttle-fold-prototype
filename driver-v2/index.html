@@ -100,7 +100,7 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
 /* 확대(tight) 시 승객카드 축약: 요청사항 행 접기(정체성 행=이름·전화만 유지). 케이스 무관—행이 없으면 자동으로 이미 컴팩트 */
 #ph.tight .preq{display:none}
 .route{flex:1 1 auto;background:var(--navy);border-radius:12px 12px 0 0;box-shadow:0 -8px 24px rgba(0,0,0,.28);display:flex;flex-direction:column;gap:0;padding:0;min-height:0;overflow:hidden}
-.rhd{flex:0 0 auto;display:flex;align-items:center;gap:12px;padding:16px 20px}
+.rhd{flex:0 0 auto;display:flex;align-items:center;gap:16px;padding:16px 20px}
 .rhd .t{font-size:16px;font-weight:400;color:var(--dim);white-space:nowrap}
 .rhd .see{margin-left:auto;color:var(--b300);font-size:16px;white-space:nowrap;cursor:pointer}
 .plist{flex:1 1 auto;display:flex;flex-direction:column;gap:0;overflow-y:auto;min-height:0;padding:0}
@@ -137,19 +137,15 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
    바텀시트 목록(04 preview·05 drive-go)의 행 배경은 바뀌지 않았다 — 전체 경로에만 적용. */
 .full .irow:not(.done){background:var(--navy2)}
 .irow.nav .rnav svg{opacity:.9}
-.crd{flex:0 0 auto;border:1px solid var(--navy700);border-left-width:0;border-right-width:0;border-radius:0;overflow:hidden;display:flex;flex-direction:column;margin:0;background:var(--navy2);will-change:transform,opacity,max-height}
-/* 카드가 시트의 마지막 요소면(픽업 화면들) 하단 보더가 시트 맨 아래 edge에 붙어,
-   폰 프레임의 둥근 모서리에 잘리며 바깥쪽 밝은 선처럼 보인다. 뒤에 목록이 올 때만
-   카드↔목록 구분선으로 의미가 있으므로 마지막일 때는 없앤다. */
-.plist > .crd:last-child{border-bottom-width:0}
-.crd-top{display:flex;align-items:flex-start;gap:14px;padding:20px}
-.crd-top .badge{margin-top:4px}
+.crd{flex:0 0 auto;border:0;border-top:1px solid var(--navy700);border-radius:0;overflow:hidden;display:flex;flex-direction:column;margin:0;background:rgba(40,56,115,.7);box-shadow:0 2px 6px rgba(0,0,0,.2);will-change:transform,opacity,max-height}
+.crd-top{display:flex;align-items:flex-start;gap:14px;padding:20px 20px 24px}
+.crd-top .badge{margin-top:6px}
 .cinfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
-.cname{font-size:26px;font-weight:700;color:#fff;line-height:1.28;word-break:normal;overflow-wrap:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cname{font-size:28px;font-weight:700;color:#fff;line-height:1.28;word-break:normal;overflow-wrap:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .caddr{font-size:16px;color:var(--n1);line-height:1.35;word-break:keep-all;overflow-wrap:break-word}
 .cnav{width:40px;height:40px;flex:0 0 auto;margin-top:2px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;cursor:pointer}.cnav svg{width:24px;height:24px;fill:#fff;opacity:.9}
 .cnavrow{display:flex;align-items:flex-start;gap:15px;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:8px;padding:2px 6px;margin:-2px -6px;transition:background .1s ease}.cnavrow .cname{flex:1;transform-origin:left center;transition:filter .1s ease,transform .1s ease}.cnavrow:active{background:rgba(255,255,255,.07)}.cnavrow:active .cname{filter:brightness(1.2);transform:scale(.94)}.cnavrow:active .cnav{transform:scale(.74);filter:brightness(1.4)}
-.cbtnw{padding:0 20px 20px;display:flex;flex-direction:column}
+.cbtnw{padding:0 20px 22px;display:flex;flex-direction:column}
 .cbtnw .cbtn{border-radius:4px}
 .cbtn{flex:0 0 auto;min-height:clamp(68px, calc(48px + 20px * var(--fs,1)), 78px);display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 16px;font-size:calc(20px * var(--fs,1));font-weight:700;cursor:pointer;white-space:nowrap;position:relative;overflow:hidden;transition:filter .12s ease;-webkit-tap-highlight-color:transparent;user-select:none}.cbtn:active{filter:brightness(.86)}
 .cbtn.go{background:var(--off);color:var(--ink)}.cbi{display:inline-flex;align-items:center}.cbi svg{width:32px;height:32px;fill:currentColor;display:block}
@@ -168,7 +164,7 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
 .see:active,.preq:active{filter:brightness(1.22)}
 .rip{position:absolute;border-radius:50%;transform:scale(0);pointer-events:none;will-change:transform,opacity;animation:rippleFx .5s cubic-bezier(.2,.55,.3,1) forwards}
 @keyframes rippleFx{0%{transform:scale(0);opacity:.85}100%{transform:scale(2.5);opacity:0}}
-.barfull.round{width:auto;border-radius:4px;margin:14px}
+.barfull.round{width:auto;border-radius:4px;margin:0 20px 20px}
 .tbt{flex:none;display:flex;align-items:center;gap:13px;padding:16px 18px 15px;background:#0B6E4E;color:#fff}.tbt-a{flex:none;width:37px;height:37px}.tbt-a svg{width:100%;height:100%;display:block}.tbt-m{flex:1;min-width:0}.tbt-d{font-size:32px;font-weight:800;line-height:1}.tbt-d em{font-size:18px;font-weight:600;font-style:normal;margin-left:2px}.tbt-r{font-size:15px;opacity:.92;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tbt-n{flex:none;display:flex;flex-direction:column;align-items:center;gap:1px;padding-left:13px;margin-left:2px;border-left:1px solid rgba(255,255,255,.28)}.tbt-ni{font-size:16px;line-height:1;opacity:.9}.tbt-n b{font-size:14px;font-weight:700;opacity:.95}
 .tmapmap{flex:1 1 auto;min-height:0;position:relative;background:#ECEFF2}
 .navp{position:absolute;transform:translate(-50%,-50%);z-index:2}.navp .nv{display:block;transform:rotate(16deg)}.navarr{width:36px;height:36px;display:block;filter:drop-shadow(0 2px 5px rgba(10,16,36,.4))}
