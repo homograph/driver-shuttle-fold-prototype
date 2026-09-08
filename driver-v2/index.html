@@ -16,7 +16,7 @@
 html,body{margin:0;padding:0;height:100%;background:#101A3D;font-family:var(--font-sans);-webkit-font-smoothing:antialiased;overflow:hidden;overscroll-behavior:none;}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
 /* ===== 기기(반응형): 모바일은 화면 꽉 채움 ===== */
-#ph{--navy:#101A3D;--navy2:#19254D;--navyL:#283873;--navy700:#293F71;--blue700:#0074D7;--cobalt:#0055FF;--blue:#32A2FA;--b300:#5CB4FA;--red:#FE4C00;--lemon:#EEFF00;--e6:#E6E9EF;--ef:#EFEFF1;--dim:#99A5C0;--n1:#C0C8D9;--green:#30A234;--amber:#FFA825;--off:#F5F6F7;--ink:#171A24;--bd:#E3E4E8;--ok:#2FA76A;--fs:1;--sheet-max:calc(66% + (var(--fs,1) - 1) * 22%);position:fixed;inset:0;width:100%;height:100dvh;background:var(--navy);overflow:hidden;}
+#ph{--navy:#101A3D;--navy2:#19254D;--navyL:#283873;--navy700:#293F71;--blue700:#0074D7;--cobalt:#0055FF;--blue:#32A2FA;--b300:#5CB4FA;--red:#FE4C00;--lemon:#EEFF00;--e6:#E6E9EF;--ef:#EFEFF1;--dim:#99A5C0;--n1:#C0C8D9;--green:#30A234;--amber:#FFA825;--ink:#171A24;--bd:#E3E4E8;--ok:#2FA76A;--fs:1;--sheet-max:calc(66% + (var(--fs,1) - 1) * 22%);position:fixed;inset:0;width:100%;height:100dvh;background:var(--navy);overflow:hidden;}
 #app{height:100%;display:flex;flex-direction:column;overflow:hidden}
 /* ===== 데스크톱: 가운데 폰 프레임 ===== */
 @media (min-width:600px){
@@ -94,31 +94,36 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
 .pcard{background:var(--navy);border-radius:10px;padding:10px;box-shadow:0 6px 30px 5px rgba(0,0,0,.12),0 16px 24px 2px rgba(0,0,0,.14),0 8px 10px -5px rgba(0,0,0,.2);display:flex;flex-direction:column;gap:10px}
 .prow{display:flex;align-items:center;gap:10px;padding:0 6px}
 .pav{width:28px;height:28px;flex:0 0 auto}.pav svg{width:100%;height:100%;display:block}
-.pnm{flex:1;min-width:0;font-size:22px;font-weight:700;color:var(--ef);word-break:keep-all;overflow-wrap:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.pcall{color:var(--e6);padding:0 8px 0 25px;cursor:pointer;display:flex;align-items:center}.pcall svg{width:24px;height:24px;display:block}
-.preq{background:var(--navy700);border-radius:8px;padding:10px;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ef);font-size:18px;cursor:pointer}.preq .chev{display:inline-flex;color:var(--dim)}.preq .chev svg{width:8px;height:13px;display:block}
+.pnm{flex:1;min-width:0;font-size:22px;line-height:32px;font-weight:700;color:var(--ef);word-break:keep-all;overflow-wrap:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pcall{color:var(--e6);padding:0 10px 0 16px;cursor:pointer;display:flex;align-items:center}.pcall svg{width:28px;height:28px;display:block}
+.preq{background:var(--navy700);border-radius:8px;padding:10px;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--ef);font-size:18px;line-height:26px;cursor:pointer}
 /* 확대(tight) 시 승객카드 축약: 요청사항 행 접기(정체성 행=이름·전화만 유지). 케이스 무관—행이 없으면 자동으로 이미 컴팩트 */
 #ph.tight .preq{display:none}
 .route{flex:1 1 auto;background:var(--navy);border-radius:12px 12px 0 0;box-shadow:0 -8px 24px rgba(0,0,0,.28);display:flex;flex-direction:column;gap:0;padding:0;min-height:0;overflow:hidden}
 .rhd{flex:0 0 auto;display:flex;align-items:center;gap:16px;padding:16px 20px}
-.rhd .t{font-size:16px;font-weight:400;color:var(--dim);white-space:nowrap}
-.rhd .see{margin-left:auto;color:var(--b300);font-size:16px;white-space:nowrap;cursor:pointer}
+.rhd .t{font-size:16px;line-height:24px;font-weight:400;color:var(--dim);white-space:nowrap}
+.rhd .see{margin-left:auto;color:var(--b300);font-size:16px;line-height:24px;white-space:nowrap;cursor:pointer}
 .plist{flex:1 1 auto;display:flex;flex-direction:column;gap:0;overflow-y:auto;min-height:0;padding:0}
 /* 스크롤 콘텐츠 inset — 하단 32만. 상단 inset은 전 단계에서 두지 않는다.
    스크롤 컨테이너의 padding은 콘텐츠와 함께 스크롤되어 '스크롤 끝단에만 여유'가 되므로
    Compose LazyColumn의 contentPadding과 같은 동작이다.
    ※ Modifier.padding(= 컨테이너 바깥 여백)으로 옮기면 콘텐츠가 잘린다. 핸드오프에 명시.
    행이 있는(=스크롤되는) 목록에만 준다 — 카드만 있는 01 pickup-go·03 pickup-arrived는 제외. */
-.plist:has(.irow){padding-bottom:24px}
-/* 전체 경로(FullDashboard)는 Figma에서 Content(scroll) 패딩이 없다 —
-   하단에 '확인' Button Area(pad 16)가 따로 있어 inset이 필요 없다. */
-.full .plist{padding-bottom:0}
-/* 04 preview 의 Content(scroll): 상단 6 + 헤더 아래 1px 구분선.
-   Figma 노드 값은 4면 stroke(INSIDE)지만 렌더에는 상단 1줄만 나온다 — 좌·우·하단은 없다.
-   대상은 목록만 있는 시트(= 카드가 없는 .plist). drive-go(카드+목록)와 전체 경로는 제외. */
-.route > .plist:not(:has(> .crd)){padding-top:6px;border-top:1px solid var(--navy700)}
+ /* 04 preview 의 Content(scroll) = pad[6,0,24,0] + 헤더 아래 1px 구분선.
+   inset(상 6 / 하 24)은 이 화면 전용이다 — drive-go 의 Content(scroll) 은 패딩 0이고
+   대신 시트 자체에 하단 20을 준다(아래 .route 규칙). 카드만 있는 01·03·08 은 둘 다 없음.
+   stroke 는 노드 값이 4면(INSIDE)이지만 렌더에는 상단 1줄만 나온다.
+   ※ 스크롤 컨테이너의 padding = Compose LazyColumn 의 contentPadding(=inset). 핸드오프에 명시. */
+.route > .plist:not(:has(> .crd)){padding:6px 0 24px;border-top:1px solid var(--navy700)}
+/* 05 drive-go(카드+남은 목록)만 시트 하단 20 — Content(scroll) 이 아니라 시트의 padding 이라
+   스크롤과 무관하게 항상 비어 있다(Compose 로는 Modifier.padding). 08 drive-arrived 는 없음. */
+.route:has(.remaining .irow){padding-bottom:20px}
+/* Gradient_top — 스크롤 하단 페이드. 실측 360×30dp, #101A3D 가 위 20dp 에서 0→100%,
+   아래 10dp 는 불투명. 시트 배경색과 같은 색이라 '콘텐츠를 마스크로 지우는' 것과 동일하다.
+   목록이 있는 시트(04 preview · 05 drive-go)에만 있다 — 카드만 있는 화면엔 없다. */
+.route .plist:has(.irow){-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 30px),transparent calc(100% - 10px));mask-image:linear-gradient(to bottom,#000 calc(100% - 30px),transparent calc(100% - 10px))}
 .remaining{display:flex;flex-direction:column}
-.badge{width:52px;padding:4px 6px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex:0 0 auto;white-space:nowrap}
+.badge{width:52px;padding:4px 6px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;line-height:24px;font-weight:700;color:#fff;flex:0 0 auto;white-space:nowrap}
 .badge.org{background:var(--blue700)}.badge.way{background:var(--navy700)}.badge.dest{background:var(--red)}
 .irow{flex:0 0 auto;display:flex;align-items:flex-start;gap:14px;padding:14px 20px;overflow:hidden}
 .irow .nm{flex:1;min-width:0;font-size:20px;font-weight:700;line-height:30px;color:#fff;word-break:normal;overflow-wrap:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}
@@ -138,22 +143,24 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
 .full .irow:not(.done){background:var(--navy2)}
 .irow.nav .rnav svg{opacity:.9}
 .crd{flex:0 0 auto;border:0;border-top:1px solid var(--navy700);border-radius:0;overflow:hidden;display:flex;flex-direction:column;margin:0;background:rgba(40,56,115,.7);box-shadow:0 2px 6px rgba(0,0,0,.2);will-change:transform,opacity,max-height}
-.crd-top{display:flex;align-items:flex-start;gap:14px;padding:20px 20px 24px}
+.crd-top{display:flex;align-items:flex-start;gap:14px;padding:19px 20px 24px}  /* Figma pad[20,20,24,20] — 상단만 19: 카드 stroke 가 INSIDE 라 1dp 가 패딩 안쪽을 덮는다.
+     CSS border 는 패딩에 '더해'지므로 border1 + 19 = 20 이어야 카드 총높이가 Figma 와 같은 204dp. */
 .crd-top .badge{margin-top:6px}
 .cinfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
-.cname{font-size:28px;font-weight:700;color:#fff;line-height:1.28;word-break:normal;overflow-wrap:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.caddr{font-size:16px;color:var(--n1);line-height:1.35;word-break:keep-all;overflow-wrap:break-word}
+.cname{font-size:28px;font-weight:700;color:#fff;line-height:42px;word-break:normal;overflow-wrap:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.caddr{font-size:16px;color:var(--n1);line-height:24px;word-break:keep-all;overflow-wrap:break-word}
 .cnav{width:40px;height:40px;flex:0 0 auto;margin-top:2px;border-radius:50%;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;cursor:pointer}.cnav svg{width:24px;height:24px;fill:#fff;opacity:.9}
 .cnavrow{display:flex;align-items:flex-start;gap:15px;cursor:pointer;-webkit-tap-highlight-color:transparent;border-radius:8px;padding:2px 6px;margin:-2px -6px;transition:background .1s ease}.cnavrow .cname{flex:1;transform-origin:left center;transition:filter .1s ease,transform .1s ease}.cnavrow:active{background:rgba(255,255,255,.07)}.cnavrow:active .cname{filter:brightness(1.2);transform:scale(.94)}.cnavrow:active .cnav{transform:scale(.74);filter:brightness(1.4)}
 .cbtnw{padding:0 20px 22px;display:flex;flex-direction:column}
 .cbtnw .cbtn{border-radius:4px}
-.cbtn{flex:0 0 auto;min-height:clamp(68px, calc(48px + 20px * var(--fs,1)), 78px);display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 16px;font-size:calc(20px * var(--fs,1));font-weight:700;cursor:pointer;white-space:nowrap;position:relative;overflow:hidden;transition:filter .12s ease;-webkit-tap-highlight-color:transparent;user-select:none}.cbtn:active{filter:brightness(.86)}
-.cbtn.go{background:var(--off);color:var(--ink)}.cbi{display:inline-flex;align-items:center}.cbi svg{width:32px;height:32px;fill:currentColor;display:block}
+.cbtn{flex:0 0 auto;min-height:clamp(68px, calc(48px + 20px * var(--fs,1)), 78px);display:flex;align-items:center;justify-content:center;gap:10px;padding:10px 16px;font-size:calc(20px * var(--fs,1));line-height:calc(30px * var(--fs,1));font-weight:700;cursor:pointer;white-space:nowrap;position:relative;overflow:hidden;transition:filter .12s ease;-webkit-tap-highlight-color:transparent;user-select:none}.cbtn:active{filter:brightness(.86)}
+.cbtn.go{background:var(--ef);color:var(--ink)}.cbi{display:inline-flex;align-items:center}.cbi svg{width:32px;height:32px;fill:currentColor;display:block}
 .bico{display:inline-flex;align-items:center;flex:0 0 auto}
-.bico svg{width:24px;height:24px;display:block}
+.bico svg{width:24px;height:24px;display:block}   /* BarFull(btn_gotowork) 24dp */
+.cbtn .bico svg{width:32px;height:32px}              /* 카드 CTA 아이콘은 32dp */
 .cbtn.done{background:var(--blue);color:#fff}
 .cbtn.ok{background:var(--ok);color:#fff}
-.barfull{flex:none;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:clamp(68px, calc(48px + 20px * var(--fs,1)), 78px);padding:10px 16px;background:var(--blue);color:#fff;font-size:calc(20px * var(--fs,1));font-weight:700;white-space:nowrap;cursor:pointer;position:relative;overflow:hidden;transition:transform .11s ease,filter .11s ease;-webkit-tap-highlight-color:transparent;user-select:none}.barfull:active{filter:brightness(.86)}.barfull.round:active{transform:scale(.98);filter:brightness(.9)}
+.barfull{flex:none;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:clamp(68px, calc(48px + 20px * var(--fs,1)), 78px);padding:10px 16px;background:var(--blue);color:#fff;font-size:calc(20px * var(--fs,1));line-height:calc(30px * var(--fs,1));font-weight:700;white-space:nowrap;cursor:pointer;position:relative;overflow:hidden;transition:transform .11s ease,filter .11s ease;-webkit-tap-highlight-color:transparent;user-select:none}.barfull:active{filter:brightness(.86)}.barfull.round:active{transform:scale(.98);filter:brightness(.9)}
 /* ── 탭 피드백(차량 거치용: 명확한 프레스 + 리플 + 햅틱) ── */
 .tsel-go,.tsel-go2,.tovb,.tov-tada,.tov-act,.bub,.fb,.rnav,.cnav,.preq,.mbtn,.pcall,.see,.tb-x,.tsel-back{-webkit-tap-highlight-color:transparent;transition:transform .1s ease,filter .1s ease}
 .tsel-go,.tsel-go2,.tovb,.tov-tada,.tov-act,.bub,.fb,.preq,.mbtn,.pcall,.see,.tb-x,.tsel-back{position:relative;overflow:hidden}
@@ -261,7 +268,7 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
   function mapBg(){return '<svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%"><rect width="100" height="100" fill="#E7ECF0"/><rect x="0" y="30" width="100" height="7" fill="#fff" opacity="0.85"/><rect x="44" y="0" width="5" height="100" fill="#fff" opacity="0.8"/><rect x="10" y="40" width="26" height="18" fill="#DCEAD7" opacity="0.7"/></svg>'}
   function sb(){return '<div class="sb"><span>12:45</span><span>· · · ·  100%</span></div>'}
   function appbar(resv){return '<div class="appbar"><div class="mbtn">'+IC.menu+'</div><div class="abr"><span class="achip lm"><span class="ld"></span> 미리배차 켜짐</span></div></div>'}
-  function passenger(basic){var req=basic?'':'<div class="preq">고객 요청사항 보기 <span class="chev">'+IC.next+'</span></div>';return '<div class="pinfo"><div class="pcard"><div class="prow"><span class="pav">'+IC.person+'</span><span class="pnm">김지혜</span><span class="pcall">'+IC.phone+'</span></div>'+req+'</div></div>'}
+  function passenger(basic){var req=basic?'':'<div class="preq">고객 요청사항 보기</div>';return '<div class="pinfo"><div class="pcard"><div class="prow"><span class="pav">'+IC.person+'</span><span class="pnm">김지혜</span><span class="pcall">'+IC.phone+'</span></div>'+req+'</div></div>'}
   function dotc(i){var done=(i===0)||isDone(i);return '<div class="pin'+(done?' done':'')+'" data-bx="'+PCT[i][0]+'" data-by="'+PCT[i][1]+'" style="left:'+PCT[i][0]+'%;top:'+PCT[i][1]+'%">'+pinFor(i)+'</div>'}
   function markers(){var h='';for(var i=0;i<stops.length;i++)h+=dotc(i);h+='<div class="car" data-bx="'+PCT[S.lastAt][0]+'" data-by="'+PCT[S.lastAt][1]+'" style="left:'+PCT[S.lastAt][0]+'%;top:'+PCT[S.lastAt][1]+'%">'+carSVG()+'</div>';return '<div class="mklayer">'+h+'</div>'}
   function driveMarkers(){var i=nextArmed();return '<div class="mklayer">'+dotc(i)+'<div class="car" data-bx="'+PCT[S.lastAt][0]+'" data-by="'+PCT[S.lastAt][1]+'" style="left:'+PCT[S.lastAt][0]+'%;top:'+PCT[S.lastAt][1]+'%">'+carSVG()+'</div></div>';}
@@ -287,7 +294,7 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
   function pickup(){var s=stops[0];var go=(S.pphase==='go');var c=cardHTML(s,go?{btnCls:'go',label:'고객 위치로 출발하기',btnClick:'P.goPickupNav()',nav:false}:{btnCls:'done',label:'고객에게 도착 알리기',btnClick:'P.notifyArrived()',nav:true,navClick:'P.goPickupNav()',icon:IC.send});var mapInner=mapBg()+'<div class="mklayer"><div class="pin" data-bx="60" data-by="26" style="left:60%;top:26%">'+pinSVG('출발','#0074D7','#fff')+'</div><div class="car" data-bx="33" data-by="54" style="left:33%;top:54%">'+carSVG()+'</div></div>'+bubbles(false);var route='<div class="route">'+(go?'':'<div class="rhd"><span class="t">고객 위치로 이동 중</span></div>')+'<div class="plist">'+c+'</div></div>';return shell(mapInner,passenger()+route,false)}
   function ptmap(){var s=stops[0];return sb()+tbt('320',s.short+' 방면','120')+'<div class="tmapmap">'+tmapMap(0)+tspeed()+tovr('P.backPickup()',false)+'</div>'+tbar('9분','1.2km','오후 3:52',s.name,'P.backPickup()');}
   function preview(){var rows='';for(var i=0;i<stops.length;i++){rows+=irow(i,i===0)}var mapInner=mapBg()+markers()+bubbles(false);var route='<div class="route"><div class="rhd"><span class="t">남은 경로 '+(WAYS+1)+'개</span></div><div class="plist">'+rows+'</div><div class="barfull round" onclick="P.start()"><span class="bico">'+IC.wheel+'</span>운행 시작하기</div></div>';return shell(mapInner,passenger()+route)}
-  function driveRoute(){var cur=nextArmed();var rem=stops.length-cur;var go=(S.phase==='go');var s=stops[cur];var dest=(s.t==='dest');var c;if(go){c=goCard(cur)}else{c=cardHTML(s,{btnCls:'done',label:dest?'요금 결제하기':'경유지 도착 완료',btnClick:dest?'P.pay()':'P.complete()',nav:true,navClick:'P.startNav()',icon:dest?IC.coin:null})}var up='';for(var i=cur+1;i<stops.length;i++)up+=irow(i,false);return '<div class="route"><div class="rhd"><span class="t">남은 경로 '+rem+'개</span><span class="see" onclick="P.full()">전체 보기 ›</span></div><div class="plist" style="gap:8px">'+c+'<div class="remaining">'+up+'</div></div></div>'}
+  function driveRoute(){var cur=nextArmed();var rem=stops.length-cur;var go=(S.phase==='go');var s=stops[cur];var dest=(s.t==='dest');var c;if(go){c=goCard(cur)}else{c=cardHTML(s,{btnCls:'done',label:dest?'요금 결제하기':'경유지 도착 완료',btnClick:dest?'P.pay()':'P.complete()',nav:true,navClick:'P.startNav()',icon:dest?IC.coin:null})}var up='';for(var i=cur+1;i<stops.length;i++)up+=irow(i,false);return '<div class="route"><div class="rhd"><span class="t">남은 경로 '+rem+'개</span><span class="see" onclick="P.full()">전체 보기</span></div><div class="plist" style="gap:8px">'+c+'<div class="remaining">'+up+'</div></div></div>'}
   function drive(){var mapInner=mapBg()+driveMarkers()+bubbles(true);return shell(mapInner,passenger(true)+driveRoute())}
   function full(){var rows='';for(var i=0;i<stops.length;i++){var s=stops[i],done=(i===0)||isDone(i),cur=(i===nextArmed()&&!done);var st=done?doneTag():'';var right='<span style="display:inline-flex;align-items:center;gap:10px">'+st+'<span class="rnav">'+NAV+'</span></span>';rows+='<div class="irow tap nav'+(done?' done':'')+(cur?' on':'')+'" onclick="P.peekGo('+i+')"><span class="badge '+bcls(s,cur)+'">'+bt(s)+'</span><div class="nm">'+s.name+'</div>'+right+'</div>'}var dn=S.done.length+1;return sb()+'<div class="full"><div class="fhd"><span onclick="P.closeFull()" style="cursor:pointer">← 전체 경로</span><span style="font-size:14px;color:var(--dim)">경유 '+WAYS+'</span></div><div class="fsum"><div class="fsc"><div class="n">'+stops.length+'</div><div class="l">전체</div></div><div class="fsc done"><div class="n">'+dn+'</div><div class="l">도착 완료</div></div></div><div class="plist" style="flex:1;gap:2px">'+rows+'</div><div class="fbtnarea"><div class="fconfirm" onclick="P.closeFull()">확인</div></div></div>'}
   function tmap(){var s=stops[S.target];return sb()+tbt('137',s.short+' 방면','68')+'<div class="tmapmap">'+tmapMap(S.target)+tspeed()+tovr('P.backTmap()',true)+'</div>'+tbar('13분','4.1km','오후 4:07',s.name,'P.backTmap()');}
@@ -364,7 +371,7 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
     var btn=newCard.querySelector('.cbtn');if(btn)btn.style.opacity='0';
     curRow.style.display='none';
     var rhd=app.querySelector('.rhd'),see=null;
-    if(rhd&&!rhd.querySelector('.see')){see=document.createElement('span');see.className='see';see.setAttribute('onclick','P.full()');see.textContent='전체 보기 ›';see.style.opacity='0';rhd.appendChild(see)}
+    if(rhd&&!rhd.querySelector('.see')){see=document.createElement('span');see.className='see';see.setAttribute('onclick','P.full()');see.textContent='전체 보기';see.style.opacity='0';rhd.appendChild(see)}
     var bubs=app.querySelector('.bubs'),pb=null;
     if(bubs&&!bubs.querySelector('.bub.pay')){pb=document.createElement('div');pb.className='bub pay';pb.innerHTML='<div class="bin">결제</div>';pb.style.opacity='0';bubs.insertBefore(pb,bubs.firstChild)}
     var H0=0,H1=0;

@@ -468,27 +468,63 @@ LaunchedEffect(within200mDest) {
       <div class="bar"><span class="dot"></span><b>Scaling.kt</b><span class="tag">Compose</span></div>
 <pre><code><span class="cm">// CTA 텍스트만 sp. 그 외 텍스트·패딩·갭·아이콘은 전부 dp 고정.</span>
 <span class="cm">// SP: 카드 CTA·운행 시작하기(20sp) · 전체경로 헤더(20sp)·카운트 숫자(24sp)/라벨(14sp)·확인(20sp)</span>
-<span class="cm">// DP: 카드 이름 26 · 주소 16 · 목록 이름 20 · 배지 16 · 승객 이름 22 · 헤더 16 · 요청사항 18</span>
+<span class="cm">// DP: 카드 이름 28 · 주소 16 · 목록 이름 20 · 배지 16 · 승객 이름 22 · 헤더 16 · 요청사항 18</span>
 Text(label, fontSize = <span class="v">20</span>.sp)                        <span class="cm">// CTA — 배율 반응</span>
 Text(name,  fontSize = <span class="v">20</span>.dp.toSp())                 <span class="cm">// 그 외 — 고정</span>
 val innerPadding     = <span class="v">20</span>.dp                          <span class="cm">// 패딩·갭: 고정 dp (댐핑 제거)</span>
 val sheetMaxFraction = <span class="v">0.66f</span> + (fs - 1f) * <span class="v">0.22f</span>    <span class="cm">// 시트 상한은 유지 — CTA가 sp라 여전히 커진다</span></code></pre>
     </div>
 
+    <h3>행간(line-height) — 크기와 세트로 고정</h3>
+    <p class="sdesc">Figma 텍스트 스타일은 <b>크기마다 행간이 정해져</b> 있다. 이걸 빼먹으면 글자 크기·색·굵기가 전부 맞아도 <b>블록 높이가 통째로 짧아진다</b>(실제로 카드 204→196dp, 배지 32→28dp, 헤더 56→52dp 로 어긋나 있었다). 대략 1.5배를 짝수로 반올림한 값이고 <b>18만 26으로 예외</b>다.</p>
+    <div class="code">
+      <div class="bar"><span class="dot"></span><b>Type.kt</b><span class="tag">Compose</span></div>
+<pre><code><span class="cm">// 크기 → 행간</span>
+DP/16 Regular·Bold  <span class="v">16</span> / <span class="v">24</span>      <span class="cm">// 배지 = 4 + 24 + 4 = 32dp</span>
+DP/18 Regular       <span class="v">18</span> / <span class="v">26</span>      <span class="cm">// 요청사항 버튼 = 10 + 26 + 10 = 46dp</span>
+DP/20 Bold          <span class="v">20</span> / <span class="v">30</span>      <span class="cm">// ListRow = 14 + 32 + 14 = 60dp (배지가 더 큼)</span>
+DP/22 Bold          <span class="v">22</span> / <span class="v">32</span>
+DP/28 Bold          <span class="v">28</span> / <span class="v">42</span>      <span class="cm">// cinfo = 42 + gap4 + 24 = 70dp</span>
+SP/20 Bold          <span class="v">20</span> / <span class="v">30</span>      <span class="cm">// CTA — 배율 반응(행간도 같이)</span>
+
+<span class="cm">// 여기서 파생되는 검증용 실측치</span>
+<span class="cm">// RouteHeader 56 · Badge 32(폭 FIXED 52) · ListRow 60</span>
+<span class="cm">// crd-top 114 = 20 + 70 + 24  →  카드 204 = 114 + 90</span>
+<span class="cm">// 카드 stroke 는 INSIDE 1dp — 패딩 안쪽을 덮으므로 총높이에 더해지지 않는다.</span></code></pre>
+    </div>
+
     <h3>스크롤 inset — 반드시 contentPadding으로</h3>
-    <p class="sdesc">스크롤 콘텐츠 <b>하단에만 24dp</b> 여유를 준다(상단 inset은 두지 않는다). 콘텐츠 영역(행 패딩 등)은 그대로 두고 <b>스크롤 끝단에만</b> 붙는 값이다. <b>목록이 있는 화면에만</b> — 카드 하나뿐인 01 pickup-go·03 pickup-arrived는 스크롤이 없어 제외하고, 전체 경로 화면은 하단에 <code class="k">확인</code> 버튼 영역(pad 16)이 따로 있어 제외한다. <b class="warn">Compose 함정</b> — 이름과 달리 <code class="k">contentPadding</code>이 inset처럼 동작(콘텐츠와 함께 스크롤)하고, <code class="k">Modifier.padding</code>은 컨테이너를 줄여 <b>콘텐츠가 잘린다</b>. 반드시 <code class="k">LazyColumn(contentPadding = …)</code>으로 넣을 것.</p>
+    <p class="sdesc">화면마다 다르다. <b>04 preview</b>는 스크롤 콘텐츠에 <b>상단 6 / 하단 24</b> inset, <b>05 drive-go</b>는 스크롤 inset이 <b>없고</b> 대신 <b>시트 자체에 하단 20</b>이 붙는다(스크롤과 무관하게 항상 비어 있는 영역). 카드 하나뿐인 <b>01 pickup-go · 03 pickup-arrived · 08 drive-arrived</b>는 둘 다 없다. 전체 경로 화면은 하단에 <code class="k">확인</code> 버튼 영역(pad 16)이 따로 있어 제외. <b class="warn">Compose 함정</b> — 이름과 달리 <code class="k">contentPadding</code>이 inset처럼 동작(콘텐츠와 함께 스크롤)하고, <code class="k">Modifier.padding</code>은 컨테이너를 줄여 <b>콘텐츠가 잘린다</b>. 위 두 가지는 <b>서로 다른 물건</b>이니 화면별로 정확히 골라 쓸 것.</p>
     <div class="code">
       <div class="bar"><span class="dot"></span><b>RouteList.kt</b><span class="tag">Compose</span></div>
-<pre><code>LazyColumn(
-  contentPadding = PaddingValues(bottom = <span class="v">24</span>.dp)          <span class="cm">// ✅ 스크롤 끝단 inset</span>
-  <span class="cm">// modifier = Modifier.padding(bottom = 24.dp)              ❌ 콘텐츠가 잘린다</span>
+<pre><code><span class="cm">// 04 preview — 스크롤 끝단 inset</span>
+LazyColumn(
+  contentPadding = PaddingValues(top = <span class="v">6</span>.dp, bottom = <span class="v">24</span>.dp)   <span class="cm">// ✅ inset</span>
+  <span class="cm">// modifier = Modifier.padding(bottom = 24.dp)                 ❌ 콘텐츠가 잘린다</span>
 ) { … }
 
-<span class="cm">// 상단 inset은 전 단계 0. 헤더가 없는 화면(01 pickup-go)에서는 상단 inset이 곧</span>
-<span class="cm">// '시트 상단↔카드 여백'이 되고, 카드가 첫 요소인 화면에서는 카드 상단 보더가</span>
-<span class="cm">// 헤더 구분선 역할을 잃는다.</span>
-<span class="cm">// 카드 하나뿐인 01·03 은 스크롤이 없어 inset 자체를 두지 않는다(top·bottom 모두 0).</span></code></pre>
+<span class="cm">// 05 drive-go — 스크롤엔 inset 0. 시트가 하단 20 을 먹는다.</span>
+Column(Modifier.padding(bottom = <span class="v">20</span>.dp)) {        <span class="cm">// ✅ 여기선 Modifier.padding 이 맞다</span>
+  RouteHeader()
+  LazyColumn(verticalArrangement = Arrangement.spacedBy(<span class="v">8</span>.dp)) { … }   <span class="cm">// 카드 ↔ 남은 목록 gap 8</span>
+}
+
+<span class="cm">// 01 pickup-go · 03 pickup-arrived · 08 drive-arrived — inset·패딩 모두 0.</span></code></pre>
     </div>
+    <h3>스크롤 하단 페이드 (<code class="k">Gradient_top</code>)</h3>
+    <p class="sdesc">목록이 있는 시트(<b>04 preview · 05 drive-go</b>) 하단에 <b>360×30dp</b> 페이드가 깔린다. 색은 시트색 <code class="k">#101A3D</code>, 위 <b>20dp</b>에서 alpha 0→100%, 아래 <b>10dp</b>는 불투명. 목록 위에 겹치는 오버레이라 <b>스크롤과 함께 움직이지 않는다</b>. 카드만 있는 화면(01·03·08)엔 없다.</p>
+    <div class="code">
+      <div class="bar"><span class="dot"></span><b>RouteList.kt</b><span class="tag">Compose</span></div>
+<pre><code>Box {
+  LazyColumn { … }
+  Spacer(
+    Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(<span class="v">30</span>.dp)
+      .background(Brush.verticalGradient(
+        <span class="v">0f</span> to Color.Transparent, <span class="v">0.667f</span> to Navy, <span class="v">1f</span> to Navy))   <span class="cm">// 20dp 램프 + 10dp 단색</span>
+  )
+}</code></pre>
+    </div>
+
     <h3>지도 / 바텀시트 높이 = 스크린 비율</h3>
     <p class="sdesc">지도는 화면 전체를 채우고(뒤에 깔림), 바텀시트가 하단을 <code class="k">sheetMaxFraction</code>까지 덮는다. 가시 지도영역 = 화면 − 시트. (프로토 <code class="k">--sheet-max: calc(66% + (fs-1)×22%)</code>)</p>
     <div class="code">
