@@ -16,7 +16,7 @@
 html,body{margin:0;padding:0;height:100%;background:#101A3D;font-family:var(--font-sans);-webkit-font-smoothing:antialiased;overflow:hidden;overscroll-behavior:none;}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
 /* ===== 기기(반응형): 모바일은 화면 꽉 채움 ===== */
-#ph{--navy:#101A3D;--navy2:#19254D;--navyL:#283873;--navy700:#293F71;--blue700:#0074D7;--cobalt:#0055FF;--blue:#32A2FA;--b300:#5CB4FA;--red:#FE4C00;--lemon:#EEFF00;--e6:#E6E9EF;--ef:#EFEFF1;--dim:#99A5C0;--n1:#C0C8D9;--green:#30A234;--amber:#FFA825;--ink:#171A24;--bd:#E3E4E8;--ok:#2FA76A;--fs:1;--sheet-max:calc(66% + (var(--fs,1) - 1) * 22%);position:fixed;inset:0;width:100%;height:100dvh;background:var(--navy);overflow:hidden;}
+#ph{--navy:#101A3D;--navy2:#19254D;--navyL:#283873;--navy700:#293F71;--blue700:#0074D7;--cobalt:#0055FF;--blue:#32A2FA;--b300:#5CB4FA;--red:#FE4C00;--lemon:#EEFF00;--e6:#E6E9EF;--ef:#EFEFF1;--dim:#99A5C0;--n1:#C0C8D9;--green:#30A234;--amber:#FFA825;--ink:#171A24;--bd:#E3E4E8;--fs:1;--sheet-max:calc(66% + (var(--fs,1) - 1) * 22%);position:fixed;inset:0;width:100%;height:100dvh;background:var(--navy);overflow:hidden;}
 #app{height:100%;display:flex;flex-direction:column;overflow:hidden}
 /* ===== 데스크톱: 가운데 폰 프레임 ===== */
 @media (min-width:600px){
@@ -159,7 +159,6 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
 .bico svg{width:24px;height:24px;display:block}   /* BarFull(btn_gotowork) 24dp */
 .cbtn .bico svg{width:32px;height:32px}              /* 카드 CTA 아이콘은 32dp */
 .cbtn.done{background:var(--blue);color:#fff}
-.cbtn.ok{background:var(--ok);color:#fff}
 .barfull{flex:none;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:clamp(68px, calc(48px + 20px * var(--fs,1)), 78px);padding:10px 16px;background:var(--blue);color:#fff;font-size:calc(20px * var(--fs,1));line-height:calc(30px * var(--fs,1));font-weight:700;white-space:nowrap;cursor:pointer;position:relative;overflow:hidden;transition:transform .11s ease,filter .11s ease;-webkit-tap-highlight-color:transparent;user-select:none}.barfull:active{filter:brightness(.86)}.barfull.round:active{transform:scale(.98);filter:brightness(.9)}
 /* ── 탭 피드백(차량 거치용: 명확한 프레스 + 리플 + 햅틱) ── */
 .tsel-go,.tsel-go2,.tovb,.tov-tada,.tov-act,.bub,.fb,.rnav,.cnav,.preq,.mbtn,.pcall,.see,.tb-x,.tsel-back{-webkit-tap-highlight-color:transparent;transition:transform .1s ease,filter .1s ease}
@@ -328,8 +327,7 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
     if(!plist||!oldCard||!oldRow){if(S.done.indexOf(cur)<0)S.done.push(cur);S.lastAt=cur;S.phase='go';finish();return}
     var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var E='cubic-bezier(.4,0,.2,1)',D=570;   /* 380 → 1.5배. 안쪽 값(0.62D 페이드 등)은 전부 D 기준이라 같이 늘어난다. */
-    var obtn=oldCard.querySelector('.cbtn');if(obtn){obtn.className='cbtn ok';obtn.textContent='✓ 경유지 도착 완료'}
-    if(reduce){setTimeout(function(){if(S.done.indexOf(cur)<0)S.done.push(cur);S.lastAt=cur;S.phase='go';finish()},260);return}
+    if(reduce){setTimeout(function(){if(S.done.indexOf(cur)<0)S.done.push(cur);S.lastAt=cur;S.phase='go';finish()},140);return}
     setTimeout(function(){
       if(S.done.indexOf(cur)<0)S.done.push(cur);S.lastAt=cur;S.phase='go';
       var ncur=nextArmed();
@@ -355,7 +353,7 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
       if(ad){ad.style.transition='opacity '+Math.round(D*0.5)+'ms ease '+Math.round(D*0.25)+'ms';ad.style.opacity='1'}
       if(btn){btn.style.transition='opacity '+Math.round(D*0.5)+'ms ease '+Math.round(D*0.35)+'ms';btn.style.opacity='1'}
       setTimeout(finish,D+80);
-    },180);
+    },90);
   }
   function startMorph(){
     if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){S.phase='go';S.screen='drive';render();S.busy=false;return}
@@ -451,7 +449,7 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
     cancelNav:function(){if(S.busy)return;clearNavCd();var r=S.navReturn||'drive';var h=(r==='pickup')?pickup():(r==='preview')?preview():(r==='full')?full():drive();appClose(h,function(){S.screen=r;S._last=r;render()})},
     changeRoute:function(){if(S.busy)return;S.screen='tmapsel';render()},
     backTmap:function(){if(S.busy)return;if(S.navProgress){S.lastAt=S.target;S.phase='arrived';appClose(drive(),function(){S.screen='drive';S._last='drive';render()})}else{var ret=S.navReturn||'drive';var h=(ret==='preview')?preview():(ret==='full')?full():drive();appClose(h,function(){S.screen=ret;S._last=ret;render()})}},
-    complete:function(){if(S.busy)return;var cur=nextArmed();if(S.collapsed){clearMF();if(S.done.indexOf(cur)<0)S.done.push(cur);S.lastAt=cur;S.phase='go';S._last='';render();return}S.busy=true;advance(cur)},
+    complete:function(){if(S.busy)return;var cur=nextArmed();P.toast('경유지 도착을 처리했어요');if(S.collapsed){clearMF();if(S.done.indexOf(cur)<0)S.done.push(cur);S.lastAt=cur;S.phase='go';S._last='';render();return}S.busy=true;advance(cur)},
     pay:function(){S.screen='pay';render()},
     backPay:function(){if(S.busy)return;S.screen='drive';render()},
     full:function(){S.screen='full';render()},
@@ -461,7 +459,7 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
     confirmNo:function(){S.confirm=null;render()},
     confirmYes:function(){var i=S.confirm;S.confirm=null;var a=nextArmed();if(i>a){for(var j=a;j<i;j++){if(stops[j].t==='way'&&!isDone(j)&&!isUnc(j))S.uncertain.push(j)}}S.target=i;appOpen(tmapsel(),function(){S.screen='tmapsel';S._last='tmapsel';render()})},
     finish:function(){S.screen='done';render()},
-    toast:function(msg){var ph=document.getElementById('ph');var old=document.getElementById('toast');if(old&&old.parentNode)old.parentNode.removeChild(old);var t=document.createElement('div');t.id='toast';t.className='toast';t.textContent=msg;ph.appendChild(t);requestAnimationFrame(function(){requestAnimationFrame(function(){t.classList.add('on')})});clearTimeout(P._tt);P._tt=setTimeout(function(){t.classList.remove('on');setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t)},260)},1700)},
+    toast:function(msg){var ph=document.getElementById('ph');var old=document.getElementById('toast');if(old&&old.parentNode)old.parentNode.removeChild(old);var t=document.createElement('div');t.id='toast';t.className='toast';t.textContent=msg;/* bottom:16% 는 시트가 화면의 45%를 덮는 화면에서 카드 위에 정확히 얹힌다 — 하필 모프 중인 카드를 가린다. 시트가 있으면 그 바로 위로 올린다. */var bs=ph.querySelector('.bottom');if(bs&&bs.offsetHeight)t.style.bottom=(bs.offsetHeight+16)+'px';ph.appendChild(t);requestAnimationFrame(function(){requestAnimationFrame(function(){t.classList.add('on')})});clearTimeout(P._tt);P._tt=setTimeout(function(){t.classList.remove('on');setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t)},260)},1700)},
     reset:function(){clearNavCd();resetState();render()},
     mapTap:function(e){if(S.busy||S.collapsed)return;if(e&&e.target&&e.target.closest&&e.target.closest('.bubs'))return;S.collapsed=true;var ph=document.getElementById('ph');if(ph)ph.classList.add('mf');fitMarkers(true);try{if(navigator.vibrate)navigator.vibrate(11)}catch(_){}},
     mapExit:function(){if(S.busy)return;S.collapsed=false;var ph=document.getElementById('ph');if(ph)ph.classList.remove('mf');fitMarkers(true);try{if(navigator.vibrate)navigator.vibrate(11)}catch(_){}},
