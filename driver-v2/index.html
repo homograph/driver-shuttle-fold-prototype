@@ -304,6 +304,18 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
   function done(){return sb()+'<div class="donew"><div class="dok">✓ 결제 완료</div><div class="dbig">운행 완료</div><div class="dsub">8초 뒤 콜 수신이 자동 진행됩니다.</div><div class="dcirc">콜 바로<br>수신하기</div><div class="drest" onclick="P.reset()">↺ 처음부터 다시</div></div>'}
   function html(){return S.screen==='pickup'?pickup():S.screen==='ptmap'?ptmap():S.screen==='preview'?preview():S.screen==='drive'?drive():S.screen==='full'?full():S.screen==='tmapsel'?tmapsel():S.screen==='tmap'?tmap():S.screen==='pay'?pay():done()}
   function render(){var h=html();var app=document.getElementById('app');var ph=document.getElementById('ph');var ch=(S._last!==S.screen);if(ch){S.collapsed=false;if(ph)ph.classList.remove('mf')}app.innerHTML=h;if(ch){app.style.transition='none';app.style.opacity='0';void app.offsetWidth;app.style.transition='opacity .2s ease';app.style.opacity='1'}S._last=S.screen;if(S.screen==='tmapsel'){startNavCd()}else{clearNavCd()}fitMarkers(false)}
+  /* 승격 모프 공용 시간축 — advance(경유지 도착 완료)와 startMorph(운행 시작)가 공유한다.
+     둘 다 '경로 목록의 행 하나가 현재 카드로 자란다'는 같은 제스처라 같은 값으로 읽혀야 한다.
+     속도 조절은 MD 하나만 — 나머지는 전부 MD 의 비율이다. */
+  var MD=855;                                  /* 모프 본체 */
+  var MBEAT=90;                                /* 탭 인지용 확인 비트 */
+  var MTAIL=80;                                /* 트랜지션 종료 후 실제 재구성까지 */
+  var ME='cubic-bezier(.4,0,.2,1)';            /* 높이·배율 (Standard) */
+  var MEXIT='cubic-bezier(.25,.9,.35,1)';      /* 나가는 요소의 transform — 앞당겨야 보인다 */
+  var MEASE='cubic-bezier(.25,.1,.25,1)';      /* 알파·색 (CSS 기본 ease) */
+  var MRED=140;                                /* 모션 감소: 모프 없이 이만큼만 쉬고 전환 */
+  var mr=function(f){return Math.round(MD*f)}; /* MD 의 비율 → ms */
+
   /* 경유지 도착 완료 → 다음 목적지 승격 모프.
      ① 새 카드 보더를 var(--bd)(#E3E4E8=흰색)로 페이드인해 흰 선이 번쩍였다 →
         삽입 직후 실제 색을 읽어 그 값으로 페이드인한다(상태별 #384f85/#31487d 자동 대응).
@@ -326,10 +338,8 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
     var finish=function(){if(finish.done)return;finish.done=true;render();S.busy=false};
     if(!plist||!oldCard||!oldRow){if(S.done.indexOf(cur)<0)S.done.push(cur);S.lastAt=cur;S.phase='go';finish();return}
     var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var E='cubic-bezier(.4,0,.2,1)',D=855;   /* 380 → 570 → 855. 토스트를 뺀 뒤로 이 모프가 유일한 완료 확인이라
-                                                완료된 카드가 읽힐 시간이 필요하다. 안쪽 값(0.62D 페이드·0.7D 보더·
-                                                0.5D 지연 페이드인·finish D+80)은 전부 D 기준이라 비율 그대로 늘어난다. */
-    if(reduce){setTimeout(function(){if(S.done.indexOf(cur)<0)S.done.push(cur);S.lastAt=cur;S.phase='go';finish()},140);return}
+    var E=ME,D=MD;
+    if(reduce){setTimeout(function(){if(S.done.indexOf(cur)<0)S.done.push(cur);S.lastAt=cur;S.phase='go';finish()},MRED);return}
     setTimeout(function(){
       if(S.done.indexOf(cur)<0)S.done.push(cur);S.lastAt=cur;S.phase='go';
       var ncur=nextArmed();
@@ -354,16 +364,28 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
       if(nm){nm.style.transition='transform '+D+'ms '+E+',color '+Math.round(D*0.7)+'ms ease';nm.style.transform='scale(1)';nm.style.color='#fff'}
       if(ad){ad.style.transition='opacity '+Math.round(D*0.5)+'ms ease '+Math.round(D*0.25)+'ms';ad.style.opacity='1'}
       if(btn){btn.style.transition='opacity '+Math.round(D*0.5)+'ms ease '+Math.round(D*0.35)+'ms';btn.style.opacity='1'}
-      setTimeout(finish,D+80);
-    },90);
+      setTimeout(finish,D+MTAIL);
+    },MBEAT);
   }
+  /* 운행 시작 → 첫 목적지 카드 승격 모프.
+     카드가 자라는 부분은 advance()와 '같은 제스처'이므로 값도 같게 간다 —
+     실제 height · Standard 이징 · 배율 0.92→1 · MD(855ms), 그리고 보더/이름/주소/버튼의
+     지연·지속도 advance()와 같은 MD 비율.
+     다만 여기는 카드만 움직이는 게 아니라 화면 단위 재구성이다(출발 행·요청사항·
+     운행 시작하기 버튼·시트 높이가 같이 접힌다). 그것들도 같은 시간축에 올려야 —
+     카드만 늘리면 나머지가 먼저 끝난 뒤 카드만 계속 자라 따로 논다.
+     기존 500ms 기준의 비율을 그대로 MD 비율로 옮겼다(× 1.71). */
   function startMorph(){
-    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){S.phase='go';S.screen='drive';render();S.busy=false;return}
     var app=document.getElementById('app');var plist=app.querySelector('.plist');
     var rows=plist?plist.querySelectorAll('.irow'):[];var barfull=app.querySelector('.barfull');var preq=app.querySelector('.preq');var bottom=app.querySelector('.bottom');
     var cur=nextArmed();
-    if(!plist||rows.length<2||!rows[cur]){S.phase='go';S.screen='drive';render();S.busy=false;return}
-    var E='cubic-bezier(.65,0,.35,1)';var startRow=rows[0],curRow=rows[cur];plist.style.overflow='hidden';
+    /* fade=true 면 render()가 화면 전환 페이드를 태운다(S._last 를 그대로 두면 됨).
+       모프를 실제로 돈 경로는 이미 움직임이 있었으므로 페이드 없이 커밋한다. */
+    var commit=function(fade){S.phase='go';S.screen='drive';if(!fade)S._last='drive';render();S.busy=false};
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){setTimeout(function(){commit(true)},MRED);return}
+    if(!plist||rows.length<2||!rows[cur]){commit(true);return}
+    setTimeout(function(){
+    var startRow=rows[0],curRow=rows[cur];plist.style.overflow='hidden';
     if(barfull){barfull.style.overflow='hidden';barfull.style.maxHeight=barfull.offsetHeight+'px'}
     if(preq){preq.style.overflow='hidden';preq.style.maxHeight=preq.offsetHeight+'px'}
     startRow.style.overflow='hidden';startRow.style.maxHeight=startRow.offsetHeight+'px';
@@ -371,7 +393,9 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
     curRow.parentNode.insertBefore(newCard,curRow);
     var H_full=newCard.offsetHeight,H_row=curRow.offsetHeight;
     var natural=getComputedStyle(newCard).borderTopColor;   /* var(--bd)=#E3E4E8(흰색)로 페이드인하던 버그 */
-    newCard.style.overflow='hidden';newCard.style.maxHeight=H_row+'px';newCard.style.borderColor='transparent';
+    /* max-height 가 아니라 실제 height — 실높이와 어긋나면 중간에 급가속처럼 보인다(advance ④와 같은 이유). */
+    newCard.style.overflow='hidden';newCard.style.height=H_row+'px';newCard.style.borderColor='transparent';
+    newCard.style.transformOrigin='50% 0';newCard.style.transform='scale(.92)';
     var nm=newCard.querySelector('.cname');if(nm){nm.style.transformOrigin='left center';nm.style.transform='scale(.714)';nm.style.color='var(--dim)'}
     var ad=newCard.querySelector('.caddr');if(ad)ad.style.opacity='0';
     var btn=newCard.querySelector('.cbtn');if(btn)btn.style.opacity='0';
@@ -386,11 +410,11 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
       var _bf=barfull?barfull.style.maxHeight:'',_bfm=barfull?barfull.style.marginTop:'',_pq=preq?preq.style.maxHeight:'',_pqm=preq?preq.style.marginTop:'',_sr=startRow.style.maxHeight,_srm=startRow.style.marginBottom;
       if(barfull){barfull.style.maxHeight='0px';barfull.style.marginTop='-8px';barfull.style.paddingTop='0';barfull.style.paddingBottom='0'}
       if(preq){preq.style.maxHeight='0px';preq.style.marginTop='-10px';preq.style.paddingTop='0';preq.style.paddingBottom='0'}
-      startRow.style.maxHeight='0px';startRow.style.marginBottom='-2px';newCard.style.maxHeight=H_full+'px';
+      startRow.style.maxHeight='0px';startRow.style.marginBottom='-2px';newCard.style.height=H_full+'px';
       bottom.style.maxHeight='none';H1=bottom.offsetHeight;
       if(barfull){barfull.style.maxHeight=_bf;barfull.style.marginTop=_bfm;barfull.style.paddingTop='';barfull.style.paddingBottom=''}
       if(preq){preq.style.maxHeight=_pq;preq.style.marginTop=_pqm;preq.style.paddingTop='';preq.style.paddingBottom=''}
-      startRow.style.maxHeight=_sr;startRow.style.marginBottom=_srm;newCard.style.maxHeight=H_row+'px';
+      startRow.style.maxHeight=_sr;startRow.style.marginBottom=_srm;newCard.style.height=H_row+'px';
       bottom.style.maxHeight=H0+'px';
     }
     void app.offsetWidth;
@@ -398,18 +422,22 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
        끝의 render()까지 예약되지 않아 화면이 중간 상태로 멈춘다.
        위에서 이미 강제 리플로우를 했으므로 바로 실행해도 트랜지션이 걸린다. */
     (function(){
-      if(bottom&&H1&&H1<H0){bottom.style.transition='max-height .5s '+E;bottom.style.maxHeight=H1+'px'}
-      if(barfull){barfull.style.transition='opacity .3s ease,transform .34s '+E+',max-height .42s '+E+' .05s,margin .42s '+E+' .05s,padding .42s '+E+' .05s';barfull.style.opacity='0';barfull.style.transform='translateY(18px)';barfull.style.maxHeight='0px';barfull.style.marginTop='-8px';barfull.style.marginBottom='0';barfull.style.paddingTop='0';barfull.style.paddingBottom='0'}
-      if(preq){preq.style.transition='max-height .4s '+E+',opacity .26s ease,margin-top .4s '+E+',padding .4s '+E;preq.style.maxHeight='0px';preq.style.opacity='0';preq.style.marginTop='-10px';preq.style.paddingTop='0';preq.style.paddingBottom='0'}
-      startRow.style.transition='max-height .44s '+E+',opacity .3s ease,transform .36s '+E+',margin-bottom .44s '+E;startRow.style.opacity='0';startRow.style.transform='translateY(-12px)';startRow.style.maxHeight='0px';startRow.style.marginBottom='-2px';
-      newCard.style.transition='max-height .5s '+E+',border-color .42s ease .06s';newCard.style.maxHeight=H_full+'px';newCard.style.borderColor=natural;
-      if(nm){nm.style.transition='transform .48s '+E+',color .42s ease';nm.style.transform='scale(1)';nm.style.color='#fff'}
-      if(ad){ad.style.transition='opacity .34s ease .16s';ad.style.opacity='1'}
-      if(btn){btn.style.transition='opacity .36s ease .26s';btn.style.opacity='1'}
-      if(see){see.style.transition='opacity .3s ease .3s';see.style.opacity='1'}
-      if(pb){pb.style.transition='opacity .34s ease .22s';pb.style.opacity='1'}
-      setTimeout(function(){S.phase='go';S.screen='drive';S._last='drive';render();S.busy=false},580);
+      if(bottom&&H1&&H1<H0){bottom.style.transition='max-height '+MD+'ms '+ME;bottom.style.maxHeight=H1+'px'}
+      /* 나가는 요소들 — 높이는 ME(카드와 같은 축), 알파는 MEASE, 이동은 MEXIT(앞당겨야 보인다) */
+      if(barfull){barfull.style.transition='opacity '+mr(.6)+'ms '+MEASE+',transform '+mr(.68)+'ms '+MEXIT+',max-height '+mr(.84)+'ms '+ME+' '+mr(.1)+'ms,margin '+mr(.84)+'ms '+ME+' '+mr(.1)+'ms,padding '+mr(.84)+'ms '+ME+' '+mr(.1)+'ms';barfull.style.opacity='0';barfull.style.transform='translateY(18px)';barfull.style.maxHeight='0px';barfull.style.marginTop='-8px';barfull.style.marginBottom='0';barfull.style.paddingTop='0';barfull.style.paddingBottom='0'}
+      if(preq){preq.style.transition='max-height '+mr(.8)+'ms '+ME+',opacity '+mr(.52)+'ms '+MEASE+',margin-top '+mr(.8)+'ms '+ME+',padding '+mr(.8)+'ms '+ME;preq.style.maxHeight='0px';preq.style.opacity='0';preq.style.marginTop='-10px';preq.style.paddingTop='0';preq.style.paddingBottom='0'}
+      startRow.style.transition='max-height '+mr(.88)+'ms '+ME+',opacity '+mr(.6)+'ms '+MEASE+',transform '+mr(.72)+'ms '+MEXIT+',margin-bottom '+mr(.88)+'ms '+ME;startRow.style.opacity='0';startRow.style.transform='translateY(-12px)';startRow.style.maxHeight='0px';startRow.style.marginBottom='-2px';
+      /* 들어오는 카드 — advance()의 들어오는 카드와 완전히 같은 값 */
+      newCard.style.transition='height '+MD+'ms '+ME+',transform '+MD+'ms '+ME+',border-color '+mr(.7)+'ms '+MEASE;
+      newCard.style.height=H_full+'px';newCard.style.transform='scale(1)';newCard.style.borderColor=natural;
+      if(nm){nm.style.transition='transform '+MD+'ms '+ME+',color '+mr(.7)+'ms '+MEASE;nm.style.transform='scale(1)';nm.style.color='#fff'}
+      if(ad){ad.style.transition='opacity '+mr(.5)+'ms '+MEASE+' '+mr(.25)+'ms';ad.style.opacity='1'}
+      if(btn){btn.style.transition='opacity '+mr(.5)+'ms '+MEASE+' '+mr(.35)+'ms';btn.style.opacity='1'}
+      if(see){see.style.transition='opacity '+mr(.6)+'ms '+MEASE+' '+mr(.6)+'ms';see.style.opacity='1'}
+      if(pb){pb.style.transition='opacity '+mr(.68)+'ms '+MEASE+' '+mr(.44)+'ms';pb.style.opacity='1'}
+      setTimeout(function(){commit(false)},MD+MTAIL);
     })();
+    },MBEAT);
   }
   function screenLayer(html){var d=document.createElement('div');d.style.cssText='position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden;background:var(--navy);will-change:transform';d.innerHTML=html;return d}
   function appOpen(foreHtml,after){

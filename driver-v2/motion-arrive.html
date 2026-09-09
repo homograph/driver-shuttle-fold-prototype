@@ -241,6 +241,7 @@
     <li><a href="#demo">라이브 데모</a></li>
     <li><a href="#spec">타이밍 스펙</a></li>
     <li><a href="#why">설계 근거</a></li>
+    <li><a href="#start">운행 시작</a></li>
     <li><a href="#compose">Compose 구현</a></li>
     <li><a href="#toast">토스트</a></li>
     <li><a href="#a11y">접근성</a></li>
@@ -252,7 +253,7 @@
   <header class="mast">
     <p class="eyebrow">Motion Spec · Android</p>
     <h1>경유지 도착 완료 → 다음 목적지 승격</h1>
-    <p class="lede"><b>완료한 카드는 작아지며 물러나고, 아래에 있던 장소가 커지며 그 자리를 채운다.</b> 화면 캡처로는 전달되지 않는 값 — 지속시간·이징·기준점·순서 — 를 실측 그대로 옮긴 문서다. 수치는 전부 라이브 프로토타입에서 트랜지션을 정지시켜 뽑은 값이다.</p>
+    <p class="lede"><b>완료한 카드는 작아지며 물러나고, 아래에 있던 장소가 커지며 그 자리를 채운다.</b> 같은 값을 <b>운행 시작</b> 전환도 공유한다 — 화면 캡처로는 전달되지 않는 값 — 지속시간·이징·기준점·순서 — 를 실측 그대로 옮긴 문서다. 수치는 전부 라이브 프로토타입에서 트랜지션을 정지시켜 뽑은 값이다.</p>
     <div class="metarow">
       <span><b>대상</b> Android · Jetpack Compose</span>
       <span><b>총 길이</b> 1,025ms</span>
@@ -387,6 +388,54 @@
 
     <h3>이름의 시작 배율은 계산값이다</h3>
     <p><code class="k">0.714 = 목록 행 이름 20dp ÷ 카드 이름 28dp</code>. 들어오는 카드의 이름이 <b>바로 아래 행의 글자 크기에서 정확히 이어지도록</b> 하는 값이다. 타이포 스케일이 바뀌면 이 값도 같이 바꿔야 한다 — 실제로 카드 이름이 26→28dp로 바뀐 뒤 <code class="k">0.769</code>가 남아 있어 글자가 튀며 시작했다.</p>
+  </section>
+
+  <section id="start">
+    <span class="snum">Shared · 같은 시간축</span>
+    <h2>운행 시작도 같은 모프다</h2>
+    <p class="sdesc">04 preview 에서 <code class="k">운행 시작하기</code>를 누를 때도 <b>경로 목록의 행 하나가 현재 카드로 자란다</b> — 도착 완료와 같은 제스처다. 그래서 <b>카드가 자라는 부분은 값까지 완전히 동일</b>하다. 위 스펙표의 ‘들어오는 카드’ 행을 그대로 쓴다.</p>
+
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>시점</th><th>도착 완료 — 높이 / 배율</th><th>운행 시작 — 높이 / 배율</th></tr></thead>
+        <tbody>
+          <tr><td class="motion">0ms</td><td class="motion num">60dp / 0.920</td><td class="motion num">60dp / 0.920</td></tr>
+          <tr><td class="motion">135ms</td><td class="motion num">71dp / 0.926</td><td class="motion num">71dp / 0.926</td></tr>
+          <tr><td class="motion">270ms</td><td class="motion num">119dp / 0.953</td><td class="motion num">119dp / 0.953</td></tr>
+          <tr><td class="motion">430ms</td><td class="motion num">172dp / 0.982</td><td class="motion num">172dp / 0.982</td></tr>
+          <tr><td class="motion">855ms</td><td class="motion num">204dp / 1.000</td><td class="motion num">204dp / 1.000</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>다만 이쪽은 화면 단위 재구성이다</h3>
+    <p>도착 완료는 카드 하나가 카드 하나로 바뀌는 <b>국소 변화</b>지만, 운행 시작은 시트가 통째로 재구성된다 — 완료된 <code class="k">출발</code> 행이 접히고, 요청사항 블록이 접히고, 하단 <code class="k">운행 시작하기</code> 버튼이 사라지고, 시트 높이가 줄고, 헤더에 <code class="k">전체 보기</code>가, 지도에 <code class="k">결제</code> 버블이 생긴다.</p>
+    <div class="call warn"><b>카드만 855ms 로 늘리면 안 된다.</b> 같이 도는 요소들이 원래 260–500ms 라, 카드만 늘리면 <b>나머지가 다 끝난 뒤에도 카드만 355ms 더 자란다</b> — 늘어지고 따로 논다. 전체를 같은 시간축에 올려 기존 비율을 유지한 채 같은 배수로 늘린다.</div>
+
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>요소</th><th>속성</th><th>지속</th><th>지연</th><th>이징</th></tr></thead>
+        <tbody>
+          <tr><td>시트 높이</td><td class="motion">height</td><td class="motion num">855 <span class="side">(1.0D)</span></td><td class="motion num">0</td><td class="motion">Standard</td></tr>
+          <tr><td><span class="chip out">출발 행</span> 접힘</td><td class="motion">높이·margin</td><td class="motion num">752 <span class="side">(.88D)</span></td><td class="motion num">0</td><td class="motion">Standard</td></tr>
+          <tr><td><span class="chip out">출발 행</span></td><td class="motion">alpha</td><td class="motion num">513 <span class="side">(.6D)</span></td><td class="motion num">0</td><td class="motion">Ease</td></tr>
+          <tr><td><span class="chip out">출발 행</span></td><td class="motion">translateY −12</td><td class="motion num">616 <span class="side">(.72D)</span></td><td class="motion num">0</td><td class="motion">ExitScale</td></tr>
+          <tr><td><span class="chip out">요청사항 블록</span></td><td class="motion">높이·padding</td><td class="motion num">684 <span class="side">(.8D)</span></td><td class="motion num">0</td><td class="motion">Standard</td></tr>
+          <tr><td><span class="chip out">요청사항 블록</span></td><td class="motion">alpha</td><td class="motion num">445 <span class="side">(.52D)</span></td><td class="motion num">0</td><td class="motion">Ease</td></tr>
+          <tr><td><span class="chip out">운행 시작하기</span></td><td class="motion">높이·margin·padding</td><td class="motion num">718 <span class="side">(.84D)</span></td><td class="motion num">86 <span class="side">(.1D)</span></td><td class="motion">Standard</td></tr>
+          <tr><td><span class="chip out">운행 시작하기</span></td><td class="motion">alpha</td><td class="motion num">513 <span class="side">(.6D)</span></td><td class="motion num">0</td><td class="motion">Ease</td></tr>
+          <tr><td><span class="chip out">운행 시작하기</span></td><td class="motion">translateY +18</td><td class="motion num">581 <span class="side">(.68D)</span></td><td class="motion num">0</td><td class="motion">ExitScale</td></tr>
+          <tr><td><span class="chip in">전체 보기</span> 등장</td><td class="motion">alpha</td><td class="motion num">513 <span class="side">(.6D)</span></td><td class="motion num">513 <span class="side">(.6D)</span></td><td class="motion">Ease</td></tr>
+          <tr><td><span class="chip in">결제 버블</span> 등장</td><td class="motion">alpha</td><td class="motion num">581 <span class="side">(.68D)</span></td><td class="motion num">376 <span class="side">(.44D)</span></td><td class="motion">Ease</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ul class="tick">
+      <li><b>확인 비트·꼬리도 같다</b> — 90ms 대기 → 855ms 모프 → +80ms 뒤 커밋. 총 1,025ms 로 도착 완료와 동일하다.</li>
+      <li><b>나가는 요소의 이동은 ExitScale</b> — 알파가 먼저 끝나므로, 표준 커브로 두면 움직임이 보이기 전에 사라진다. 나가는 카드의 배율과 같은 이유다.</li>
+      <li><b>구현은 카드 블록을 재사용</b>한다 — <code class="k">ArriveMorph</code> 의 ‘들어오는 카드’ 파트를 그대로 쓰고, 주변 요소만 위 비율로 각자 붙인다.</li>
+    </ul>
   </section>
 
   <section id="compose">
