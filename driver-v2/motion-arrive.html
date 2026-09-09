@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>경유지 도착 완료 전환 — 모션 개발 가이드</title>
+<style>
+  :root{
+    --paper:#F3F5FB; --surface:#FFFFFF; --surface-2:#EDF1F9; --surface-3:#E6EBF6;
+    --ink:#111827; --ink-soft:#48526A; --ink-faint:#8A93A8;
+    --line:#DCE2EF; --line-strong:#C7D0E2;
+    --accent:#0064C0; --accent-ink:#0064C0; --accent-soft:rgba(0,116,215,.10);
+    --navy:#293F71; --navy-soft:rgba(41,63,113,.10);
+    --good:#1E8C2C; --good-soft:rgba(48,162,52,.13);
+    --event:#B7550F; --event-soft:rgba(200,90,18,.13);
+    --tmap:#CE1622; --tmap-soft:rgba(206,22,34,.11);
+    --cm:#5F7A66;
+    --sans:'Pretendard Variable',Pretendard,'Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+    --mono:'SF Mono',ui-monospace,'JetBrains Mono',Menlo,Consolas,'D2Coding',monospace;
+    --wrap:74ch;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --paper:#0A101C; --surface:#111A2B; --surface-2:#172236; --surface-3:#1E2B44;
+      --ink:#E9EDF7; --ink-soft:#A7B1C7; --ink-faint:#6D7893;
+      --line:#243149; --line-strong:#334365;
+      --accent:#57A4EC; --accent-ink:#7CB8F1; --accent-soft:rgba(76,157,234,.15);
+      --navy:#93A4CC; --navy-soft:rgba(147,164,204,.14);
+      --good:#54BA61; --good-soft:rgba(79,182,92,.16);
+      --event:#E4924F; --event-soft:rgba(229,138,74,.16);
+      --tmap:#F0555F; --tmap-soft:rgba(240,85,95,.15);
+      --cm:#7E9A85;
+    }
+  }
+  :root[data-theme="light"]{
+    --paper:#F3F5FB; --surface:#FFFFFF; --surface-2:#EDF1F9; --surface-3:#E6EBF6;
+    --ink:#111827; --ink-soft:#48526A; --ink-faint:#8A93A8;
+    --line:#DCE2EF; --line-strong:#C7D0E2;
+    --accent:#0064C0; --accent-ink:#0064C0; --accent-soft:rgba(0,116,215,.10);
+    --navy:#293F71; --navy-soft:rgba(41,63,113,.10);
+    --good:#1E8C2C; --good-soft:rgba(48,162,52,.13);
+    --event:#B7550F; --event-soft:rgba(200,90,18,.13);
+    --tmap:#CE1622; --tmap-soft:rgba(206,22,34,.11); --cm:#5F7A66;
+  }
+  :root[data-theme="dark"]{
+    --paper:#0A101C; --surface:#111A2B; --surface-2:#172236; --surface-3:#1E2B44;
+    --ink:#E9EDF7; --ink-soft:#A7B1C7; --ink-faint:#6D7893;
+    --line:#243149; --line-strong:#334365;
+    --accent:#57A4EC; --accent-ink:#7CB8F1; --accent-soft:rgba(76,157,234,.15);
+    --navy:#93A4CC; --navy-soft:rgba(147,164,204,.14);
+    --good:#54BA61; --good-soft:rgba(79,182,92,.16);
+    --event:#E4924F; --event-soft:rgba(229,138,74,.16);
+    --tmap:#F0555F; --tmap-soft:rgba(240,85,95,.15); --cm:#7E9A85;
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);
+    font-size:15.5px;line-height:1.75;-webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;font-feature-settings:"tnum" 0;}
+  .shell{max-width:940px;margin:0 auto;padding:0 22px 96px}
+
+  /* ---- masthead ---- */
+  .mast{padding:52px 0 26px;border-bottom:1px solid var(--line)}
+  .eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--accent-ink);font-weight:600;margin:0 0 14px}
+  h1{font-size:clamp(27px,4.6vw,37px);line-height:1.14;letter-spacing:-.015em;margin:0;
+    font-weight:760;text-wrap:balance;max-width:20ch}
+  .lede{color:var(--ink-soft);margin:16px 0 0;max-width:60ch;font-size:16px}
+  .metarow{display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:22px;
+    font-family:var(--mono);font-size:12px;color:var(--ink-faint)}
+  .metarow b{color:var(--ink-soft);font-weight:500}
+  .links{display:flex;flex-wrap:wrap;gap:11px;margin-top:26px}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:9px;
+    font-size:14px;font-weight:600;text-decoration:none;border:1px solid var(--line-strong);
+    color:var(--ink);background:var(--surface);transition:border-color .15s,transform .11s,background .15s}
+  .btn .arw{font-family:var(--mono);color:var(--ink-faint);font-weight:400}
+  .btn:hover{border-color:var(--accent);transform:translateY(-1px)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.primary .arw{color:rgba(255,255,255,.75)}
+  .btn.primary:hover{filter:brightness(1.06)}
+
+  /* ---- sticky nav ---- */
+  nav.toc{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 88%,transparent);
+    backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  nav.toc ul{display:flex;gap:4px;list-style:none;margin:0 auto;padding:9px 22px;overflow-x:auto;
+    max-width:940px;scrollbar-width:none}
+  nav.toc ul::-webkit-scrollbar{display:none}
+  nav.toc a{font-family:var(--mono);font-size:12.5px;color:var(--ink-soft);text-decoration:none;
+    padding:6px 11px;border-radius:7px;white-space:nowrap;transition:color .15s,background .15s}
+  nav.toc a:hover{background:var(--surface-2);color:var(--ink)}
+
+  /* ---- sections ---- */
+  section{padding-top:56px;scroll-margin-top:60px}
+  .snum{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--accent-ink);font-weight:600;display:block;margin-bottom:9px}
+  h2{font-size:23px;line-height:1.2;letter-spacing:-.01em;margin:0 0 6px;font-weight:720;text-wrap:balance}
+  .sdesc{color:var(--ink-soft);max-width:var(--wrap);margin:0 0 22px}
+  h3{font-size:15.5px;margin:30px 0 10px;font-weight:680;letter-spacing:-.005em}
+  p{max-width:var(--wrap)}
+  a.inline{color:var(--accent-ink);text-decoration:none;border-bottom:1px solid var(--accent-soft)}
+  a.inline:hover{border-bottom-color:var(--accent)}
+  code.k{font-family:var(--mono);font-size:.88em;background:var(--surface-2);
+    padding:1px 6px;border-radius:5px;color:var(--ink);border:1px solid var(--line)}
+
+  /* ---- flow cards ---- */
+  .flowgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:13px}
+  .fcard{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:18px 18px 15px;
+    display:flex;flex-direction:column;gap:9px;transition:border-color .15s,transform .12s}
+  .fcard:hover{border-color:var(--line-strong);transform:translateY(-2px)}
+  .fcard .no{font-size:26px;line-height:1;color:var(--accent-ink);font-weight:700}
+  .fcard h4{margin:0;font-size:16px;font-weight:700}
+  .fcard p{margin:0;font-size:13.5px;color:var(--ink-soft);line-height:1.6;flex:1}
+  .fcard .fig{font-family:var(--mono);font-size:11.5px;color:var(--accent-ink);text-decoration:none;
+    display:inline-flex;align-items:center;gap:6px;margin-top:3px}
+  .fcard .fig:hover{text-decoration:underline}
+
+  /* ---- table ---- */
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+  table{border-collapse:collapse;width:100%;min-width:640px;font-size:13.5px}
+  thead th{font-family:var(--mono);font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+    color:var(--ink-faint);text-align:left;font-weight:600;padding:12px 14px;
+    background:var(--surface-2);border-bottom:1px solid var(--line);white-space:nowrap}
+  tbody td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:var(--surface-2)}
+  td .st{font-family:var(--mono);font-size:12.5px;color:var(--ink);white-space:nowrap}
+  td .side{color:var(--ink-soft);font-size:12.5px}
+  td.motion{font-family:var(--mono);font-size:12px;color:var(--ink);white-space:nowrap}
+  td.num{font-variant-numeric:tabular-nums}
+
+  .chip{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11.5px;
+    font-weight:600;padding:2.5px 8px;border-radius:20px;white-space:nowrap;line-height:1.5}
+  .chip::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.9}
+  .chip.tap{color:var(--accent-ink);background:var(--accent-soft)}
+  .chip.evt{color:var(--event);background:var(--event-soft)}
+  .chip.done{color:var(--good);background:var(--good-soft)}
+  .chip.ext{color:var(--tmap);background:var(--tmap-soft)}
+  .legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin:0 0 18px;font-size:12.5px;color:var(--ink-soft)}
+  .legend .chip{margin-right:2px}
+
+  /* ---- code ---- */
+  .code{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:14px 0}
+  .code .bar{display:flex;align-items:center;gap:9px;padding:9px 14px;background:var(--surface-2);
+    border-bottom:1px solid var(--line);font-family:var(--mono);font-size:11.5px;color:var(--ink-faint)}
+  .code .bar .dot{width:8px;height:8px;border-radius:50%;background:var(--line-strong)}
+  .code .bar b{color:var(--ink-soft);font-weight:600}
+  .code .bar .tag{margin-left:auto;color:var(--accent-ink);font-weight:600}
+  .code pre{margin:0;overflow-x:auto;padding:16px 16px 18px}
+  .code code{font-family:var(--mono);font-size:12.8px;line-height:1.65;color:var(--ink);white-space:pre;
+    font-feature-settings:"tnum" 0}
+  .cm{color:var(--cm)}
+  .v{color:var(--accent-ink)}
+
+  /* ---- callout ---- */
+  .call{border-left:3px solid var(--tmap);background:var(--tmap-soft);border-radius:0 10px 10px 0;
+    padding:14px 18px;margin:16px 0;font-size:14px;max-width:var(--wrap)}
+  .call.warn{border-left-color:var(--event);background:var(--event-soft)}
+  .call b{font-weight:700}
+  ul.tick{list-style:none;padding:0;margin:14px 0;max-width:var(--wrap)}
+  ul.tick li{position:relative;padding-left:22px;margin:9px 0;color:var(--ink-soft)}
+  ul.tick li::before{content:"";position:absolute;left:2px;top:9px;width:7px;height:7px;
+    border-radius:2px;background:var(--accent);opacity:.8}
+  ul.tick li b{color:var(--ink);font-weight:650}
+
+  /* ---- footer ---- */
+  footer{margin-top:70px;padding-top:26px;border-top:1px solid var(--line);
+    display:flex;flex-wrap:wrap;gap:26px;justify-content:space-between;align-items:flex-start}
+  footer .col{max-width:46ch}
+  footer h5{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--ink-faint);margin:0 0 10px;font-weight:600}
+  footer a{color:var(--accent-ink);text-decoration:none;display:block;margin:5px 0;font-size:13.5px}
+  footer a:hover{text-decoration:underline}
+  footer .note{font-size:12.5px;color:var(--ink-faint);line-height:1.6}
+  footer .mono{font-family:var(--mono)}
+  :where(a,.btn):focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+  @media (max-width:560px){.mast{padding:38px 0 22px}.links{flex-direction:column}.btn{justify-content:center}}
+
+  /* ---- gantt (모션 타임라인) ---- */
+  .gantt{margin:22px 0 6px;border:1px solid var(--line);border-radius:12px;
+    background:var(--surface);padding:16px 18px 18px;overflow-x:auto}
+  .gsc{position:relative;height:15px;margin-left:170px;min-width:340px;
+    font-family:var(--mono);font-size:11px;color:var(--ink-faint)}
+  .gsc span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+  .gsc span:first-child{transform:none}
+  .gsc span:last-child{transform:translateX(-100%)}
+  .ghd{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--ink-faint);margin:15px 0 5px;min-width:520px}
+  .grow{display:flex;align-items:center;gap:12px;margin:4px 0;min-width:520px}
+  .grow .lbl{flex:0 0 158px;text-align:right;font-family:var(--mono);font-size:12px;color:var(--ink-soft)}
+  .grow .lbl em{font-style:normal;color:var(--ink-faint)}
+  .track{position:relative;flex:1;height:13px;background:var(--surface-2);border-radius:4px}
+  .bar{position:absolute;top:0;height:13px;border-radius:4px}
+  .bar.beat{background:var(--line-strong)}
+  .bar.out{background:var(--event)}
+  .bar.in{background:var(--accent)}
+  .bar.toastbar{background:var(--good);opacity:.45}
+  .gtick{position:absolute;top:-3px;width:2px;height:19px;background:var(--ink);
+    border-radius:1px;transform:translateX(-2px)}
+  .chip.out{color:var(--event);background:var(--event-soft)}
+  .chip.in{color:var(--accent-ink);background:var(--accent-soft)}
+
+  /* ---- 라이브 데모 (앱 실측 dp = px) ---- */
+  .demowrap{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start;margin:20px 0}
+  .demo{width:340px;flex:0 0 auto;background:#101A3D;border-radius:12px;overflow:hidden;
+    box-shadow:0 10px 30px rgba(10,16,36,.3)}
+  .dhd{display:flex;align-items:center;gap:16px;padding:16px 20px;
+    font-size:16px;line-height:24px;font-weight:400;color:#99A5C0}
+  .dhd .see{margin-left:auto;color:#5CB4FA}
+  .dlist{display:flex;flex-direction:column}
+  .dslot{overflow:hidden;flex:0 0 auto}
+  .dcard{border-top:1px solid #293F71;background:rgba(40,56,115,.7);
+    box-shadow:0 2px 6px rgba(0,0,0,.2)}
+  .dout .dcard{margin-bottom:8px}
+  .dtop{display:flex;align-items:flex-start;gap:14px;padding:19px 20px 24px}
+  .dbadge{flex:0 0 auto;width:52px;padding:4px 6px;border-radius:4px;text-align:center;
+    font-size:16px;line-height:24px;font-weight:700;color:#fff}
+  .dtop .dbadge{margin-top:6px}
+  .dinfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+  .dname{font-size:28px;line-height:42px;font-weight:700;color:#fff;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transform-origin:left center}
+  .daddr{font-size:16px;line-height:24px;color:#C0C8D9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dbtnw{padding:0 20px 22px}
+  .dbtn{height:68px;display:flex;align-items:center;justify-content:center;
+    background:#EFEFF1;color:#171A24;border-radius:4px;font-size:20px;line-height:30px;font-weight:700}
+  .drow{display:flex;align-items:flex-start;gap:14px;padding:14px 20px;height:60px}
+  .drow .dnm{flex:1;min-width:0;font-size:20px;line-height:30px;font-weight:700;color:#fff;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .democtl{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding-top:4px}
+  .democtl .btn{cursor:pointer;font-family:inherit}
+  .democtl .btn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
+  .demonote{font-family:var(--mono);font-size:12px;color:var(--ink-faint)}
+  @media (max-width:560px){ .demo{width:100%} }
+</style>
+</head>
+<body>
+<nav class="toc" aria-label="섹션">
+  <ul>
+    <li><a href="#shape">한눈에</a></li>
+    <li><a href="#demo">라이브 데모</a></li>
+    <li><a href="#spec">타이밍 스펙</a></li>
+    <li><a href="#why">설계 근거</a></li>
+    <li><a href="#compose">Compose 구현</a></li>
+    <li><a href="#toast">토스트</a></li>
+    <li><a href="#a11y">접근성</a></li>
+    <li><a href="#pitfall">흔한 실수</a></li>
+  </ul>
+</nav>
+
+<div class="shell">
+  <header class="mast">
+    <p class="eyebrow">Motion Spec · Android</p>
+    <h1>경유지 도착 완료 → 다음 목적지 승격</h1>
+    <p class="lede"><b>완료한 카드는 작아지며 물러나고, 아래에 있던 장소가 커지며 그 자리를 채운다.</b> 화면 캡처로는 전달되지 않는 값 — 지속시간·이징·기준점·순서 — 를 실측 그대로 옮긴 문서다. 수치는 전부 라이브 프로토타입에서 트랜지션을 정지시켜 뽑은 값이다.</p>
+    <div class="metarow">
+      <span><b>대상</b> Android · Jetpack Compose</span>
+      <span><b>총 길이</b> 1,025ms</span>
+      <span><b>화면</b> 05 drive-arrived</span>
+      <span><b>기준</b> 2026-09-09</span>
+    </div>
+    <div class="links">
+      <a class="btn primary" href="index.html" target="_blank" rel="noopener">라이브 프로토타입 <span class="arw">↗</span></a>
+      <a class="btn" href="handoff.html">개발 핸드오프 <span class="arw">→</span></a>
+    </div>
+  </header>
+
+  <section id="shape">
+    <span class="snum">Overview · 형태</span>
+    <h2>한눈에</h2>
+    <p class="sdesc">탭 한 번에 <b>두 카드가 동시에</b> 움직인다. 나가는 카드는 높이가 접히면서 같이 작아지고, 들어오는 카드는 <b>바로 아래 목록 행의 크기에서 출발해</b> 카드 크기로 자란다. 같은 구간에서 동시에 돌기 때문에 “사라진 뒤 나타난다”가 아니라 <b>자리를 넘겨받는</b> 것으로 읽힌다.</p>
+
+    <div class="gantt" role="img" aria-label="타임라인: 확인 비트 90ms 뒤 나가는 카드와 들어오는 카드가 855ms 동안 동시에 진행되고 1,025ms에 상태가 커밋된다">
+      <div class="gsc"><span style="left:0">0</span><span style="left:25%">256</span><span style="left:50%">513</span><span style="left:75%">769</span><span style="left:100%">1,025ms</span></div>
+      <div class="grow"><span class="lbl">확인 비트 <em>대기</em></span><span class="track"><i class="bar beat" style="left:0%;width:8.8%"></i></span></div>
+      <div class="ghd">나가는 카드 — 완료한 경유지</div>
+      <div class="grow"><span class="lbl">height <em>204→0dp</em></span><span class="track"><i class="bar out" style="left:8.8%;width:83.4%"></i></span></div>
+      <div class="grow"><span class="lbl">scale <em>1→0.84</em></span><span class="track"><i class="bar out" style="left:8.8%;width:83.4%"></i></span></div>
+      <div class="grow"><span class="lbl">alpha <em>1→0</em></span><span class="track"><i class="bar out" style="left:8.8%;width:51.7%"></i></span></div>
+      <div class="ghd">들어오는 카드 — 다음 경유지</div>
+      <div class="grow"><span class="lbl">height <em>60→204dp</em></span><span class="track"><i class="bar in" style="left:8.8%;width:83.4%"></i></span></div>
+      <div class="grow"><span class="lbl">scale <em>0.92→1</em></span><span class="track"><i class="bar in" style="left:8.8%;width:83.4%"></i></span></div>
+      <div class="grow"><span class="lbl">이름 scale <em>0.714→1</em></span><span class="track"><i class="bar in" style="left:8.8%;width:83.4%"></i></span></div>
+      <div class="grow"><span class="lbl">보더·이름색</span><span class="track"><i class="bar in" style="left:8.8%;width:58.4%"></i></span></div>
+      <div class="grow"><span class="lbl">주소 alpha</span><span class="track"><i class="bar in" style="left:29.7%;width:41.8%"></i></span></div>
+      <div class="grow"><span class="lbl">버튼 alpha</span><span class="track"><i class="bar in" style="left:37.9%;width:41.8%"></i></span></div>
+      <div class="ghd">그 외</div>
+      <div class="grow"><span class="lbl">토스트 <em>1,960ms까지</em></span><span class="track"><i class="bar toastbar" style="left:0%;width:100%"></i></span></div>
+      <div class="grow"><span class="lbl">상태 커밋 <em>재구성</em></span><span class="track"><i class="tick" style="left:100%"></i></span></div>
+    </div>
+
+    <ul class="tick">
+      <li><b>확인 비트 90ms</b> — 누른 것이 인지될 시간. 0으로 두면 프레스·리플이 보이기 전에 레이아웃이 움직여 “눌렀는데 튄” 느낌이 난다. 버튼 색이 바뀌거나 하지는 않는다.</li>
+      <li><b>모프 855ms</b> — 두 카드가 같은 구간에서 동시에.</li>
+      <li><b>+80ms 뒤 상태 커밋</b> — 트랜지션이 끝난 뒤 실제 목록을 재구성한다. 애니메이션 중 재구성하면 중간 프레임이 튄다.</li>
+    </ul>
+  </section>
+
+  <section id="demo">
+    <span class="snum">Live · 재생</span>
+    <h2>라이브 데모</h2>
+    <p class="sdesc">아래는 같은 상수로 돌아가는 축소판이다. <b>슬로우</b>로 켜면 4배 느리게 돌려 순서를 눈으로 확인할 수 있다.</p>
+    <div class="demowrap">
+      <div class="demo" id="demo">
+        <div class="dhd"><span>남은 경로 3개</span><span class="see">전체 보기</span></div>
+        <div class="dlist" id="dlist"></div>
+      </div>
+      <div class="democtl">
+        <button class="btn" id="play">▶ 재생</button>
+        <button class="btn" id="slow" aria-pressed="false">🐢 슬로우 4×</button>
+        <span class="demonote" id="dnote">855ms</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="spec">
+    <span class="snum">Spec · 값</span>
+    <h2>타이밍 스펙</h2>
+    <p class="sdesc">지속시간은 전부 <code class="k">D = 855ms</code> 기준의 비율이다. 속도를 조절할 일이 생기면 <b><code class="k">D</code> 하나만</b> 바꾸면 나머지가 비율 그대로 따라간다.</p>
+
+    <h3>이징</h3>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>이름</th><th>cubic-bezier</th><th>Compose</th><th>쓰는 곳</th></tr></thead>
+        <tbody>
+          <tr><td class="motion">Standard</td><td class="motion">.4, 0, .2, 1</td><td class="motion">FastOutSlowInEasing</td><td class="side">높이·배율 전반</td></tr>
+          <tr><td class="motion">ExitScale</td><td class="motion">.25, .9, .35, 1</td><td class="motion">CubicBezierEasing(.25f,.9f,.35f,1f)</td><td class="side">나가는 카드의 배율만</td></tr>
+          <tr><td class="motion">Ease</td><td class="motion">.25, .1, .25, 1</td><td class="motion">CubicBezierEasing(.25f,.1f,.25f,1f)</td><td class="side">알파·색 (CSS 기본 <code class="k">ease</code>)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>속성별</h3>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>대상</th><th>속성</th><th>from → to</th><th>지속</th><th>지연</th><th>이징</th></tr></thead>
+        <tbody>
+          <tr><td><span class="chip out">나가는 카드</span></td><td class="motion">height</td><td class="motion">204 → 0dp</td><td class="motion num">855</td><td class="motion num">0</td><td class="motion">Standard</td></tr>
+          <tr><td><span class="chip out">나가는 카드</span></td><td class="motion">scale</td><td class="motion">1 → 0.84</td><td class="motion num">855</td><td class="motion num">0</td><td class="motion">ExitScale</td></tr>
+          <tr><td><span class="chip out">나가는 카드</span></td><td class="motion">alpha</td><td class="motion">1 → 0</td><td class="motion num">530 <span class="side">(.62D)</span></td><td class="motion num">0</td><td class="motion">Ease</td></tr>
+          <tr><td><span class="chip out">나가는 카드</span></td><td class="motion">하단 간격</td><td class="motion">8 → 0dp</td><td class="motion num">855</td><td class="motion num">0</td><td class="motion">Standard</td></tr>
+          <tr><td><span class="chip in">들어오는 카드</span></td><td class="motion">height</td><td class="motion">60 → 204dp</td><td class="motion num">855</td><td class="motion num">0</td><td class="motion">Standard</td></tr>
+          <tr><td><span class="chip in">들어오는 카드</span></td><td class="motion">scale</td><td class="motion">0.92 → 1</td><td class="motion num">855</td><td class="motion num">0</td><td class="motion">Standard</td></tr>
+          <tr><td><span class="chip in">들어오는 카드</span></td><td class="motion">상단 보더</td><td class="motion">투명 → #293F71</td><td class="motion num">599 <span class="side">(.7D)</span></td><td class="motion num">0</td><td class="motion">Ease</td></tr>
+          <tr><td><span class="chip in">장소 이름</span></td><td class="motion">scale</td><td class="motion">0.714 → 1</td><td class="motion num">855</td><td class="motion num">0</td><td class="motion">Standard</td></tr>
+          <tr><td><span class="chip in">장소 이름</span></td><td class="motion">color</td><td class="motion">#99A5C0 → #FFFFFF</td><td class="motion num">599 <span class="side">(.7D)</span></td><td class="motion num">0</td><td class="motion">Ease</td></tr>
+          <tr><td><span class="chip in">주소</span></td><td class="motion">alpha</td><td class="motion">0 → 1</td><td class="motion num">428 <span class="side">(.5D)</span></td><td class="motion num">214 <span class="side">(.25D)</span></td><td class="motion">Ease</td></tr>
+          <tr><td><span class="chip in">CTA 버튼</span></td><td class="motion">alpha</td><td class="motion">0 → 1</td><td class="motion num">428 <span class="side">(.5D)</span></td><td class="motion num">299 <span class="side">(.35D)</span></td><td class="motion">Ease</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>기준점 (transform origin)</h3>
+    <ul class="tick">
+      <li><b>두 카드 모두 상단 중앙</b> — <code class="k">TransformOrigin(0.5f, 0f)</code>. 높이가 위에서부터 자라고 접히므로 축을 맞춰야 배율과 클리핑이 같은 방향으로 간다.</li>
+      <li><b>장소 이름은 왼쪽 중앙</b> — <code class="k">TransformOrigin(0f, 0.5f)</code>. 글자가 왼쪽 정렬이라 왼쪽 끝이 고정돼야 자연스럽다.</li>
+    </ul>
+  </section>
+
+  <section id="why">
+    <span class="snum">Rationale · 왜</span>
+    <h2>설계 근거</h2>
+    <p class="sdesc">값만 옮기면 재현이 안 되는 부분들이다. 전부 실제로 틀렸다가 고친 것이다.</p>
+
+    <h3>나가는 카드의 배율만 다른 이징을 쓴다</h3>
+    <p>알파가 <code class="k">.62D</code>에 끝나는데 배율까지 Standard로 두면, <b>사라질 때까지 4%밖에 안 줄어</b> 축소가 눈에 들어오지 않는다. 배율만 앞당겨 <b>아직 보이는 동안</b> 줄어들게 한다.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>시점</th><th>알파</th><th>Standard 였을 때 배율</th><th>ExitScale (현재)</th></tr></thead>
+        <tbody>
+          <tr><td class="motion">135ms</td><td class="motion num">0.58</td><td class="motion num">0.988 <span class="side">거의 안 보임</span></td><td class="motion num">0.919</td></tr>
+          <tr><td class="motion">270ms</td><td class="motion num">0.19</td><td class="motion num">0.954</td><td class="motion num">0.872</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>들어오는 카드의 배율은 높이와 같은 이징을 쓴다</h3>
+    <p>반대로 여기서 앞당기는(스프링) 커브를 쓰면 <b>높이가 절반일 때 배율은 이미 0.99</b>라 성장감이 사라진다. 높이와 묶어 끝까지 같이 커지게 한다.</p>
+
+    <div class="call warn"><b>높이는 두 카드 모두 같은 이징(Standard)을 유지할 것.</b> 배율은 레이아웃에 관여하지 않으니 커브가 달라도 되지만, 높이가 어긋나면 한쪽이 남긴 자리를 다른 쪽이 못 따라가 목록 전체가 출렁인다.</div>
+
+    <h3>높이를 직접 애니메이션한다</h3>
+    <p><code class="k">max-height</code>(Compose로는 넉넉히 잡은 <code class="k">heightIn</code>)로 대신하면 실제 높이와 어긋나는 구간이 생겨 급가속처럼 보인다. <b>실제 높이</b>를 재서 애니메이션한다.</p>
+
+    <h3>간격은 나가는 카드가 데려간다</h3>
+    <p>카드와 목록 사이 <b>8dp</b> 간격을 <code class="k">Arrangement.spacedBy</code>로 주면 카드 높이가 0이 돼도 <b>간격은 남아</b> 8dp 구멍이 생긴다. 나가는 카드의 <b>하단 padding</b>으로 넣어 높이와 함께 사라지게 한다.</p>
+
+    <h3>이름의 시작 배율은 계산값이다</h3>
+    <p><code class="k">0.714 = 목록 행 이름 20dp ÷ 카드 이름 28dp</code>. 들어오는 카드의 이름이 <b>바로 아래 행의 글자 크기에서 정확히 이어지도록</b> 하는 값이다. 타이포 스케일이 바뀌면 이 값도 같이 바꿔야 한다 — 실제로 카드 이름이 26→28dp로 바뀐 뒤 <code class="k">0.769</code>가 남아 있어 글자가 튀며 시작했다.</p>
+  </section>
+
+  <section id="compose">
+    <span class="snum">Android · 참고 구현</span>
+    <h2>Compose 구현</h2>
+    <p class="sdesc"><b>선형 진행도 하나를 돌리고, 속성마다 이징을 직접 적용</b>하는 방식을 권한다. 속성별로 <code class="k">animate*AsState</code>를 따로 걸면 재조합 시점이 달라 미세하게 어긋나는데, 이 모프는 두 카드의 높이가 <b>프레임 단위로 합이 맞아야</b> 목록이 안 출렁인다.</p>
+
+    <div class="code">
+      <div class="bar"><span class="dot"></span><b>ArriveMorphSpec.kt</b><span class="tag">상수</span></div>
+<pre><code><span class="cm">// 속도를 바꿀 일이 생기면 D 하나만 — 나머지는 전부 D 의 비율이다.</span>
+const val D = <span class="v">855</span>                 <span class="cm">// 모프 본체</span>
+const val CONFIRM_BEAT = <span class="v">90</span>       <span class="cm">// 탭 인지용 대기 (버튼은 그대로 둔다)</span>
+const val SETTLE_TAIL = <span class="v">80</span>        <span class="cm">// 트랜지션 종료 후 목록 재구성까지</span>
+
+val Standard  = FastOutSlowInEasing                       <span class="cm">// = cubic-bezier(.4, 0, .2, 1)</span>
+val ExitScale = CubicBezierEasing(<span class="v">.25f</span>, <span class="v">.9f</span>, <span class="v">.35f</span>, <span class="v">1f</span>)
+val Ease      = CubicBezierEasing(<span class="v">.25f</span>, <span class="v">.1f</span>, <span class="v">.25f</span>, <span class="v">1f</span>)  <span class="cm">// CSS 기본 ease (알파·색)</span>
+
+<span class="cm">// 카드 상단 보더는 INSIDE stroke 라 카드 총높이에 더해지지 않는다.</span>
+val CardHeight = <span class="v">204</span>.dp
+val RowHeight  = <span class="v">60</span>.dp
+val CardGap    = <span class="v">8</span>.dp</code></pre>
+    </div>
+
+    <div class="code">
+      <div class="bar"><span class="dot"></span><b>ArriveMorph.kt</b><span class="tag">Compose</span></div>
+<pre><code><span class="cm">/**
+ * 완료한 카드가 작아지며 물러나고, 아래 행이 커지며 그 자리를 채운다.
+ * 두 카드를 한 Column 슬롯에 함께 두고 선형 진행도(p)에서 값을 뽑아 쓴다.
+ */</span>
+@Composable
+fun ArriveMorph(
+    completed: Stop,
+    next: Stop,
+    onSettled: () -&gt; Unit,          <span class="cm">// 여기서 목록을 실제로 재구성한다</span>
+) {
+    val p = remember { Animatable(<span class="v">0f</span>) }
+    val reduceMotion = rememberReduceMotion()
+
+    LaunchedEffect(completed.id) {
+        if (reduceMotion) { delay(<span class="v">140</span>); onSettled(); return@LaunchedEffect }
+        delay(CONFIRM_BEAT.toLong())
+        <span class="cm">// 진행도는 '선형'으로 돌린다 — 커브는 각 속성이 자기 몫을 따로 적용한다.</span>
+        p.animateTo(<span class="v">1f</span>, tween(D, easing = LinearEasing))
+        delay(SETTLE_TAIL.toLong())
+        onSettled()
+    }
+
+    <span class="cm">// ms 기준으로 구간(지속·지연)을 잘라 이징을 먹인다.</span>
+    fun seg(easing: Easing, durMs: Int, delayMs: Int = <span class="v">0</span>): Float {
+        val t = (p.value * D - delayMs) / durMs
+        return easing.transform(t.coerceIn(<span class="v">0f</span>, <span class="v">1f</span>))
+    }
+
+    val outT   = seg(Standard,  D)
+    val outS   = seg(ExitScale, D)
+    val outA   = seg(Ease, (D * <span class="v">.62f</span>).toInt())
+    val inT    = seg(Standard,  D)
+    val inTint = seg(Ease, (D * <span class="v">.7f</span>).toInt())
+    val addrA  = seg(Ease, (D * <span class="v">.5f</span>).toInt(), (D * <span class="v">.25f</span>).toInt())
+    val btnA   = seg(Ease, (D * <span class="v">.5f</span>).toInt(), (D * <span class="v">.35f</span>).toInt())
+
+    Column {
+        <span class="cm">// ── 나가는 카드 ─────────────────────────────────────────────</span>
+        <span class="cm">// 간격을 spacedBy 로 주면 높이가 0이 돼도 8dp 구멍이 남는다 →</span>
+        <span class="cm">// 나가는 카드의 '하단 padding' 으로 넣어 높이와 함께 사라지게 한다.</span>
+        Box(
+            Modifier
+                .height(lerp(CardHeight + CardGap, <span class="v">0</span>.dp, outT))
+                .graphicsLayer {
+                    scaleX = lerp(<span class="v">1f</span>, <span class="v">.84f</span>, outS)
+                    scaleY = scaleX
+                    alpha = <span class="v">1f</span> - outA
+                    transformOrigin = TransformOrigin(<span class="v">.5f</span>, <span class="v">0f</span>)   <span class="cm">// 상단 중앙</span>
+                }
+                .clipToBounds()                                    <span class="cm">// = overflow:hidden</span>
+        ) { StopCard(completed) }
+
+        <span class="cm">// ── 들어오는 카드 ───────────────────────────────────────────</span>
+        Box(
+            Modifier
+                .height(lerp(RowHeight, CardHeight, inT))
+                .graphicsLayer {
+                    scaleX = lerp(<span class="v">.92f</span>, <span class="v">1f</span>, inT)      <span class="cm">// 높이와 같은 이징 — 앞당기지 말 것</span>
+                    scaleY = scaleX
+                    transformOrigin = TransformOrigin(<span class="v">.5f</span>, <span class="v">0f</span>)
+                }
+                .clipToBounds()
+        ) {
+            StopCard(
+                stop = next,
+                topBorder = Navy700.copy(alpha = inTint),
+                <span class="cm">// 0.714 = 행 이름 20dp ÷ 카드 이름 28dp. 타이포가 바뀌면 같이 바꿀 것.</span>
+                nameScale = lerp(<span class="v">.714f</span>, <span class="v">1f</span>, inT),
+                nameOrigin = TransformOrigin(<span class="v">0f</span>, <span class="v">.5f</span>),   <span class="cm">// 왼쪽 중앙</span>
+                nameColor = lerp(TextDim, Color.White, inTint),
+                addressAlpha = addrA,
+                ctaAlpha = btnA,
+            )
+        }
+    }
+}</code></pre>
+    </div>
+
+    <div class="call"><b>재진입 차단.</b> 모프가 도는 <code class="k">1,025ms</code> 동안 <b>도착 완료 버튼은 눌려도 무시</b>해야 한다. 연타하면 두 단계를 건너뛰거나 카드가 두 장 남는다. 프로토타입은 <code class="k">S.busy</code> 플래그로 막고, <code class="k">onSettled()</code>에서 해제한다.</div>
+  </section>
+
+  <section id="toast">
+    <span class="snum">Feedback · 토스트</span>
+    <h2>토스트</h2>
+    <p class="sdesc">모프는 “<b>다음 목적지로 넘어갔다</b>”를 표현하지만 “<b>이 경유지가 완료로 기록됐다</b>”는 화면 어디에도 남지 않는다 — 완료된 곳은 목록에서 빠지고, 확인하려면 <code class="k">전체 보기</code>로 들어가야 한다. 그래서 토스트로 못을 박는다.</p>
+    <ul class="tick">
+      <li><b>문구</b> — <code class="k">경유지 도착 완료 처리됨</code></li>
+      <li><b>시점</b> — <b>버튼을 누른 즉시.</b> 모프가 끝난 뒤가 아니다. 운전 중에는 탭하고 도로를 본 뒤 돌아오므로, 확인은 동작보다 오래 남아야 한다.</li>
+      <li><b>위치</b> — 스크린 <b>하단 20dp</b>. 다만 하단에 전폭 CTA(<code class="k">운행 시작하기</code>·<code class="k">결제하기</code>)가 있는 화면에서는 버튼을 통째로 덮으므로 <b>그 버튼 위 20dp</b>로 비껴간다.</li>
+      <li><b>지속</b> — 1,700ms 표시 + 260ms 페이드아웃. 모프(1,025ms)보다 오래 남는다.</li>
+    </ul>
+    <div class="code">
+      <div class="bar"><span class="dot"></span><b>ArriveToast.kt</b><span class="tag">Compose</span></div>
+<pre><code><span class="cm">// 탭 즉시. onSettled() 가 아니라 onClick 안에서 부른다.</span>
+onArriveClick = {
+    if (busy) return@Button
+    busy = <span class="v">true</span>
+    snackbar.showArrive(<span class="v">"경유지 도착 완료 처리됨"</span>)
+    startMorph()
+}
+
+<span class="cm">// 하단 전폭 CTA 가 있는 화면에서는 그 위로 비껴간다.</span>
+val bottomInset = if (hasFullWidthCta) ctaHeight + <span class="v">20</span>.dp else <span class="v">20</span>.dp
+Box(Modifier.align(Alignment.BottomCenter).padding(bottom = bottomInset)) { ArriveToast() }</code></pre>
+    </div>
+  </section>
+
+  <section id="a11y">
+    <span class="snum">A11y · 접근성</span>
+    <h2>접근성</h2>
+    <ul class="tick">
+      <li><b>모션 감소</b> — 켜져 있으면 모프를 돌리지 않고 <b>140ms 뒤 즉시 전환</b>한다. 토스트는 그대로 띄운다(모션이 없을수록 확인이 더 필요하다).</li>
+      <li><b>완전히 없애지는 않는다</b> — 140ms 는 탭이 인지될 최소한이다. 0으로 두면 목록이 순간이동한 것처럼 보인다.</li>
+      <li><b>스크린리더</b> — 모프는 장식이다. 목록 재구성 시점에 “<code class="k">경유지 도착 완료 처리됨. 다음 목적지 ○○○</code>”를 <code class="k">liveRegion</code>으로 한 번만 알린다. 애니메이션 중간 상태는 읽히지 않게 한다.</li>
+    </ul>
+    <div class="code">
+      <div class="bar"><span class="dot"></span><b>ReduceMotion.kt</b><span class="tag">Android</span></div>
+<pre><code><span class="cm">// 시스템 '애니메이션 배율'이 0이면 모션 감소로 본다.</span>
+@Composable
+fun rememberReduceMotion(): Boolean {
+    val resolver = LocalContext.current.contentResolver
+    return remember {
+        Settings.Global.getFloat(
+            resolver, Settings.Global.ANIMATOR_DURATION_SCALE, <span class="v">1f</span>
+        ) == <span class="v">0f</span>
+    }
+}</code></pre>
+    </div>
+  </section>
+
+  <section id="pitfall">
+    <span class="snum">Pitfalls · 흔한 실수</span>
+    <h2>흔한 실수</h2>
+    <p class="sdesc">이 모프를 만들면서 실제로 밟은 것들이다.</p>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>증상</th><th>원인</th><th>고치는 법</th></tr></thead>
+        <tbody>
+          <tr><td>축소가 눈에 안 보인다</td><td class="side">나가는 카드의 배율을 알파와 같은 커브로 둠 — 사라질 때까지 4%밖에 안 줄어든다</td><td class="side">배율만 <code class="k">ExitScale</code>로 앞당긴다</td></tr>
+          <tr><td>커지는 느낌이 없다</td><td class="side">들어오는 카드의 배율에 앞당기는 커브 — 높이 절반에서 이미 0.99</td><td class="side">높이와 같은 이징으로 묶는다</td></tr>
+          <tr><td>카드가 미끄러진다</td><td class="side">transform origin 이 가운데 — 높이 클리핑은 위에서부터인데 축이 다르다</td><td class="side">둘 다 <code class="k">TransformOrigin(.5f, 0f)</code></td></tr>
+          <tr><td>목록이 출렁인다</td><td class="side">두 카드의 높이 이징이 다름</td><td class="side">높이는 반드시 같은 이징</td></tr>
+          <tr><td>8dp 구멍이 남는다</td><td class="side">간격을 <code class="k">spacedBy</code>로 줌 — 높이가 0이어도 간격은 남는다</td><td class="side">나가는 카드의 하단 padding 으로</td></tr>
+          <tr><td>중간에 급가속한다</td><td class="side"><code class="k">max-height</code>/여유 <code class="k">heightIn</code> — 실높이와 어긋나는 구간</td><td class="side">실제 높이를 재서 애니메이션</td></tr>
+          <tr><td>글자가 튀며 시작한다</td><td class="side">이름 시작 배율이 타이포 변경을 안 따라감</td><td class="side"><code class="k">행 이름 ÷ 카드 이름</code>으로 다시 계산</td></tr>
+          <tr><td>단계를 건너뛴다</td><td class="side">모프 중 연타</td><td class="side">1,025ms 동안 입력 차단</td></tr>
+          <tr><td>중간 프레임이 튄다</td><td class="side">애니메이션 중 목록 재구성</td><td class="side">트랜지션 종료 +80ms 뒤에 커밋</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <div class="col">
+      <h5>관련 문서</h5>
+      <a href="handoff.html">실시간 경유지 개발 핸드오프 — 상태머신·반응형·지도</a>
+      <a href="index.html" target="_blank" rel="noopener">라이브 프로토타입 ↗</a>
+      <a href="https://www.figma.com/design/ENc2rYFtxeNb3oTdSY18tw/-2026-2Q--Driver-Handoff" target="_blank" rel="noopener">Figma · 2026 2Q Driver Handoff ↗</a>
+    </div>
+    <div class="col">
+      <h5>수치의 출처</h5>
+      <p class="note">모든 값은 라이브 프로토타입의 CSS 트랜지션을 정지시키고 시간을 직접 감아 읽은 실측값이다. 눈대중이나 디자인 툴의 프리셋이 아니다. 프로토타입에서 <code class="k">advance()</code> 의 <code class="k">D</code> 를 바꾸면 이 문서의 비율은 그대로 유지된다.</p>
+    </div>
+  </footer>
+</div>
+<script>
+/* 프로토타입 advance() 와 같은 상수·같은 커브. 값이 바뀌면 여기도 같이 바꿀 것. */
+(function(){
+  var D=855, BEAT=90, TAIL=80;
+  var E='cubic-bezier(.4,0,.2,1)', EXIT='cubic-bezier(.25,.9,.35,1)';
+  var CARD=204, ROW=60, GAP=8;
+  var list=document.getElementById('dlist'),
+      playBtn=document.getElementById('play'),
+      slowBtn=document.getElementById('slow'),
+      note=document.getElementById('dnote');
+  if(!list) return;
+  var slow=false, busy=false;
+
+  function card(b,bc,n,a,cls){
+    return '<div class="dslot '+cls+'"><div class="dcard">'+
+      '<div class="dtop"><span class="dbadge" style="background:'+bc+'">'+b+'</span>'+
+      '<div class="dinfo"><div class="dname">'+n+'</div><div class="daddr">'+a+'</div></div></div>'+
+      '<div class="dbtnw"><div class="dbtn">경로 안내받기</div></div></div></div>';
+  }
+  function row(b,n){
+    return '<div class="drow"><span class="dbadge" style="background:#293F71">'+b+'</span>'+
+      '<div class="dnm">'+n+'</div></div>';
+  }
+  function build(){
+    list.innerHTML =
+      card('경유1','#0074D7','AUCOMMERCE','서울 성동구 성수동 2가 301-94','dout')+
+      card('경유2','#0074D7','성수역 4번 출구','서울 성동구 성수동 1가','din')+
+      row('경유3','갤러리아 포레')+row('도착','뚝섬역 1번 출구');
+  }
+  function label(){ var k=slow?4:1; note.textContent=(D*k).toLocaleString()+'ms'+(slow?' (4× 슬로우)':''); }
+
+  function play(){
+    if(busy) return; busy=true; playBtn.disabled=true;
+    build();
+    var k=slow?4:1, d=Math.round(D*k);
+    var out=list.querySelector('.dout'), inn=list.querySelector('.din');
+    var nm=inn.querySelector('.dname'), ad=inn.querySelector('.daddr'), bt=inn.querySelector('.dbtn');
+    /* 시작 상태 — 나가는 카드는 제 높이(+간격 8), 들어오는 카드는 '행' 크기 */
+    out.style.height=(CARD+GAP)+'px'; out.style.transformOrigin='50% 0';
+    inn.style.height=ROW+'px'; inn.style.transform='scale(.92)'; inn.style.transformOrigin='50% 0';
+    inn.querySelector('.dcard').style.borderTopColor='transparent';
+    nm.style.transform='scale(.714)'; nm.style.color='#99A5C0';
+    ad.style.opacity='0'; bt.style.opacity='0';
+    void list.offsetHeight;
+    setTimeout(function(){
+      out.style.transition='height '+d+'ms '+E+',transform '+d+'ms '+EXIT+',opacity '+Math.round(d*0.62)+'ms ease';
+      out.style.height='0px'; out.style.transform='scale(.84)'; out.style.opacity='0';
+      inn.style.transition='height '+d+'ms '+E+',transform '+d+'ms '+E;
+      inn.style.height=CARD+'px'; inn.style.transform='scale(1)';
+      var ic=inn.querySelector('.dcard');
+      ic.style.transition='border-top-color '+Math.round(d*0.7)+'ms ease'; ic.style.borderTopColor='#293F71';
+      nm.style.transition='transform '+d+'ms '+E+',color '+Math.round(d*0.7)+'ms ease';
+      nm.style.transform='scale(1)'; nm.style.color='#fff';
+      ad.style.transition='opacity '+Math.round(d*0.5)+'ms ease '+Math.round(d*0.25)+'ms'; ad.style.opacity='1';
+      bt.style.transition='opacity '+Math.round(d*0.5)+'ms ease '+Math.round(d*0.35)+'ms'; bt.style.opacity='1';
+      setTimeout(function(){ busy=false; playBtn.disabled=false; }, d+TAIL*k);
+    }, Math.round(BEAT*k));
+  }
+  playBtn.addEventListener('click',play);
+  slowBtn.addEventListener('click',function(){
+    slow=!slow; slowBtn.setAttribute('aria-pressed',slow?'true':'false'); label();
+  });
+  build(); label();
+})();
+</script>
+</body>
+</html>
