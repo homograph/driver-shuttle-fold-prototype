@@ -142,7 +142,7 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
    바텀시트 목록(04 preview·05 drive-go)의 행 배경은 바뀌지 않았다 — 전체 경로에만 적용. */
 .full .irow:not(.done){background:var(--navy2)}
 .irow.nav .rnav svg{opacity:.9}
-.crd{flex:0 0 auto;border:0;border-top:1px solid var(--navy700);border-radius:0;overflow:hidden;display:flex;flex-direction:column;margin:0;background:rgba(40,56,115,.7);box-shadow:0 2px 6px rgba(0,0,0,.2);will-change:transform,opacity,max-height}
+.crd{flex:0 0 auto;border:0;border-top:1px solid var(--navy700);border-radius:0;overflow:hidden;display:flex;flex-direction:column;margin:0;background:rgba(40,56,115,.7);box-shadow:0 2px 6px rgba(0,0,0,.2);will-change:transform,opacity,height}
 .crd-top{display:flex;align-items:flex-start;gap:14px;padding:19px 20px 24px}  /* Figma pad[20,20,24,20] — 상단만 19: 카드 stroke 가 INSIDE 라 1dp 가 패딩 안쪽을 덮는다.
      CSS border 는 패딩에 '더해'지므로 border1 + 19 = 20 이어야 카드 총높이가 Figma 와 같은 204dp. */
 .crd-top .badge{margin-top:6px}
@@ -313,7 +313,12 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
      ③ '이전 카드 페이드(70ms) → 350ms 대기 → 높이 모프' 3단계라 툭툭 끊겼다 →
         수축과 확장을 같은 이징·같은 구간에서 동시에 돌린다.
      ④ max-height 대신 실제 height를 애니메이션(실높이와 어긋나 생기던 급가속 제거).
-     ⑤ rAF 없이 강제 리플로우로 시작 — 페이지가 숨겨져도 멈추지 않는다. */
+     ⑤ rAF 없이 강제 리플로우로 시작 — 페이지가 숨겨져도 멈추지 않는다.
+     ⑥ 높이만 접히면 '무너지는' 느낌이라 스케일을 얹었다 — 완료 카드는 작아지며
+        물러나고, 아래에 있던 장소가 커지며 그 자리를 채운다.
+        origin 은 둘 다 상단 중앙: 높이가 위에서부터 자라고 접히므로 축을 맞춰야
+        스케일과 클리핑이 같은 방향으로 움직인다(가운데 origin이면 서로 어긋나 미끄러진다).
+        transform 은 레이아웃에 관여하지 않으므로 높이 트랜지션과 충돌하지 않는다. */
   function advance(cur){
     var app=document.getElementById('app');var plist=app.querySelector('.plist');
     var oldCard=plist?plist.querySelector('.crd'):null;
@@ -333,18 +338,19 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
       var natural=getComputedStyle(nextCard).borderTopColor;
       var gap=parseFloat(getComputedStyle(plist).rowGap)||0;
       var H_full=nextCard.offsetHeight,H_row=oldRow.offsetHeight,H_old=oldCard.offsetHeight;
-      nextCard.style.overflow='hidden';nextCard.style.height=H_row+'px';nextCard.style.borderColor='transparent';
-      var nm=nextCard.querySelector('.cname');if(nm){nm.style.transformOrigin='left center';nm.style.transform='scale(.769)';nm.style.color='var(--dim)'}
+      nextCard.style.overflow='hidden';nextCard.style.height=H_row+'px';nextCard.style.borderColor='transparent';nextCard.style.transformOrigin='50% 0';nextCard.style.transform='scale(.92)';
+      var nm=nextCard.querySelector('.cname');if(nm){nm.style.transformOrigin='left center';nm.style.transform='scale(.714)';nm.style.color='var(--dim)'}
       var ad=nextCard.querySelector('.caddr');if(ad)ad.style.opacity='0';
       var btn=nextCard.querySelector('.cbtn');if(btn)btn.style.opacity='0';
       oldRow.style.display='none';
-      oldCard.style.overflow='hidden';oldCard.style.height=H_old+'px';
+      oldCard.style.overflow='hidden';oldCard.style.height=H_old+'px';oldCard.style.transformOrigin='50% 0';
       var cel=app.querySelector('.rhd .t');if(cel)cel.textContent='남은 경로 '+(stops.length-ncur)+'개';
       void plist.offsetHeight;
-      oldCard.style.transition='height '+D+'ms '+E+',opacity '+Math.round(D*0.55)+'ms ease,margin-bottom '+D+'ms '+E;
-      oldCard.style.height='0px';oldCard.style.opacity='0';oldCard.style.marginBottom=(-gap)+'px';
-      nextCard.style.transition='height '+D+'ms '+E+',border-color '+Math.round(D*0.7)+'ms ease';
-      nextCard.style.height=H_full+'px';nextCard.style.borderColor=natural;
+      oldCard.style.transition='height '+D+'ms '+E+',transform '+D+'ms cubic-bezier(.25,.9,.35,1),opacity '+Math.round(D*0.62)+'ms ease,margin-bottom '+D+'ms '+E;
+      oldCard.style.height='0px';oldCard.style.transform='scale(.84)';oldCard.style.opacity='0';oldCard.style.marginBottom=(-gap)+'px';
+      /* 배율은 높이와 같은 커브 — 앞당기면 높이가 절반일 때 이미 다 커져 성장감이 사라진다. */
+      nextCard.style.transition='height '+D+'ms '+E+',transform '+D+'ms '+E+',border-color '+Math.round(D*0.7)+'ms ease';
+      nextCard.style.height=H_full+'px';nextCard.style.transform='scale(1)';nextCard.style.borderColor=natural;
       if(nm){nm.style.transition='transform '+D+'ms '+E+',color '+Math.round(D*0.7)+'ms ease';nm.style.transform='scale(1)';nm.style.color='#fff'}
       if(ad){ad.style.transition='opacity '+Math.round(D*0.5)+'ms ease '+Math.round(D*0.25)+'ms';ad.style.opacity='1'}
       if(btn){btn.style.transition='opacity '+Math.round(D*0.5)+'ms ease '+Math.round(D*0.35)+'ms';btn.style.opacity='1'}
@@ -366,7 +372,7 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
     var H_full=newCard.offsetHeight,H_row=curRow.offsetHeight;
     var natural=getComputedStyle(newCard).borderTopColor;   /* var(--bd)=#E3E4E8(흰색)로 페이드인하던 버그 */
     newCard.style.overflow='hidden';newCard.style.maxHeight=H_row+'px';newCard.style.borderColor='transparent';
-    var nm=newCard.querySelector('.cname');if(nm){nm.style.transformOrigin='left center';nm.style.transform='scale(.769)';nm.style.color='var(--dim)'}
+    var nm=newCard.querySelector('.cname');if(nm){nm.style.transformOrigin='left center';nm.style.transform='scale(.714)';nm.style.color='var(--dim)'}
     var ad=newCard.querySelector('.caddr');if(ad)ad.style.opacity='0';
     var btn=newCard.querySelector('.cbtn');if(btn)btn.style.opacity='0';
     curRow.style.display='none';
