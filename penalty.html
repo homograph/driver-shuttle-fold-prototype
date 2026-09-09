@@ -121,7 +121,6 @@ body{margin:0;background:var(--page);color:#f2f6ff;font-family:var(--kr);line-he
   <div class="ctrl">
     <div class="grp"><span class="lbl">CASE</span>
       <button data-sc="res1" class="on">예약 · 단건</button>
-      <button data-sc="res2">예약 · 다건 누적</button>
       <button data-sc="dagon">다건(예약+셔틀)</button>
       <button data-sc="shuttle">셔틀</button>
       <button data-sc="realtime">실시간 · 예약</button>
@@ -162,7 +161,7 @@ body{margin:0;background:var(--page);color:#f2f6ff;font-family:var(--kr);line-he
 /* =========================================================================
    TADA-9314 패널티 현황
    · 화면/카드 = Figma 신규 시안(14946:116293) 실측 그대로
-       카드 = 신호등 → 패널티 이름(24) → Notice → 정보행(패널티 기간/위약금/납입 가상 계좌) → 버튼
+       카드 = 신호등 → 패널티 이름(24) → Notice → 정보행(정지 기간/위약금/납입 가상 계좌) → 버튼
        생애주기 = 기간(남음/충족) × 납입(미납/완료) 4상태 + 위누미(무기한)
    · ‘자세히’ 시트 = A안(재구조화): 합산 요약 → "패널티 사유 N건" 구성 리스트
        (위누미만 캡션 예외 = 통일 계좌를 구성하는 미납 N건)
@@ -179,11 +178,6 @@ const CARD = {
   res1:{ product:'예약 콜', target:'일반 예약 · 시간대절 예약', kind:'term',
     period:'12시간', until:'26년 9월 15일 14:00', account:ACC,
     items:[{status:'적용 중', reason:'예약 수락 후 취소', when:'9월 5일 아침 11:20', route:'성수동1가 → 인천공항', hours:'12시간', fine:30000}] },
-  res2:{ product:'예약 콜', target:'일반 예약 · 시간대절 예약', kind:'term',
-    period:'24시간', until:'26년 9월 16일 02:00', account:ACC,
-    items:[
-      {status:'적용 중', reason:'예약 수락 후 취소', when:'9월 5일 아침 11:20', route:'성수동1가 → 인천공항', hours:'12시간', fine:30000},
-      {status:'예정',    reason:'예약 노쇼',        when:'9월 7일 낮 13:40',  route:'강남구 역삼동 → 김포공항', hours:'12시간', fine:30000}] },
   shuttle:{ product:'셔틀 콜', target:'셔틀 예약', kind:'term',
     period:'12시간', until:'26년 9월 15일 14:00', account:ACC2,
     items:[{status:'적용 중', reason:'셔틀 노쇼', when:'9월 5일 아침 06:30', route:'판교 셔틀 A노선', hours:'12시간', fine:30000}] },
@@ -200,7 +194,6 @@ const CARD = {
 
 const SCEN = {
   res1:    {label:'예약 · 단건',        banner:'예약 콜',        cards:['res1']},
-  res2:    {label:'예약 · 다건 누적',   banner:'예약 콜',        cards:['res2']},
   dagon:   {label:'다건(예약+셔틀)',    banner:'예약 · 셔틀 콜', cards:['res1','shuttle']},
   shuttle: {label:'셔틀',               banner:'셔틀 콜',        cards:['shuttle']},
   realtime:{label:'실시간 · 예약',      banner:'실시간 · 예약 콜',cards:['realtime']},
@@ -240,7 +233,7 @@ function penaltyCard(c, idx){
       <div class="pnotice"><span class="ico">${n.ico}</span><p>${n.text}</p></div>
     </div>
     <div class="pdetails">
-      ${showPeriod ? `<div class="prow"><span class="l">패널티 기간</span><span class="v">${c.period}</span><span class="s">${periodSub(c)}</span></div><div class="pdiv"></div>` : ''}
+      ${showPeriod ? `<div class="prow"><span class="l">정지 기간</span><span class="v">${c.period}</span><span class="s">${periodSub(c)}</span></div><div class="pdiv"></div>` : ''}
       <div class="prow"><span class="l">위약금</span><span class="v money">${won(fine)}</span>
         <span class="s ${state.paid?'done':''}">${state.paid?'납입 완료':'납입 필요'}</span></div>
       ${showAccount ? `<div class="pdiv"></div>
@@ -279,30 +272,37 @@ function renderStatus(){
 
 /* ---------- 자세히 시트 (A안) ---------- */
 function sheetRows(c){
-  const multi = c.items.length > 1, released = isReleased(c), fine = totalFine(c);
-  const rows = [['정지 대상', c.target]];
-  if(!(c.kind === 'indef' && released))
-    rows.push([multi ? '총 정지 기간' : '정지 기간', c.period + (released && c.kind === 'term' ? ' · 기간 충족' : '')]);
-  if(c.kind === 'indef') rows.push(['해제 조건', released ? '위약금 납입 완료' : '위약금 납입 시 해제']);
-  else                   rows.push([released ? '해제' : '해제 예정', c.until]);
-  rows.push([multi ? '총 위약금' : '위약금', won(fine) + ' · ' + (state.paid ? '납입 완료' : '납입 필요')]);
+  /* 라벨 고정 — 기간형은 5행(정지 대상/정지 기간/해제/위약금/사유), 위누미는 4행 + 구성 리스트 */
+  const released = isReleased(c), fine = totalFine(c);
+  const release = released ? (c.until || '위약금 납입 완료')
+    : (c.kind === 'indef' || state.elapsed) ? '위약금 납입 시' : c.until;
+  const rows = [
+    ['정지 대상', c.target],
+    ['정지 기간', c.period],
+    ['해제', release],
+    ['위약금', won(fine) + ' · ' + (state.paid ? '납입 완료' : '납입 필요')]
+  ];
+  if(c.kind !== 'indef') rows.push(['사유', reasonOf(c)]);
   return rows;
 }
+function reasonOf(c){ return c.items[0].reason; }   /* 밴 누적은 카드가 늘어나는 방식 → 사유는 항상 1건 */
 function renderSheet(){
   if(state.sheet === null) return '';
   const c = cardsOf()[state.sheet];
-  const cap = (c.caption || '패널티 사유') + ' ' + c.items.length + '건';
+  /* 구성 리스트는 위누미에서만 — 같은 금액의 미납건을 구분해야 하므로 운행 건 표시가 필수 */
+  const list = c.kind !== 'indef' ? '' : `<div class="slist"><span class="cap">통일 계좌를 구성하는 미납 ${c.items.length}건</span>
+      ${c.items.map(i=>`<div class="sitem">
+        <div class="r1"><span class="a">${i.reason}</span><span>${won(i.fine)}</span></div>
+        <div class="r2"><span class="a">${i.when}${i.route?' · '+i.route:''}</span></div>
+      </div>`).join('')}
+    </div>
+    <div class="sdiv"></div>`;
   return `<div class="dim" data-close="1"><div class="sheet" data-stop="1">
     <div class="shead"><span class="cap">패널티 상세</span><span class="ttl">${c.product} 정지${isReleased(c)?' 해제':''}</span></div>
     <div class="sdiv"></div>
     <div class="ssum">${sheetRows(c).map(([l,v])=>`<div class="srow"><span class="l">${l}</span><span class="v">${v}</span></div>`).join('')}</div>
     <div class="sdiv"></div>
-    <div class="slist"><span class="cap">${cap}</span>
-      ${c.items.map(i=>`<div class="sitem">
-        <div class="r1"><span class="a">${c.kind==='indef' ? i.reason : statusOf(i,c)+' · '+i.reason}</span><span>${i.hours || statusOf(i,c)}</span></div>
-        <div class="r2"><span class="a">${i.when}${i.route?' · '+i.route:''}</span><span>${won(i.fine)}</span></div>
-      </div>`).join('')}
-    </div>
+    ${list}
     <div class="btn dark" data-close="1">닫기</div>
   </div></div>`;
 }
@@ -347,7 +347,7 @@ function explain(){
   document.getElementById('explain').innerHTML =
     `<b>케이스: ${sc().label}</b> — ${life}<br>
      <span style="color:var(--label)">플로우: <code>예약콜 목록(빈 리스트 + 배너)</code> → <code>자세히 보기</code> → <code>패널티 현황</code> → <code>자세히</code> → 바텀시트.
-     시트 = 합산 요약(정지 대상 / 정지 기간 / 해제 예정 / 위약금) + <b>패널티 사유 N건</b> 구성 리스트. 위누미만 캡션이 “통일 계좌를 구성하는 미납 N건”.</span>`;
+     시트 = 합산 요약(정지 대상 / 정지 기간 / 해제 / 위약금) + <b>패널티 사유 N건</b> 구성 리스트. 위누미만 캡션이 “통일 계좌를 구성하는 미납 N건”.</span>`;
 }
 
 /* ---------- controls ---------- */
