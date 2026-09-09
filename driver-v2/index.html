@@ -326,7 +326,9 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
     var finish=function(){if(finish.done)return;finish.done=true;render();S.busy=false};
     if(!plist||!oldCard||!oldRow){if(S.done.indexOf(cur)<0)S.done.push(cur);S.lastAt=cur;S.phase='go';finish();return}
     var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var E='cubic-bezier(.4,0,.2,1)',D=570;   /* 380 → 1.5배. 안쪽 값(0.62D 페이드 등)은 전부 D 기준이라 같이 늘어난다. */
+    var E='cubic-bezier(.4,0,.2,1)',D=855;   /* 380 → 570 → 855. 토스트를 뺀 뒤로 이 모프가 유일한 완료 확인이라
+                                                완료된 카드가 읽힐 시간이 필요하다. 안쪽 값(0.62D 페이드·0.7D 보더·
+                                                0.5D 지연 페이드인·finish D+80)은 전부 D 기준이라 비율 그대로 늘어난다. */
     if(reduce){setTimeout(function(){if(S.done.indexOf(cur)<0)S.done.push(cur);S.lastAt=cur;S.phase='go';finish()},140);return}
     setTimeout(function(){
       if(S.done.indexOf(cur)<0)S.done.push(cur);S.lastAt=cur;S.phase='go';
@@ -449,7 +451,7 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
     cancelNav:function(){if(S.busy)return;clearNavCd();var r=S.navReturn||'drive';var h=(r==='pickup')?pickup():(r==='preview')?preview():(r==='full')?full():drive();appClose(h,function(){S.screen=r;S._last=r;render()})},
     changeRoute:function(){if(S.busy)return;S.screen='tmapsel';render()},
     backTmap:function(){if(S.busy)return;if(S.navProgress){S.lastAt=S.target;S.phase='arrived';appClose(drive(),function(){S.screen='drive';S._last='drive';render()})}else{var ret=S.navReturn||'drive';var h=(ret==='preview')?preview():(ret==='full')?full():drive();appClose(h,function(){S.screen=ret;S._last=ret;render()})}},
-    complete:function(){if(S.busy)return;var cur=nextArmed();P.toast('경유지 도착을 처리했어요');if(S.collapsed){clearMF();if(S.done.indexOf(cur)<0)S.done.push(cur);S.lastAt=cur;S.phase='go';S._last='';render();return}S.busy=true;advance(cur)},
+    complete:function(){if(S.busy)return;var cur=nextArmed();if(S.collapsed){clearMF();if(S.done.indexOf(cur)<0)S.done.push(cur);S.lastAt=cur;S.phase='go';S._last='';render();return}S.busy=true;advance(cur)},
     pay:function(){S.screen='pay';render()},
     backPay:function(){if(S.busy)return;S.screen='drive';render()},
     full:function(){S.screen='full';render()},
