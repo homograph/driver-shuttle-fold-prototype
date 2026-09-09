@@ -327,7 +327,7 @@ svg.i{fill:currentColor}svg.is{fill:none;stroke:currentColor}
     var finish=function(){if(finish.done)return;finish.done=true;render();S.busy=false};
     if(!plist||!oldCard||!oldRow){if(S.done.indexOf(cur)<0)S.done.push(cur);S.lastAt=cur;S.phase='go';finish();return}
     var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var E='cubic-bezier(.4,0,.2,1)',D=380;
+    var E='cubic-bezier(.4,0,.2,1)',D=570;   /* 380 → 1.5배. 안쪽 값(0.62D 페이드 등)은 전부 D 기준이라 같이 늘어난다. */
     var obtn=oldCard.querySelector('.cbtn');if(obtn){obtn.className='cbtn ok';obtn.textContent='✓ 경유지 도착 완료'}
     if(reduce){setTimeout(function(){if(S.done.indexOf(cur)<0)S.done.push(cur);S.lastAt=cur;S.phase='go';finish()},260);return}
     setTimeout(function(){
