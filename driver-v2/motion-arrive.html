@@ -441,106 +441,214 @@
   <section id="compose">
     <span class="snum">Android · 참고 구현</span>
     <h2>Compose 구현</h2>
-    <p class="sdesc"><b>선형 진행도 하나를 돌리고, 속성마다 이징을 직접 적용</b>하는 방식을 권한다. 속성별로 <code class="k">animate*AsState</code>를 따로 걸면 재조합 시점이 달라 미세하게 어긋나는데, 이 모프는 두 카드의 높이가 <b>프레임 단위로 합이 맞아야</b> 목록이 안 출렁인다.</p>
+    <p class="sdesc">핵심은 셋이다 — <b>하나의 <code class="k">Transition</code></b> 으로 모든 값을 같은 클럭에 묶고, <b>높이는 자식을 누르지 말고 잘라내며</b>, 애니메이션 값은 <b>composition 이 아니라 layout·draw 단계에서 읽는다</b>.</p>
+
+    <div class="call warn"><b>속성마다 <code class="k">animateDpAsState</code> 를 따로 걸지 말 것.</b> 각자 다른 애니메이션으로 돌아 두 카드의 높이 합이 프레임 단위로 어긋나고, 목록이 미세하게 출렁인다. <code class="k">updateTransition</code> 은 자식 애니메이션을 <b>한 클럭</b>에 묶어주므로 지속·지연·이징이 속성마다 달라도 절대 어긋나지 않는다.</div>
 
     <div class="code">
       <div class="bar"><span class="dot"></span><b>ArriveMorphSpec.kt</b><span class="tag">상수</span></div>
-<pre><code><span class="cm">// 속도를 바꿀 일이 생기면 D 하나만 — 나머지는 전부 D 의 비율이다.</span>
+<pre><code><span class="cm">import</span> androidx.compose.animation.core.CubicBezierEasing
+<span class="cm">import</span> androidx.compose.animation.core.FastOutSlowInEasing
+<span class="cm">import</span> androidx.compose.ui.unit.dp
+
+<span class="cm">/** 속도를 바꿀 일이 생기면 D 하나만 — 나머지는 전부 D 의 비율이다. */</span>
 const val D = <span class="v">855</span>                 <span class="cm">// 모프 본체</span>
-const val CONFIRM_BEAT = <span class="v">90</span>       <span class="cm">// 탭 인지용 대기 (버튼은 그대로 둔다)</span>
+const val CONFIRM_BEAT = <span class="v">90</span>       <span class="cm">// 탭 인지용 대기 (버튼 모양은 그대로 둔다)</span>
 const val SETTLE_TAIL = <span class="v">80</span>        <span class="cm">// 트랜지션 종료 후 목록 재구성까지</span>
+const val REDUCE_MS = <span class="v">140</span>         <span class="cm">// 모션 감소: 모프 없이 이만큼만 쉬고 전환</span>
 
 val Standard  = FastOutSlowInEasing                       <span class="cm">// = cubic-bezier(.4, 0, .2, 1)</span>
-val ExitScale = CubicBezierEasing(<span class="v">.25f</span>, <span class="v">.9f</span>, <span class="v">.35f</span>, <span class="v">1f</span>)
-val Ease      = CubicBezierEasing(<span class="v">.25f</span>, <span class="v">.1f</span>, <span class="v">.25f</span>, <span class="v">1f</span>)  <span class="cm">// CSS 기본 ease (알파·색)</span>
+val ExitScale = CubicBezierEasing(<span class="v">.25f</span>, <span class="v">.9f</span>, <span class="v">.35f</span>, <span class="v">1f</span>)  <span class="cm">// 나가는 요소 — 앞당겨야 보인다</span>
+val Ease      = CubicBezierEasing(<span class="v">.25f</span>, <span class="v">.1f</span>, <span class="v">.25f</span>, <span class="v">1f</span>)  <span class="cm">// 알파·색 (CSS 기본 ease)</span>
 
-<span class="cm">// 카드 상단 보더는 INSIDE stroke 라 카드 총높이에 더해지지 않는다.</span>
-val CardHeight = <span class="v">204</span>.dp
+fun ratio(f: Float) = (D * f).toInt()   <span class="cm">// D 의 비율 → ms</span>
+
+val CardHeight = <span class="v">204</span>.dp   <span class="cm">// 상단 보더는 INSIDE 라 총높이에 더해지지 않는다</span>
 val RowHeight  = <span class="v">60</span>.dp
 val CardGap    = <span class="v">8</span>.dp</code></pre>
     </div>
 
+    <h3>1. 높이 — 누르지 말고 잘라낸다</h3>
+    <p>CSS 의 <code class="k">height: X; overflow: hidden</code> 은 자식을 <b>제 높이 그대로 두고 잘라낸다</b>. 반면 <code class="k">Modifier.height(x)</code> 는 자식에게 <code class="k">maxHeight = x</code> 를 물려 <b>눌러버린다</b> — 카드가 60dp 일 때 안의 글자와 버튼이 찌그러진다. 자식은 무제한으로 재고 <b>부모만</b> 애니메이션 높이로 보고해야 한다.</p>
+
+    <div class="code">
+      <div class="bar"><span class="dot"></span><b>MorphHeight.kt</b><span class="tag">Modifier</span></div>
+<pre><code><span class="cm">import</span> androidx.compose.ui.layout.layout
+<span class="cm">import</span> androidx.compose.ui.unit.Constraints
+
+<span class="cm">/**
+ * CSS 의 `height: X; overflow: hidden` 과 같은 동작.
+ * height 를 값이 아니라 람다로 받는 이유 — composition 이 아니라 layout 단계에서 읽어
+ * 프레임마다 재구성이 도는 것을 막는다.
+ */</span>
+fun Modifier.morphHeight(height: () -&gt; Dp) = layout { measurable, constraints -&gt;
+    <span class="cm">// 자식은 '제 높이 그대로' 잰다. 여기서 constraints 를 그대로 넘기면 눌린다.</span>
+    val placeable = measurable.measure(
+        constraints.copy(minHeight = <span class="v">0</span>, maxHeight = Constraints.Infinity)
+    )
+    val h = height().roundToPx().coerceAtLeast(<span class="v">0</span>)
+    layout(placeable.width, h) { placeable.place(<span class="v">0</span>, <span class="v">0</span>) }   <span class="cm">// 위에서부터 잘린다</span>
+}</code></pre>
+    </div>
+
+    <div class="call"><b>Modifier 순서가 결과를 바꾼다.</b> <code class="k">graphicsLayer</code> 가 <code class="k">morphHeight</code> <b>왼쪽</b>에 있어야 한다. 오른쪽에 두면 레이어의 크기가 <b>잘리기 전 204dp</b> 가 되어, 클립도 원점(<code class="k">transformOrigin</code>)도 엉뚱한 기준으로 잡힌다. CSS 로 치면 “먼저 자르고, 그 결과를 확대·축소” 순서다.</div>
+
+    <h3>2. 값 — 하나의 Transition 에서</h3>
     <div class="code">
       <div class="bar"><span class="dot"></span><b>ArriveMorph.kt</b><span class="tag">Compose</span></div>
-<pre><code><span class="cm">/**
+<pre><code>private enum class Phase { Start, End }
+
+<span class="cm">/**
  * 완료한 카드가 작아지며 물러나고, 아래 행이 커지며 그 자리를 채운다.
- * 두 카드를 한 Column 슬롯에 함께 두고 선형 진행도(p)에서 값을 뽑아 쓴다.
+ * onSettled 에서 실제 목록을 재구성한다 — 여러 번 불려도 안전해야 한다(멱등).
  */</span>
 @Composable
-fun ArriveMorph(
-    completed: Stop,
-    next: Stop,
-    onSettled: () -&gt; Unit,          <span class="cm">// 여기서 목록을 실제로 재구성한다</span>
-) {
-    val p = remember { Animatable(<span class="v">0f</span>) }
+fun ArriveMorph(completed: Stop, next: Stop, onSettled: () -&gt; Unit) {
+    val settle by rememberUpdatedState(onSettled)
+    <span class="cm">// key 를 주지 않으면 두 번째 승격에서 phase 가 이미 End 라 애니메이션이 즉시 끝난다.</span>
+    var phase by remember(completed.id) { mutableStateOf(Phase.Start) }
+    val settled = remember(completed.id) { mutableStateOf(false) }
     val reduceMotion = rememberReduceMotion()
 
+    fun finish() { if (!settled.value) { settled.value = <span class="v">true</span>; settle() } }
+
+    <span class="cm">// 모프 도중 화면을 벗어나면 LaunchedEffect 가 취소된다 → 완료 처리가 유실된다.</span>
+    DisposableEffect(completed.id) { onDispose { finish() } }
+
     LaunchedEffect(completed.id) {
-        if (reduceMotion) { delay(<span class="v">140</span>); onSettled(); return@LaunchedEffect }
+        if (reduceMotion) { delay(REDUCE_MS.toLong()); finish(); return@LaunchedEffect }
         delay(CONFIRM_BEAT.toLong())
-        <span class="cm">// 진행도는 '선형'으로 돌린다 — 커브는 각 속성이 자기 몫을 따로 적용한다.</span>
-        p.animateTo(<span class="v">1f</span>, tween(D, easing = LinearEasing))
-        delay(SETTLE_TAIL.toLong())
-        onSettled()
+        phase = Phase.End
+        delay((D + SETTLE_TAIL).toLong())
+        finish()
     }
 
-    <span class="cm">// ms 기준으로 구간(지속·지연)을 잘라 이징을 먹인다.</span>
-    fun seg(easing: Easing, durMs: Int, delayMs: Int = <span class="v">0</span>): Float {
-        val t = (p.value * D - delayMs) / durMs
-        return easing.transform(t.coerceIn(<span class="v">0f</span>, <span class="v">1f</span>))
-    }
+    <span class="cm">// Transition 하나 = 클럭 하나. 지속·지연·이징이 속성마다 달라도 서로 어긋나지 않는다.</span>
+    val t = updateTransition(phase, label = <span class="v">"arriveMorph"</span>)
+    val start = { s: Phase -&gt; s == Phase.Start }
 
-    val outT   = seg(Standard,  D)
-    val outS   = seg(ExitScale, D)
-    val outA   = seg(Ease, (D * <span class="v">.62f</span>).toInt())
-    val inT    = seg(Standard,  D)
-    val inTint = seg(Ease, (D * <span class="v">.7f</span>).toInt())
-    val addrA  = seg(Ease, (D * <span class="v">.5f</span>).toInt(), (D * <span class="v">.25f</span>).toInt())
-    val btnA   = seg(Ease, (D * <span class="v">.5f</span>).toInt(), (D * <span class="v">.35f</span>).toInt())
+    val outHeight = t.animateDp({ tween(D, easing = Standard) }, <span class="v">"outHeight"</span>) {
+        if (start(it)) CardHeight + CardGap else <span class="v">0</span>.dp   <span class="cm">// 간격까지 데려간다</span>
+    }
+    val outScale = t.animateFloat({ tween(D, easing = ExitScale) }, <span class="v">"outScale"</span>) {
+        if (start(it)) <span class="v">1f</span> else <span class="v">.84f</span>
+    }
+    val outAlpha = t.animateFloat({ tween(ratio(<span class="v">.62f</span>), easing = Ease) }, <span class="v">"outAlpha"</span>) {
+        if (start(it)) <span class="v">1f</span> else <span class="v">0f</span>
+    }
+    val inHeight = t.animateDp({ tween(D, easing = Standard) }, <span class="v">"inHeight"</span>) {
+        if (start(it)) RowHeight else CardHeight
+    }
+    val inScale = t.animateFloat({ tween(D, easing = Standard) }, <span class="v">"inScale"</span>) {
+        if (start(it)) <span class="v">.92f</span> else <span class="v">1f</span>          <span class="cm">// 높이와 같은 이징 — 앞당기지 말 것</span>
+    }
+    val tint = t.animateFloat({ tween(ratio(<span class="v">.7f</span>), easing = Ease) }, <span class="v">"tint"</span>) {
+        if (start(it)) <span class="v">0f</span> else <span class="v">1f</span>          <span class="cm">// 상단 보더 alpha + 이름 색</span>
+    }
+    val nameScale = t.animateFloat({ tween(D, easing = Standard) }, <span class="v">"nameScale"</span>) {
+        <span class="cm">// .714 = 행 이름 20dp ÷ 카드 이름 28dp. 타이포가 바뀌면 같이 바꿀 것.</span>
+        if (start(it)) <span class="v">.714f</span> else <span class="v">1f</span>
+    }
+    val addrAlpha = t.animateFloat(
+        { tween(ratio(<span class="v">.5f</span>), delayMillis = ratio(<span class="v">.25f</span>), easing = Ease) }, <span class="v">"addr"</span>
+    ) { if (start(it)) <span class="v">0f</span> else <span class="v">1f</span> }
+    val ctaAlpha = t.animateFloat(
+        { tween(ratio(<span class="v">.5f</span>), delayMillis = ratio(<span class="v">.35f</span>), easing = Ease) }, <span class="v">"cta"</span>
+    ) { if (start(it)) <span class="v">0f</span> else <span class="v">1f</span> }
 
     Column {
         <span class="cm">// ── 나가는 카드 ─────────────────────────────────────────────</span>
-        <span class="cm">// 간격을 spacedBy 로 주면 높이가 0이 돼도 8dp 구멍이 남는다 →</span>
-        <span class="cm">// 나가는 카드의 '하단 padding' 으로 넣어 높이와 함께 사라지게 한다.</span>
+        <span class="cm">// 간격 8dp 를 Arrangement.spacedBy 로 주면 높이가 0이 돼도 구멍이 남는다 →</span>
+        <span class="cm">// 나가는 카드의 높이에 포함시켜(CardHeight + CardGap) 같이 사라지게 한다.</span>
         Box(
             Modifier
-                .height(lerp(CardHeight + CardGap, <span class="v">0</span>.dp, outT))
-                .graphicsLayer {
-                    scaleX = lerp(<span class="v">1f</span>, <span class="v">.84f</span>, outS)
-                    scaleY = scaleX
-                    alpha = <span class="v">1f</span> - outA
+                .graphicsLayer {                      <span class="cm">// ← morphHeight 보다 왼쪽이어야 한다</span>
+                    scaleX = outScale.value; scaleY = outScale.value
+                    alpha = outAlpha.value
                     transformOrigin = TransformOrigin(<span class="v">.5f</span>, <span class="v">0f</span>)   <span class="cm">// 상단 중앙</span>
+                    clip = <span class="v">true</span>                                  <span class="cm">// = overflow: hidden</span>
                 }
-                .clipToBounds()                                    <span class="cm">// = overflow:hidden</span>
+                .morphHeight { outHeight.value }
         ) { StopCard(completed) }
 
         <span class="cm">// ── 들어오는 카드 ───────────────────────────────────────────</span>
         Box(
             Modifier
-                .height(lerp(RowHeight, CardHeight, inT))
                 .graphicsLayer {
-                    scaleX = lerp(<span class="v">.92f</span>, <span class="v">1f</span>, inT)      <span class="cm">// 높이와 같은 이징 — 앞당기지 말 것</span>
-                    scaleY = scaleX
+                    scaleX = inScale.value; scaleY = inScale.value
                     transformOrigin = TransformOrigin(<span class="v">.5f</span>, <span class="v">0f</span>)
+                    clip = <span class="v">true</span>
                 }
-                .clipToBounds()
+                .morphHeight { inHeight.value }
         ) {
-            StopCard(
-                stop = next,
-                topBorder = Navy700.copy(alpha = inTint),
-                <span class="cm">// 0.714 = 행 이름 20dp ÷ 카드 이름 28dp. 타이포가 바뀌면 같이 바꿀 것.</span>
-                nameScale = lerp(<span class="v">.714f</span>, <span class="v">1f</span>, inT),
-                nameOrigin = TransformOrigin(<span class="v">0f</span>, <span class="v">.5f</span>),   <span class="cm">// 왼쪽 중앙</span>
-                nameColor = lerp(TextDim, Color.White, inTint),
-                addressAlpha = addrA,
-                ctaAlpha = btnA,
-            )
+            StopCard(next, morph = CardMorph(tint, nameScale, addrAlpha, ctaAlpha))
         }
     }
 }</code></pre>
     </div>
 
-    <div class="call"><b>재진입 차단.</b> 모프가 도는 <code class="k">1,025ms</code> 동안 <b>도착 완료 버튼은 눌려도 무시</b>해야 한다. 연타하면 두 단계를 건너뛰거나 카드가 두 장 남는다. 프로토타입은 <code class="k">S.busy</code> 플래그로 막고, <code class="k">onSettled()</code>에서 해제한다.</div>
+    <h3>3. 카드 안쪽 — 읽는 위치</h3>
+    <p>애니메이션 값을 <b>composition 에서 읽으면 프레임마다 재구성</b>된다. 알파·배율은 <code class="k">graphicsLayer</code> 람다 안에서 읽어 draw 단계로 미룰 수 있다. 색 보간만은 composition 읽기가 불가피한데, 대상이 <code class="k">Text</code> 하나뿐이라 비용이 작다.</p>
+
+    <div class="code">
+      <div class="bar"><span class="dot"></span><b>StopCard.kt</b><span class="tag">Compose</span></div>
+<pre><code>private val One: State&lt;Float&gt; = mutableStateOf(<span class="v">1f</span>)   <span class="cm">// 모프가 아닐 때의 고정값</span>
+
+<span class="cm">/** 들어오는 카드에만 필요한 값 묶음 — 파라미터를 일곱 개로 늘리지 않기 위해. */</span>
+@Stable
+class CardMorph(
+    val tint: State&lt;Float&gt;,
+    val nameScale: State&lt;Float&gt;,
+    val addressAlpha: State&lt;Float&gt;,
+    val ctaAlpha: State&lt;Float&gt;,
+) {
+    companion object { val Settled = CardMorph(One, One, One, One) }  <span class="cm">// 평상시</span>
+}
+
+@Composable
+fun StopCard(stop: Stop, morph: CardMorph = CardMorph.Settled) {
+    Column(
+        Modifier.drawBehind {                       <span class="cm">// 상단 보더는 INSIDE — 높이에 더하지 않는다</span>
+            drawLine(
+                Navy700.copy(alpha = morph.tint.value),
+                Offset(<span class="v">0f</span>, <span class="v">0f</span>), Offset(size.width, <span class="v">0f</span>), strokeWidth = <span class="v">1</span>.dp.toPx()
+            )
+        }
+    ) {
+        <span class="cm">// Figma pad[20,20,24,20] 그대로. 프로토타입 CSS 의 19 는 border 가 패딩에</span>
+        <span class="cm">// '더해지는' 문제를 피한 보정치다 — drawBehind 로 그리면 높이에 안 더해지니 20 이 맞다.</span>
+        Row(Modifier.padding(top = <span class="v">20</span>.dp, start = <span class="v">20</span>.dp, end = <span class="v">20</span>.dp, bottom = <span class="v">24</span>.dp)) {
+            Badge(stop, Modifier.padding(top = <span class="v">6</span>.dp))
+            Spacer(Modifier.width(<span class="v">14</span>.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(<span class="v">4</span>.dp)) {
+                Text(
+                    stop.name,
+                    style = DriverType.Dp28Bold,             <span class="cm">// 28 / 42dp</span>
+                    color = lerp(TextDim, Color.White, morph.tint.value),
+                    modifier = Modifier.graphicsLayer {
+                        scaleX = morph.nameScale.value; scaleY = morph.nameScale.value
+                        transformOrigin = TransformOrigin(<span class="v">0f</span>, <span class="v">.5f</span>)   <span class="cm">// 왼쪽 중앙</span>
+                    }
+                )
+                Text(
+                    stop.address,
+                    style = DriverType.Dp16Regular,          <span class="cm">// 16 / 24dp</span>
+                    modifier = Modifier.graphicsLayer { alpha = morph.addressAlpha.value }
+                )
+            }
+        }
+        CardCta(
+            stop,
+            Modifier
+                .padding(start = <span class="v">20</span>.dp, end = <span class="v">20</span>.dp, bottom = <span class="v">22</span>.dp)
+                .height(<span class="v">68</span>.dp)
+                .graphicsLayer { alpha = morph.ctaAlpha.value }
+        )
+    }
+}</code></pre>
+    </div>
+
+    <div class="call"><b>재진입 차단.</b> 모프가 도는 <code class="k">1,025ms</code> 동안 <b>도착 완료 버튼은 눌려도 무시</b>해야 한다. 연타하면 두 단계를 건너뛰거나 카드가 두 장 남는다. 상태를 ViewModel 에 두고 <code class="k">onSettled()</code> 에서 해제한다.</div>
   </section>
 
   <section id="toast">
@@ -555,19 +663,31 @@ fun ArriveMorph(
     </ul>
     <div class="code">
       <div class="bar"><span class="dot"></span><b>ArriveToast.kt</b><span class="tag">Compose</span></div>
-<pre><code><span class="cm">// 탭 즉시. onSettled() 가 아니라 onClick 안에서 부른다.</span>
-onArriveClick = {
-    if (busy) return@Button
-    busy = <span class="v">true</span>
-    snackbar.showArrive(<span class="v">"경유지 도착 완료 처리됨"</span>)
-    startMorph()
+<pre><code><span class="cm">// 탭 즉시. onSettled() 가 아니라 클릭 핸들러 안에서.</span>
+Button(onClick = { if (!state.morphing) vm.onArriveAtStop() }) {
+    Text(<span class="v">"경유지 도착 완료"</span>)
 }
 
-<span class="cm">// 하단 전폭 CTA 가 있는 화면에서는 그 위로 비껴간다.</span>
-val bottomInset = if (hasFullWidthCta) ctaHeight + <span class="v">20</span>.dp else <span class="v">20</span>.dp
-Box(Modifier.align(Alignment.BottomCenter).padding(bottom = bottomInset)) { ArriveToast() }</code></pre>
+<span class="cm">// ViewModel — 모프 시작과 토스트를 같은 자리에서. 모프가 끝나길 기다리지 않는다.</span>
+fun onArriveAtStop() {
+    _morphing.value = <span class="v">true</span>
+    _snacks.tryEmit(Snack(<span class="v">"경유지 도착 완료 처리됨"</span>, durationMs = <span class="v">1700</span>))
+}
+
+<span class="cm">// 배치 — align 은 BoxScope 확장이라 반드시 Box 안에서 쓴다.</span>
+Box(Modifier.fillMaxSize()) {
+    RideScreen(state)
+    val bottom = if (state.hasFullWidthCta) ctaHeight + <span class="v">20</span>.dp else <span class="v">20</span>.dp
+    ArriveSnackbar(
+        modifier = Modifier
+            .align(Alignment.BottomCenter)
+            .padding(bottom = bottom)
+            .navigationBarsPadding()      <span class="cm">// 제스처 바 위로 — 시안의 20dp 는 그 위 기준</span>
+    )
+}</code></pre>
     </div>
   </section>
+
 
   <section id="a11y">
     <span class="snum">A11y · 접근성</span>
@@ -579,16 +699,31 @@ Box(Modifier.align(Alignment.BottomCenter).padding(bottom = bottomInset)) { Arri
     </ul>
     <div class="code">
       <div class="bar"><span class="dot"></span><b>ReduceMotion.kt</b><span class="tag">Android</span></div>
-<pre><code><span class="cm">// 시스템 '애니메이션 배율'이 0이면 모션 감소로 본다.</span>
+<pre><code><span class="cm">import</span> android.provider.Settings
+
+<span class="cm">/**
+ * 시스템 '애니메이션 배율'이 0이면 모션 감소로 본다.
+ * Compose 에 이걸 알려주는 CompositionLocal 은 아직 없다.
+ * ※ 진입 시 한 번만 읽는다 — 앱이 떠 있는 동안 설정이 바뀌어도 반영되지 않는다.
+ *   그래도 되는 이유: 이 설정은 운행 중에 바뀌는 값이 아니다.
+ */</span>
 @Composable
 fun rememberReduceMotion(): Boolean {
     val resolver = LocalContext.current.contentResolver
-    return remember {
+    return remember(resolver) {
         Settings.Global.getFloat(
             resolver, Settings.Global.ANIMATOR_DURATION_SCALE, <span class="v">1f</span>
         ) == <span class="v">0f</span>
     }
-}</code></pre>
+}
+
+<span class="cm">// 목록 재구성 시점에 한 번만 알린다. 모프 중간 상태는 읽히지 않게 한다.</span>
+Text(
+    announcement,                                  <span class="cm">// "경유지 도착 완료 처리됨. 다음 목적지 성수역 4번 출구"</span>
+    modifier = Modifier
+        .semantics { liveRegion = LiveRegionMode.Polite }
+        .clearAndSetSemantics { contentDescription = announcement }
+)</code></pre>
     </div>
   </section>
 
@@ -609,6 +744,11 @@ fun rememberReduceMotion(): Boolean {
           <tr><td>글자가 튀며 시작한다</td><td class="side">이름 시작 배율이 타이포 변경을 안 따라감</td><td class="side"><code class="k">행 이름 ÷ 카드 이름</code>으로 다시 계산</td></tr>
           <tr><td>단계를 건너뛴다</td><td class="side">모프 중 연타</td><td class="side">1,025ms 동안 입력 차단</td></tr>
           <tr><td>중간 프레임이 튄다</td><td class="side">애니메이션 중 목록 재구성</td><td class="side">트랜지션 종료 +80ms 뒤에 커밋</td></tr>
+          <tr><td><b>Compose</b> 카드 안이 찌그러진다</td><td class="side"><code class="k">Modifier.height(x)</code> 는 자식을 <b>누른다</b> — CSS 의 <code class="k">overflow:hidden</code> 은 잘라낸다</td><td class="side">자식은 무제한으로 재고 부모만 높이를 보고(<code class="k">morphHeight</code>)</td></tr>
+          <tr><td><b>Compose</b> 클립·원점이 어긋난다</td><td class="side"><code class="k">graphicsLayer</code> 가 <code class="k">morphHeight</code> 오른쪽 — 레이어 크기가 잘리기 전 204dp 다</td><td class="side">순서를 <code class="k">graphicsLayer → morphHeight</code> 로</td></tr>
+          <tr><td><b>Compose</b> 두 번째부터 안 돈다</td><td class="side"><code class="k">remember</code> 에 key 없음 — 상태가 이미 End</td><td class="side"><code class="k">remember(completed.id)</code></td></tr>
+          <tr><td><b>Compose</b> 완료 처리가 유실된다</td><td class="side">모프 중 화면 이탈로 <code class="k">LaunchedEffect</code> 취소</td><td class="side"><code class="k">DisposableEffect</code> 로 멱등하게 마무리</td></tr>
+          <tr><td><b>Compose</b> 프레임마다 재구성</td><td class="side">애니메이션 값을 composition 에서 읽음</td><td class="side"><code class="k">graphicsLayer</code>·<code class="k">drawBehind</code>·<code class="k">layout</code> 람다 안에서 읽기</td></tr>
         </tbody>
       </table>
     </div>
